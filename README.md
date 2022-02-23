@@ -1,8 +1,14 @@
 # Arcane Propagation
 
-* Import an image
-* Create a convolution kernel for each neighborhood
-* Each frame convolve the source image
-* Display the resultant image with dots for each pixel, where:
-	* the pixel color determines the dot color
-	* the pixel color determines the degree of rotation of the dot around the pixel's origin
+```
+[1] — IMAGE
+[2] — CONVOLVE [1]
+[3] — SHOW [2]
+[4] — [1] = [3]; GOTO [2]
+
+SHOW[image] :
+	[COLOR]    — image.pixel
+	[ANGLE]    — [COLOR] * 360.
+	[POSITION] — image.position + (radius * [cos([ANGLE]), sin([ANGLE])]
+	_showpoint(uv, [POSITION])
+```
