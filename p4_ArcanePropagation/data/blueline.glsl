@@ -58,8 +58,8 @@ void main( void ) {
 	float radius = 0.001;
 	float thickness = 0.001;
 	
-	float pxos = _pointorbit(position, position, radius, angle+time/1., thickness);
-	// float pxos = _pointorbit(position, position, radius, angle, thickness);
+	// float pxos = _pointorbit(position, position, radius, angle+time/1., thickness);
+	float pxos = _pointorbit(position, position, radius, angle, thickness);
 
 	float ac4 = (angle/angleF)*(215./255.);
 	float ec = mix(-1.,1.,energy);

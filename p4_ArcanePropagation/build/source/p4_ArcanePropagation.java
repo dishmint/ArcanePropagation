@@ -23,10 +23,19 @@ PGraphics pg,canvas;
 
 PImage img;
 
+// https://processing.org/examples/convolution.html
+// Convolution Kernel
+float[][] matrix = {
+	{ 1, 1, 1 },
+	{ 1, 1, 1 },
+	{ 1, 1, 1 }
+};
+
+int matrixsize = 3;
 
  public void setup(){
 	/* size commented out by preprocessor */;
-
+	
 	pg = createGraphics(400, 400, P2D);
 	pg.noSmooth();
 	
@@ -52,7 +61,7 @@ PImage img;
 	
 	blueline.set("tex0", img);
 	image(pg, 0, 0, width, height);
-
+	
 }
 
 // GrayScale-ificatino can be done in the shader
@@ -80,34 +89,55 @@ PImage img;
 	image.loadPixels();
 	for (int i = 0; i < image.width; i++){
 		for (int j = 0; j < image.height; j++){
+			
+			int c = convolution(i,j, matrix, matrixsize, image);
 			int index = (i + j * image.width);
-			image.pixels[index] = image.pixels[index];
+			/*
+			nw [-1, -w]; n [0, -w]; ne [1, -w];
+			w  [-1,  0]; c [0,  0];  e [1,  0];
+			sw [-1,  w]; s [0,  w]; se [1,  w];
+			*/
+			// image.pixels[index] = image.pixels[index];
+			image.pixels[index] = c;
 		}
 	}
 	image.updatePixels();
 }
 
-// color nbpx(int position, int[] px){
-// 	int[] ndx = new int[9];
-// 	int count = 0;
-// 	/*
-// 	nw [-1, -w]; n [0, -w]; ne [1, -w];
-// 	w  [-1,  0]; c [0,  0];  e [1,  0];
-// 	sw [-1,  w]; s [0,  w]; se [1,  w];
-// 	*/
-//
-// 	for(int v = -3; v == 3; v +=3){
-// 		for( int h = -1; h == 1; h ++ ){
-// 			int nx = position + h + v;
-// 			if(nx < 0){
-// 				ndx[count] = nx;
-// 			}
-// 			count++;
-// 			}
-// 		}
-//
-// 	return ndx;
-// }
+
+
+// https://processing.org/examples/convolution.html
+/*
+
+Since I am creating a new kernel per block, I don't need to supply a kernel to the convolution. Each kernel element is weighted by a transmissionStrength whose value corresponds to the value of the kernel element. Though for testing I will keep it.
+*/
+ public int convolution(int x, int y, float[][] matrix, int matrixsize, PImage img)
+{
+	float rtotal = 0.0f;
+	float gtotal = 0.0f;
+	float btotal = 0.0f;
+	int offset = matrixsize / 2;
+	for (int i = 0; i < matrixsize; i++){
+		for (int j= 0; j < matrixsize; j++){
+			// What pixel are we testing
+			int xloc = x+i-offset;
+			int yloc = y+j-offset;
+			int loc = xloc + img.width*yloc;
+			// Make sure we haven't walked off our image, we could do better here
+			loc = constrain(loc,0,img.pixels.length-1);
+			// Calculate the convolution
+			rtotal += (red(img.pixels[loc]) * matrix[i][j]);
+			gtotal += (green(img.pixels[loc]) * matrix[i][j]);
+			btotal += (blue(img.pixels[loc]) * matrix[i][j]);
+		}
+	}
+	// Make sure RGB is within range
+	rtotal = constrain(rtotal, 0, 255);
+	gtotal = constrain(gtotal, 0, 255);
+	btotal = constrain(btotal, 0, 255);
+	// Return the resulting color
+	return color(rtotal, gtotal, btotal);
+}
 
 
   public void settings() { size(400, 400, P3D); }
