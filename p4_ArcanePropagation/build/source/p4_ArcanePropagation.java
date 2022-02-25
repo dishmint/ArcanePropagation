@@ -24,21 +24,23 @@ PGraphics pg,canvas;
 PImage img;
 float[] xmg;
 
-int matrixsize = 3;
+int matrixsize = 4;
 
  public void setup(){
 	/* size commented out by preprocessor */;
-	
-	pg = createGraphics(800, 800, P2D);
+	/* pixelDensity commented out by preprocessor */;
+	pg = createGraphics(400,400, P2D);
 	pg.noSmooth();
 	
-	img = loadImage("./imgs/buff_skate.JPG");
+	
+	// img = loadImage("./imgs/buff_skate.JPG");
 	// img = loadImage("./imgs/face.png");
-	if(img.width > img.height){
-			img.resize(width,0);
-	} else {
-		img.resize(0,height);
-	}
+	img = loadImage("./imgs/p5sketch1.jpg");
+	
+	surface.setTitle("Arcane Propagations");
+	// surface.setResizable(true);
+	
+	img.filter(GRAY);
 	
 	xmg = loadxm(img);
 	
@@ -46,11 +48,11 @@ int matrixsize = 3;
 	blueline.set("resolution", PApplet.parseFloat(pg.width), PApplet.parseFloat(pg.height));
 	blueline.set("tex0", img);
 	blueline.set("aspect", PApplet.parseFloat(img.width)/PApplet.parseFloat(img.height));
+
 }
 
  public void draw(){
-	// blueline.set("time", millis()/1000.);
-
+	
 	pg.beginDraw();
 	pg.background(0);
 	pg.shader(blueline);
@@ -60,8 +62,27 @@ int matrixsize = 3;
 	kernelp(img,xmg);
 	
 	blueline.set("tex0", img);
-	image(pg, 0, 0, width, height);
 	
+	image(pg, 0, 0, width, height);
+}
+
+
+ public void resizeImage(PGraphics pg, PImage img){
+	if (img.height > img.width) {
+		float hRatio = pg.height / img.height;
+		int h = PApplet.parseInt(img.height * hRatio);
+		int w = PApplet.parseInt(img.width * hRatio);
+		img.resize(w, h);
+	// Horizontal
+	} else if (img.width > img.height) {
+		float wRatio = pg.width / img.width;
+		int w = PApplet.parseInt(img.width * wRatio);
+		int h = PApplet.parseInt(img.height * wRatio);
+		img.resize(w, h);
+ // 1:1
+	} else {
+		img.resize(width, height);
+	}
 }
 
  public float[] loadxm(PImage image) {
@@ -75,10 +96,16 @@ int matrixsize = 3;
 			float rgs = (red(image.pixels[index]));
 			float ggs = (green(image.pixels[index]));
 			float bgs = (blue(image.pixels[index]));
-			// float gs = ((rgs+ggs+bgs)/3.)/255.;
-			// float txm = map(gs,0,1,-1,1);
+
 			float gs = ((rgs+ggs+bgs))/255.f;
-			float txm = map(gs,0,3,-1,1);
+			// float txm = map(gs,0,3,-.5,.125);
+			// float txm = map(gs,0,3,.00009,1.);
+			// float txm = map(gs,0,3,0.0,1.0);
+			float txm = map(gs,0,3,0.0f,.25f);
+			// float txm = map(gs,0,1,0.0,.25);
+			// float txm = map(gs,0,1,-0.05,.05);
+			// float txm = lerp(-.5,.5,gs);
+			// float txm = lerp(-1.,1.,gs);
 			xms[index] = txm;
 		}
 	}
@@ -90,7 +117,6 @@ int matrixsize = 3;
 	image.loadPixels();
 	for (int i = 0; i < image.width; i++){
 		for (int j = 0; j < image.height; j++){
-			
 			int c = convolution(i,j, matrixsize, image, ximage);
 			int index = (i + j * image.width);
 			image.pixels[index] = c;
@@ -103,7 +129,7 @@ int matrixsize = 3;
 // Adjusted slightly for the purposes of this sketch
  public int convolution(int x, int y, int matrixsize, PImage img, float[] ximg)
 {
-	// float total = 0.0;
+	
 	float rtotal = 0.0f;
 	float gtotal = 0.0f;
 	float btotal = 0.0f;
@@ -116,12 +142,9 @@ int matrixsize = 3;
 			int loc = xloc + img.width*yloc;
 			// Make sure we haven't walked off our image, we could do better here
 			loc = constrain(loc,0,img.pixels.length-1);
+			// loc = (loc < 0) ? (img.pixels.length -1)+loc : (loc > img.pixels.length - 1) ? 0 : loc;
 			
-			// Large divisor means less time!
-			// float r = random(1.);
-			// float leak = (ximg[loc]+r);
-			// float leak = (ximg[loc] * 10.);
-			float leak = (ximg[loc]);
+			float leak = ximg[loc];
 			
 			rtotal +=   red(img.pixels[loc]) * leak;
 			gtotal += green(img.pixels[loc]) * leak;
@@ -130,14 +153,12 @@ int matrixsize = 3;
 		}
 	}
 	
-	// constrain(rtotal, 0, 255);
-	// constrain(gtotal, 0, 255);
-	// constrain(btotal, 0, 255);
 	return color(rtotal, gtotal, btotal);
 }
 
 
-  public void settings() { size(800, 800, P3D); }
+  public void settings() { size(400, 400, P3D);
+pixelDensity(1); }
 
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "p4_ArcanePropagation" };
