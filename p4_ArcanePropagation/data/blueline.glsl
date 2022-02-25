@@ -59,9 +59,8 @@ void pushgrade(){
 }
 
 #define pointgrade 1
-#define pointshock 2
-#define graderlock 3
-#define colorclipr 4
+#define graderlock 2
+#define colorclipr 3
 
 vec4 pushfrag(int selector){
 	vec4 c = vec4(0.0);
@@ -69,9 +68,6 @@ vec4 pushfrag(int selector){
 	{
 		case pointgrade:
 			c = (1.-vec4(pxos))*grade*clip;
-			break;
-		case pointshock:
-			c = (1.-vec4(pxos))*clip;
 			break;
 		case graderlock:
 			c = clip*grade;
@@ -117,6 +113,6 @@ void main( void ) {
 		// compute color gradient
 		pushgrade();
 		
-		// pointgrade, pointshock, graderlock, colorclipr
+		// pointgrade, graderlock, colorclipr
 		gl_FragColor = pushfrag(pointgrade);
 	}
