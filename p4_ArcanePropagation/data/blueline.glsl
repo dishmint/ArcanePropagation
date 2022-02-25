@@ -13,10 +13,11 @@ uniform sampler2D tex0;
 uniform float aspect;
 
 float energy, angle = 0;
+float pxos, radius, thickness, wfac;
 float clip;
 
-vec4 color;
-#define angleF 360.
+vec4 color,grade;
+#define angleF 1.
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -50,6 +51,41 @@ void energyAngle2(){
 	angle = clamp(angle, 0., 1.0);
 }
 
+void pushgrade(){
+	float ac4 = (angle/angleF)*(215./255.);
+	float ec = mix(-1.,1.,energy);
+	// vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);;
+	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
+}
+
+#define pointgrade 1
+#define pointshock 2
+#define graderlock 3
+#define colorclipr 4
+
+vec4 pushfrag(int selector){
+	vec4 c = vec4(0.0);
+	switch(selector)
+	{
+		case pointgrade:
+			c = (1.-vec4(pxos))*grade*clip;
+			break;
+		case pointshock:
+			c = (1.-vec4(pxos))*clip;
+			break;
+		case graderlock:
+			c = clip*grade;
+			break;
+		case colorclipr:
+			c = color*clip;
+			break;
+		default:
+			c = color*clip;
+			break;
+	}
+	return c;
+}
+
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy );
@@ -64,61 +100,23 @@ void main( void ) {
 	// color  = (texture2D(tex0, vec2(position.x, 1.0 - position.y))+1.)/2.0;
 	
 	if (position.y > 1. || position.y < 0.0){
-		clip = 0.0;
+			clip = 0.0;
 		} else {
 			clip = 1.0;
 		}
 		
 		energyAngle1();
-
 		
-		// Not enough points
-		// float radius    = .0000001;
-		// float thickness = .0000001;
+		wfac = 1.;
 		
-		// Bottom Left Corner is weird
-		// float radius    = .00000001;
-		// float thickness = .00000001;
+		radius    = .00000000001 * wfac;
+		thickness = .00000000001 * wfac;
 		
-		// Bottom Left Corner is weird and larger
-		// float radius    = .00000002;
-		// float thickness = .00000002;
+		pxos = _pointorbit(position, position, radius, angle, thickness);
 		
-		// Bottom Left Corner is weird but smaller
-		// float radius    = .000000001;
-		// float thickness = .000000001;
+		// compute color gradient
+		pushgrade();
 		
-		// Bottom Left Corner is weird and really small
-		// float radius    = .0000000001;
-		// float thickness = .0000000001;
-		
-		// Perfect!
-		// float radius    = .00000000001;
-		// float thickness = .00000000001;
-		
-		// What happens if i change the radius?
-		float radius    = .00000000001;
-		float thickness = .00000000001;
-		
-		// pixel isn't small enough to capture enough details
-		// float radius    = pixel.x;
-		// float thickness = pixel.x;
-		
-		// blank screen
-		// float radius    = pixel.x/pixel.y;
-		// float thickness = pixel.x/pixel.y;
-		
-		// float pxos = _pointorbit(position, position, radius, angle+time/1., thickness);
-		float pxos = _pointorbit(position, position, radius, angle, thickness);
-		
-		float ac4 = (angle/angleF)*(215./255.);
-		float ec = mix(-1.,1.,energy);
-		// vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);;
-		vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
-		
-		gl_FragColor = (1.-vec4(pxos))*grade*clip;
-		// gl_FragColor = (1.-vec4(pxos))*clip;
-		// gl_FragColor = clip*grade;
-		// gl_FragColor = color*clip;
-		// gl_FragColor = color;
+		// pointgrade, pointshock, graderlock, colorclipr
+		gl_FragColor = pushfrag(pointgrade);
 	}

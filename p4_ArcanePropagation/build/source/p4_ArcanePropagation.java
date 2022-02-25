@@ -24,31 +24,40 @@ PGraphics pg,canvas;
 PImage img;
 float[] xmg;
 
-int matrixsize = 4;
+float maxsum;
+int matrixsize;
 
  public void setup(){
 	/* size commented out by preprocessor */;
+	surface.setTitle("Arcane Propagations");
 	/* pixelDensity commented out by preprocessor */;
-	pg = createGraphics(400,400, P2D);
+	pg = createGraphics(800,800, P2D);
 	pg.noSmooth();
 	
 	
 	// img = loadImage("./imgs/buff_skate.JPG");
 	// img = loadImage("./imgs/face.png");
-	img = loadImage("./imgs/p5sketch1.jpg");
+	// img = loadImage("./imgs/p5sketch1.jpg");
+	// img = loadImage("./imgs/fezHassan.JPG");
+	// img = loadImage("./imgs/buildings.jpg");
+	// img = loadImage("./imgs/clouds.jpg");
+	img = loadImage("./imgs/nasa.jpg");
 	
-	surface.setTitle("Arcane Propagations");
-	// surface.setResizable(true);
 	
-	img.filter(GRAY);
+	// img.filter(GRAY);
+	img.resize(width,0);
 	
+	maxsum = 255.f * 3.f;
 	xmg = loadxm(img);
+	
+	matrixsize = 3;
 	
 	blueline = loadShader("blueline.glsl");
 	blueline.set("resolution", PApplet.parseFloat(pg.width), PApplet.parseFloat(pg.height));
 	blueline.set("tex0", img);
 	blueline.set("aspect", PApplet.parseFloat(img.width)/PApplet.parseFloat(img.height));
 
+	// frameRate(1.);
 }
 
  public void draw(){
@@ -66,25 +75,6 @@ int matrixsize = 4;
 	image(pg, 0, 0, width, height);
 }
 
-
- public void resizeImage(PGraphics pg, PImage img){
-	if (img.height > img.width) {
-		float hRatio = pg.height / img.height;
-		int h = PApplet.parseInt(img.height * hRatio);
-		int w = PApplet.parseInt(img.width * hRatio);
-		img.resize(w, h);
-	// Horizontal
-	} else if (img.width > img.height) {
-		float wRatio = pg.width / img.width;
-		int w = PApplet.parseInt(img.width * wRatio);
-		int h = PApplet.parseInt(img.height * wRatio);
-		img.resize(w, h);
- // 1:1
-	} else {
-		img.resize(width, height);
-	}
-}
-
  public float[] loadxm(PImage image) {
 	float[] xms = new float[image.width * image.height];
 
@@ -97,15 +87,13 @@ int matrixsize = 4;
 			float ggs = (green(image.pixels[index]));
 			float bgs = (blue(image.pixels[index]));
 
-			float gs = ((rgs+ggs+bgs))/255.f;
-			// float txm = map(gs,0,3,-.5,.125);
-			// float txm = map(gs,0,3,.00009,1.);
-			// float txm = map(gs,0,3,0.0,1.0);
-			float txm = map(gs,0,3,0.0f,.25f);
-			// float txm = map(gs,0,1,0.0,.25);
-			// float txm = map(gs,0,1,-0.05,.05);
-			// float txm = lerp(-.5,.5,gs);
-			// float txm = lerp(-1.,1.,gs);
+			// float gs = (rgs+ggs+bgs);
+			// float txm = map(gs,0,maxsum,0.0,.25 * maxsum);
+			
+			float gs = ((rgs+ggs+bgs)/3.f)/255.f;
+			// float txm = map(gs,0,3,0.0,.25 );
+			float txm = map(gs,0,3,0,.5f);
+
 			xms[index] = txm;
 		}
 	}
@@ -136,20 +124,17 @@ int matrixsize = 4;
 	int offset = matrixsize / 2;
 	for (int i = 0; i < matrixsize; i++){
 		for (int j= 0; j < matrixsize; j++){
-			// What pixel are we testing
+
 			int xloc = x+i-offset;
 			int yloc = y+j-offset;
 			int loc = xloc + img.width*yloc;
-			// Make sure we haven't walked off our image, we could do better here
+
 			loc = constrain(loc,0,img.pixels.length-1);
-			// loc = (loc < 0) ? (img.pixels.length -1)+loc : (loc > img.pixels.length - 1) ? 0 : loc;
-			
 			float leak = ximg[loc];
-			
+
 			rtotal +=   red(img.pixels[loc]) * leak;
 			gtotal += green(img.pixels[loc]) * leak;
 			btotal +=  blue(img.pixels[loc]) * leak;
-
 		}
 	}
 	
@@ -157,7 +142,7 @@ int matrixsize = 4;
 }
 
 
-  public void settings() { size(400, 400, P3D);
+  public void settings() { size(800, 800, P3D);
 pixelDensity(1); }
 
   static public void main(String[] passedArgs) {
