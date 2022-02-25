@@ -29,7 +29,8 @@ float _pointorbit(in vec2 uv, vec2 center, in float radius, float angle, in floa
 
 vec4 color;
 
-#define angleF 2.
+// #define angleF 2.
+#define angleF 360.
 
 float clip;
 
@@ -45,6 +46,7 @@ void main( void ) {
 	// color of the image
 	
 	color  = texture2D(tex0, vec2(position.x, 1.0 - position.y));
+	// color  = (texture2D(tex0, vec2(position.x, 1.0 - position.y))+1.)/2.0;
 	
 	if (position.y > 1. || position.y < 0.0){
 		clip = 0.0;
@@ -55,8 +57,12 @@ void main( void ) {
 	float energy = (color.r+color.g+color.b+color.a/4.0);
 	float angle = energy * angleF;
 	
-	float radius = 0.001;
-	float thickness = 0.001;
+	float radius    = .0000001;
+	float thickness = .0000001;
+	
+	// pixel isn't small enough to capture enough details
+	// float radius    = pixel.x;
+	// float thickness = pixel.x;
 	
 	// float pxos = _pointorbit(position, position, radius, angle+time/1., thickness);
 	float pxos = _pointorbit(position, position, radius, angle, thickness);
@@ -64,7 +70,11 @@ void main( void ) {
 	float ac4 = (angle/angleF)*(215./255.);
 	float ec = mix(-1.,1.,energy);
 	vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);
+	// vec4 grade = (vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0) + 1.)/2.;
 	
 	gl_FragColor = (1.-vec4(pxos))*grade*clip;
-	// gl_FragColor = (1.-vec4(pxos))*grade*clip*vec4(1.,1.,1., 1./8.);
+	// gl_FragColor = (1.-vec4(pxos))*clip;
+	// gl_FragColor = color*clip*grade;
+	// gl_FragColor = color*clip;
+	// gl_FragColor = color;
 }
