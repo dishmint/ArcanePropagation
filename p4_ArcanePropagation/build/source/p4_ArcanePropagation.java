@@ -21,43 +21,43 @@ public class p4_ArcanePropagation extends PApplet {
 PShader blueline;
 PGraphics pg,canvas;
 
-PImage img;
-float[] xmg;
+PImage simg;
+float[][][] xmg;
 
 float maxsum;
-int matrixsize;
+int kwidth;
 
  public void setup(){
 	/* size commented out by preprocessor */;
 	surface.setTitle("Arcane Propagations");
 	/* pixelDensity commented out by preprocessor */;
-	pg = createGraphics(800,800, P2D);
+	pg = createGraphics(400,400, P2D);
 	pg.noSmooth();
 	
 	
-	// img = loadImage("./imgs/buff_skate.JPG");
-	// img = loadImage("./imgs/face.png");
-	// img = loadImage("./imgs/p5sketch1.jpg");
-	// img = loadImage("./imgs/fezHassan.JPG");
-	// img = loadImage("./imgs/buildings.jpg");
-	// img = loadImage("./imgs/clouds.jpg");
-	// img = loadImage("./imgs/nasa.jpg");
-	img = randomImage(width,height);
+	// simg = loadImage("./imgs/buff_skate.JPG");
+	// simg = loadImage("./imgs/face.png");
+	// simg = loadImage("./imgs/p5sketch1.jpg");
+	// simg = loadImage("./imgs/fezHassan.JPG");
+	// simg = loadImage("./imgs/buildings.jpg");
+	simg = loadImage("./imgs/clouds.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
+	// simg = randomImage(width,height);
 	
 	
-	// img.filter(GRAY);
-	img.resize(width,0);
+	// simg.filter(GRAY);
+	simg.resize(width,0);
 	
-	maxsum = 255.f * 3.f;
-	xmg = loadxm(img);
+	kwidth = 3;
+	xmg = loadxm(simg, kwidth);
 	
-	matrixsize = 3;
+	
 	
 	blueline = loadShader("blueline.glsl");
 	blueline.set("resolution", PApplet.parseFloat(pg.width), PApplet.parseFloat(pg.height));
-	blueline.set("tex0", img);
-	blueline.set("aspect", PApplet.parseFloat(img.width)/PApplet.parseFloat(img.height));
-
+	blueline.set("tex0", simg);
+	blueline.set("aspect", PApplet.parseFloat(simg.width)/PApplet.parseFloat(simg.height));
+	
 	// frameRate(1.);
 }
 
@@ -69,95 +69,121 @@ int matrixsize;
 	pg.rect(0, 0, pg.width, pg.height);
 	pg.endDraw();
 	
-	kernelp(img,xmg);
+	kernelp(simg,xmg);
 	
-	blueline.set("tex0", img);
+	blueline.set("tex0", simg);
 	
 	image(pg, 0, 0, width, height);
 }
 
- public float[] loadxm(PImage image) {
-	float[] xms = new float[image.width * image.height];
 
-	image.loadPixels();
-	for (int i = 0; i < image.width; i++){
-		for (int j = 0; j < image.height; j++){
-			int index = (i + j * image.width);
-
-			float rgs = (red(image.pixels[index]));
-			float ggs = (green(image.pixels[index]));
-			float bgs = (blue(image.pixels[index]));
-
-			// float gs = (rgs+ggs+bgs);
-			// float txm = map(gs,0,maxsum,0.0,.25 * maxsum);
+ public float[][] loadkernel(int x, int y, int dim, PImage img){
+	float[][] kern = new float[dim][dim];
+	img.loadPixels();
+	int offset = dim / 2;
+	for (int i = 0; i < dim; i++){
+		for (int j= 0; j < dim; j++){
 			
-			float gs = ((rgs+ggs+bgs)/3.f)/255.f;
-			// float txm = map(gs,0,3,0.0,.25 );
-			float txm = map(gs,0,3,0,.5f);
-
-			xms[index] = txm;
-		}
-	}
-	image.updatePixels();
-	return xms;
-}
-
- public void kernelp(PImage image, float[] ximage) {
-	image.loadPixels();
-	for (int i = 0; i < image.width; i++){
-		for (int j = 0; j < image.height; j++){
-			int c = convolution(i,j, matrixsize, image, ximage);
-			int index = (i + j * image.width);
-			image.pixels[index] = c;
-		}
-	}
-	image.updatePixels();
-}
-
-// https://processing.org/examples/convolution.html
-// Adjusted slightly for the purposes of this sketch
- public int convolution(int x, int y, int matrixsize, PImage img, float[] ximg)
-{
-	
-	float rtotal = 0.0f;
-	float gtotal = 0.0f;
-	float btotal = 0.0f;
-	int offset = matrixsize / 2;
-	for (int i = 0; i < matrixsize; i++){
-		for (int j= 0; j < matrixsize; j++){
-
 			int xloc = x+i-offset;
 			int yloc = y+j-offset;
 			int loc = xloc + img.width*yloc;
-
+			
 			loc = constrain(loc,0,img.pixels.length-1);
-			float leak = ximg[loc];
-
-			rtotal +=   red(img.pixels[loc]) * leak;
-			gtotal += green(img.pixels[loc]) * leak;
-			btotal +=  blue(img.pixels[loc]) * leak;
+			float gs = (
+				0.2989f *   red(img.pixels[loc]) +
+				0.5870f * green(img.pixels[loc]) +
+				0.1140f *  blue(img.pixels[loc])
+				) / 255;
+				
+				// Large Output Scales generally will slow down the dispersion
+				// kern[i][j] = gs*255.;
+				// kern[i][j] = map(gs, 0, 1, -1.,1.);
+				// kern[i][j] = map(gs, 0, 1, -10.,10.);
+				// kern[i][j] = map(gs, 0, 1, -100.,100.);
+				kern[i][j] = map(gs, 0, 1, -1000.f,1000.f);
+			}
 		}
+		img.updatePixels();
+		return kern;
 	}
 	
-	return color(rtotal, gtotal, btotal);
-}
-
- public PImage randomImage(int w, int h){
-	PImage rimg = createImage(w,h, ARGB);
-	rimg.loadPixels();
-	for (int i = 0; i < rimg.width; i++){
-		for (int j = 0; j < rimg.height; j++){
-			int c = color(random(255.f));
-			int index = (i + j * rimg.width);
-			rimg.pixels[index] = c;
+	 public float[][][] loadxm(PImage img, int kwidth) {
+		float[][][] xms = new float[PApplet.parseInt(img.width * img.height)][kwidth][kwidth];
+		float[][] kernel = new float[kwidth][kwidth];
+		img.loadPixels();
+		for (int i = 0; i < img.width; i++){
+			for (int j = 0; j < img.height; j++){
+				kernel = loadkernel(i,j, kwidth, img);
+				int index = (i + j * img.width);
+				xms[index] = kernel;
+			}
 		}
+		img.updatePixels();
+		return xms;
 	}
-	rimg.updatePixels();
-	return rimg;
-}
+	
+	 public void kernelp(PImage img, float[][][] ximage) {
+		img.loadPixels();
+		for (int i = 0; i < img.width; i++){
+			for (int j = 0; j < img.height; j++){
+				int c = convolution(i,j, kwidth, img, ximage);
+				int index = (i + j * img.width);
+				img.pixels[index] = c;
+			}
+		}
+		img.updatePixels();
+	}
+	
+	
+	// https://processing.org/examples/convolution.html
+	// Adjusted slightly for the purposes of this sketch
+	 public int convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
+	{
+		float rtotal = 0.0f;
+		float gtotal = 0.0f;
+		float btotal = 0.0f;
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				// float xmsn = (ximg[loc][i][j] / kwidth);
+				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 2));
+				float xmsn = (ximg[loc][i][j] / pow(kwidth, 3));
+				if(xloc == x && yloc == y){
+					rtotal -= (  red(img.pixels[loc]) * xmsn);
+					gtotal -= (green(img.pixels[loc]) * xmsn);
+					btotal -= ( blue(img.pixels[loc]) * xmsn);
+				} else {
+					rtotal += (  red(img.pixels[loc]) * xmsn);
+					gtotal += (green(img.pixels[loc]) * xmsn);
+					btotal += ( blue(img.pixels[loc]) * xmsn);
+				}
+			}
+		}
+		
+		return color(rtotal, gtotal, btotal);
+	}
+	
+	 public PImage randomImage(int w, int h){
+		PImage rimg = createImage(w,h, ARGB);
+		rimg.loadPixels();
+		for (int i = 0; i < rimg.width; i++){
+			for (int j = 0; j < rimg.height; j++){
+				int c = color(random(255.f));
+				int index = (i + j * rimg.width);
+				rimg.pixels[index] = c;
+			}
+		}
+		rimg.updatePixels();
+		return rimg;
+	}
 
 
-  public void settings() { size(800, 800, P3D);
+  public void settings() { size(400, 400, P3D);
 pixelDensity(1); }
 
   static public void main(String[] passedArgs) {
