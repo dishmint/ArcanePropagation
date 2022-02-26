@@ -7,76 +7,57 @@ PGraphics pg;
 PImage simg,dimg;
 float[][][] xmg;
 int kwidth, modfac;
-float scalefac;
 
 void setup(){
-	size(800,800, P3D);
+	size(400,400, P3D);
 	surface.setTitle("Arcane Propagations");
-	// pixelDensity(1);
+	pixelDensity(1);
 	
-	pg = createGraphics(800,800, P2D);
+	pg = createGraphics(400,400, P2D);
 	pg.noSmooth();
+	
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/fezHassan.JPG");
 	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/clouds.jpg");
+	simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = randomImage(width,height);
-	dimg = createImage(simg.width*2, simg.height*2, ARGB);
+	dimg = createImage(simg.width * 2, simg.height*2, ARGB);
 	
 	// simg.filter(GRAY);
-	simg.resize(width,0);
-	dimg.resize(width,0);
+	simg.resize(width/4,0);
+	dimg.resize(width/4,0);
 	
 	kwidth = 3;
-	modfac = 1;
-	
-	// scalefac = 000.25; /*nasa*/
-	// scalefac = 000.50; /*nasa*/
-	// scalefac = 000.75; /*nasa*/
-	// scalefac = 000.80; /*nasa*/
-	// scalefac = 000.90; /*nasa*/
-	// scalefac = 000.95; /*nasa*/
-	// scalefac = 001.00; /*nasa*/
-	// scalefac = 002.00; /*nasa*/
-	// scalefac = 002.50; /*nasa*/
-	// scalefac = 003.00; /*nasa*/
-	// scalefac = 003.50; /*nasa*/
-	scalefac = 003.75; /*nasa*/
-	// scalefac = 005.00; /*nasa*/
-	// scalefac = 010.00; /*nasa*/
-	// scalefac = 500.00;
+	modfac = 2;
 	xmg = loadxm(simg, kwidth);
 	
-	setDispersedImage(simg, dimg);
+	loadDispersedImage(simg, dimg);
 
+	
 	blueline = loadShader("blueline.glsl");
 	blueline.set("resolution", float(pg.width), float(pg.height));
 	blueline.set("tex0", dimg);
 	blueline.set("aspect", float(simg.width)/float(simg.height));
-	// scale the radius and thickness of each point drawn in the shader
-	blueline.set("widthFactor", 1.);
-	// scale the angle computed from a pixel value
-	blueline.set("angleFactor", 1.);
 	
-	// frameRate(1.);
+	frameRate(1.);
 }
 
 void draw(){
+	
 	pg.beginDraw();
 	pg.background(0);
 	pg.shader(blueline);
 	pg.rect(0, 0, pg.width, pg.height);
 	pg.endDraw();
 	
-	kernelp(simg, xmg);
-	setDispersedImage(simg,dimg);
+	kernelp2(simg, dimg, xmg);
 	
 	blueline.set("tex0", dimg);
+	
 	image(pg, 0, 0, width, height);
 }
 
@@ -99,7 +80,12 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 				0.1140 *  blue(img.pixels[loc])
 				) / 255;
 				
-				kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+				// Large Output Scales generally will slow down the dispersion
+				// kern[i][j] = gs*255.;
+				// kern[i][j] = map(gs, 0, 1, -1.,1.);
+				// kern[i][j] = map(gs, 0, 1, -10.,10.);
+				// kern[i][j] = map(gs, 0, 1, -100.,100.);
+				kern[i][j] = map(gs, 0, 1, -1000.,1000.);
 			}
 		}
 		img.updatePixels();
@@ -121,20 +107,34 @@ float[][][] loadxm(PImage img, int kwidth) {
 	return xms;
 }
 
-void kernelp(PImage img, float[][][] ximage) {
-	img.loadPixels();
-	for (int i = 0; i < img.width; i++){
-		for (int j = 0; j < img.height; j++){
-			color c = convolution(i,j, kwidth, img, ximage);
-			int index = (i + j * img.width);
-			img.pixels[index] = c;
+void kernelp2(PImage source, PImage di, float[] ximage) {
+	source.loadPixels();
+	di.loadPixels();
+	for (int i = 0; i < di.width; i++){
+		for (int j = 0; j < di.height; j++){
+			int dindex = (i + j * di.width);
+			if(i % modfac == 0 && j % modfac == 0){
+				int x = i - 1;
+				int y = j - 1;
+				x = constrain(x, 0, source.width - 1);
+				y = constrain(y, 0, source.height - 1);
+				int sindex = (x + (y *source.width));
+				if (sindex < source.pixels.length){
+					color c = convolution(x,y, kwidth, source, ximage);
+					source.pixels[sindex] = c;
+					di.pixels[dindex] = c;
+				}
+			} else {
+				di.pixels[dindex] = color(0);
+				}
+			}
 		}
-	}
-	img.updatePixels();
+		di.updatePixels();
+		source.updatePixels();
 }
-
-// https://processing.org/examples/convolution.html
-// Adjusted slightly for the purposes of this sketch
+	
+	// https://processing.org/examples/convolution.html
+	// Adjusted slightly for the purposes of this sketch
 color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 	{
 		float rtotal = 0.0;
@@ -148,9 +148,9 @@ color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				int yloc = y+j-offset;
 				int loc = xloc + img.width*yloc;
 				loc = constrain(loc,0,img.pixels.length-1);
-				float xmsn = (ximg[loc][i][j] / kwidth);
+				// float xmsn = (ximg[loc][i][j] / kwidth);
 				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 2));
-				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 3));
+				float xmsn = (ximg[loc][i][j] / pow(kwidth, 3));
 				if(xloc == x && yloc == y){
 					rtotal -= (  red(img.pixels[loc]) * xmsn);
 					gtotal -= (green(img.pixels[loc]) * xmsn);
@@ -179,8 +179,10 @@ PImage randomImage(int w, int h){
 		rimg.updatePixels();
 		return rimg;
 	}
+	return color(rtotal, gtotal, btotal);
+}
 
-void setDispersedImage(PImage source, PImage di) {
+void loadDispersedImage(PImage source, PImage di) {
 	source.loadPixels();
 	di.loadPixels();
 	for (int i = 0; i < di.width; i++){
