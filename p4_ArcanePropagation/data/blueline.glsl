@@ -11,13 +11,14 @@ uniform sampler2D ppixels;
 
 uniform sampler2D tex0;
 uniform float aspect;
+uniform float widthFactor;
+uniform float angleFactor;
 
 float energy, angle = 0;
-float pxos, radius, thickness, wfac;
+float pxos, radius, thickness;
 float clip;
 
 vec4 color,grade;
-#define angleF 1.
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -38,7 +39,7 @@ float _pointorbit(in vec2 uv, vec2 center, in float radius, float angle, in floa
 
 void energyAngle1(){
 	energy = (color.r+color.g+color.b+color.a/4.0);
-	angle = energy * angleF;
+	angle = energy * angleFactor;
 }
 
 void energyAngle2(){
@@ -52,10 +53,10 @@ void energyAngle2(){
 }
 
 void pushgrade(){
-	float ac4 = (angle/angleF)*(215./255.);
+	float ac4 = (angle/angleFactor)*(215./255.);
 	float ec = mix(-1.,1.,energy);
-	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
-	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
+	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
+	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
 }
 
 #define pointgrade 1
@@ -101,13 +102,11 @@ void main( void ) {
 			clip = 1.0;
 		}
 		
-		// energyAngle1();
-		energyAngle2();
+		energyAngle1();
+		// energyAngle2();
 		
-		wfac = 1.;
-		
-		radius    = .00000000001 * wfac;
-		thickness = .00000000001 * wfac;
+		radius    = .000000000001 * widthFactor;
+		thickness = .000000000001 * widthFactor;
 		
 		pxos = _pointorbit(position, position, radius, angle, thickness);
 		
