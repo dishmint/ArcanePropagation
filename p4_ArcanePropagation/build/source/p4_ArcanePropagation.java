@@ -41,7 +41,8 @@ int matrixsize;
 	// img = loadImage("./imgs/fezHassan.JPG");
 	// img = loadImage("./imgs/buildings.jpg");
 	// img = loadImage("./imgs/clouds.jpg");
-	img = loadImage("./imgs/nasa.jpg");
+	// img = loadImage("./imgs/nasa.jpg");
+	img = randomImage(width,height);
 	
 	
 	// img.filter(GRAY);
@@ -139,6 +140,20 @@ int matrixsize;
 	}
 	
 	return color(rtotal, gtotal, btotal);
+}
+
+ public PImage randomImage(int w, int h){
+	PImage rimg = createImage(w,h, ARGB);
+	rimg.loadPixels();
+	for (int i = 0; i < rimg.width; i++){
+		for (int j = 0; j < rimg.height; j++){
+			int c = color(random(255.f));
+			int index = (i + j * rimg.width);
+			rimg.pixels[index] = c;
+		}
+	}
+	rimg.updatePixels();
+	return rimg;
 }
 
 
