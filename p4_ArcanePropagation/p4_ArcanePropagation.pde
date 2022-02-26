@@ -9,6 +9,9 @@ float[][][] xmg;
 int kwidth, modfac;
 float scalefac;
 
+
+JSONArray presets;
+
 void setup(){
 	size(800,800, P3D);
 	surface.setTitle("Arcane Propagations");
@@ -25,12 +28,17 @@ void setup(){
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
+	// simg = loadImage("./imgs/fzn_dishmint.JPG");
+	// simg = loadImage("./imgs/roc_flour.jpg");
 	// simg = randomImage(width,height);
+	// simg = noiseImage(width, height, 3, .6);
 	dimg = createImage(simg.width*2, simg.height*2, ARGB);
 	
 	// simg.filter(GRAY);
-	simg.resize(width,0);
-	dimg.resize(width,0);
+	simg.resize(width, 0);
+	dimg.resize(width, 0);
 	
 	kwidth = 3;
 	modfac = 1;
@@ -45,9 +53,10 @@ void setup(){
 	// scalefac = 002.00; /*nasa*/
 	// scalefac = 002.50; /*nasa*/
 	// scalefac = 003.00; /*nasa*/
-	// scalefac = 003.50; /*nasa*/
-	scalefac = 003.75; /*nasa*/
+	scalefac = 003.50; /*nasa*/
+	// scalefac = 003.75; /*nasa*/
 	// scalefac = 005.00; /*nasa*/
+	// scalefac = 007.00; /*nasa*/
 	// scalefac = 010.00; /*nasa*/
 	// scalefac = 500.00;
 	xmg = loadxm(simg, kwidth);
@@ -149,6 +158,7 @@ color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				int loc = xloc + img.width*yloc;
 				loc = constrain(loc,0,img.pixels.length-1);
 				float xmsn = (ximg[loc][i][j] / kwidth);
+				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 1.5));
 				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 2));
 				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 3));
 				if(xloc == x && yloc == y){
@@ -172,6 +182,21 @@ PImage randomImage(int w, int h){
 		for (int i = 0; i < rimg.width; i++){
 			for (int j = 0; j < rimg.height; j++){
 				color c = color(random(255.));
+				int index = (i + j * rimg.width);
+				rimg.pixels[index] = c;
+			}
+		}
+		rimg.updatePixels();
+		return rimg;
+	}
+
+PImage noiseImage(int w, int h, int lod, float falloff){
+	noiseDetail(lod, falloff);
+		PImage rimg = createImage(w,h, ARGB);
+		rimg.loadPixels();
+		for (int i = 0; i < rimg.width; i++){
+			for (int j = 0; j < rimg.height; j++){
+				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
 				int index = (i + j * rimg.width);
 				rimg.pixels[index] = c;
 			}
