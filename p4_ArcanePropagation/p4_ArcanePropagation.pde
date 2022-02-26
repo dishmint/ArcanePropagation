@@ -24,7 +24,8 @@ void setup(){
 	// img = loadImage("./imgs/fezHassan.JPG");
 	// img = loadImage("./imgs/buildings.jpg");
 	// img = loadImage("./imgs/clouds.jpg");
-	img = loadImage("./imgs/nasa.jpg");
+	// img = loadImage("./imgs/nasa.jpg");
+	img = randomImage(width,height);
 	
 	
 	// img.filter(GRAY);
@@ -122,4 +123,18 @@ color convolution(int x, int y, int matrixsize, PImage img, float[] ximg)
 	}
 	
 	return color(rtotal, gtotal, btotal);
+}
+
+PImage randomImage(int w, int h){
+	PImage rimg = createImage(w,h, ARGB);
+	rimg.loadPixels();
+	for (int i = 0; i < rimg.width; i++){
+		for (int j = 0; j < rimg.height; j++){
+			color c = color(random(255.));
+			int index = (i + j * rimg.width);
+			rimg.pixels[index] = c;
+		}
+	}
+	rimg.updatePixels();
+	return rimg;
 }
