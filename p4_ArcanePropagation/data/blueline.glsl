@@ -54,8 +54,8 @@ void energyAngle2(){
 void pushgrade(){
 	float ac4 = (angle/angleF)*(215./255.);
 	float ec = mix(-1.,1.,energy);
-	// vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);;
 	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
+	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
 }
 
 #define pointgrade 1
@@ -101,7 +101,8 @@ void main( void ) {
 			clip = 1.0;
 		}
 		
-		energyAngle1();
+		// energyAngle1();
+		energyAngle2();
 		
 		wfac = 1.;
 		
