@@ -54,14 +54,13 @@ void energyAngle2(){
 void pushgrade(){
 	float ac4 = (angle/angleF)*(215./255.);
 	float ec = mix(-1.,1.,energy);
-	// vec4 grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);;
 	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
+	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
 }
 
 #define pointgrade 1
-#define pointshock 2
-#define graderlock 3
-#define colorclipr 4
+#define graderlock 2
+#define colorclipr 3
 
 vec4 pushfrag(int selector){
 	vec4 c = vec4(0.0);
@@ -69,9 +68,6 @@ vec4 pushfrag(int selector){
 	{
 		case pointgrade:
 			c = (1.-vec4(pxos))*grade*clip;
-			break;
-		case pointshock:
-			c = (1.-vec4(pxos))*clip;
 			break;
 		case graderlock:
 			c = clip*grade;
@@ -105,7 +101,8 @@ void main( void ) {
 			clip = 1.0;
 		}
 		
-		energyAngle1();
+		// energyAngle1();
+		energyAngle2();
 		
 		wfac = 1.;
 		
@@ -117,6 +114,6 @@ void main( void ) {
 		// compute color gradient
 		pushgrade();
 		
-		// pointgrade, pointshock, graderlock, colorclipr
+		// pointgrade, graderlock, colorclipr
 		gl_FragColor = pushfrag(pointgrade);
 	}
