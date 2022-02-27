@@ -43,10 +43,6 @@ void energyAngle1(){
 }
 
 void energyAngle2(){
-	float er = 0.2989 * color.r;
-	float eg = 0.5870 * color.g;
-	float eb = 0.1140 * color.b;
-
 	energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
 	angle = map(energy, -1., 1., 0., 1.);
 	angle = clamp(angle, 0., 1.0);
@@ -55,8 +51,9 @@ void energyAngle2(){
 void pushgrade(){
 	float ac4 = (angle/angleFactor)*(215./255.);
 	float ec = mix(-1.,1.,energy);
-	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
-	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
+	grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
+	// grade = vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
+	// grade = vec4(angle,vec2(0.),color.a);
 }
 
 #define pointgrade 1
@@ -94,7 +91,7 @@ void main( void ) {
 	// image pixels
 	
 	color  = texture2D(tex0, vec2(position.x, 1.0 - position.y));
-	// color  = (texture2D(tex0, vec2(position.x, 1.0 - position.y))+1.)/2.0;
+	// color  = texture2D(tex0, vec2(position.x, 1.0 - position.y))*10.;
 	
 	if (position.y > 1. || position.y < 0.0){
 			clip = 0.0;
