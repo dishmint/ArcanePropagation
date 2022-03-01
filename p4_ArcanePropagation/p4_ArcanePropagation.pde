@@ -6,18 +6,18 @@ PGraphics pg;
 
 PImage simg,dimg;
 float[][][] xmg;
-int kwidth, modfac;
-float scalefac,chance,wdf;
+int downsample,modfac,dmfac;
+int kwidth = 3;
+float scalefac,minscalefac,maxscalefac,chance,displayscale;
 
+boolean dispersed;
 
 void setup(){
-	size(900,900, P3D);
+	size(800,800, P3D);
 	surface.setTitle("Arcane Propagations");
 	pixelDensity(1);
-	pg = createGraphics(width,height, P2D);
-	pg.noSmooth();
 	
-	// simg = loadImage("./imgs/buff_skate.JPG");
+	simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/fezHassan.JPG");
@@ -25,59 +25,57 @@ void setup(){
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	// simg = loadImage("./imgs/fruit.jpg");
-	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
-	// simg = loadImage("./imgs/fzn_dishmint.JPG");
-	// simg = loadImage("./imgs/roc_flour.jpg");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = randomImage(width,height);
-	// simg = noiseImage(width, height, 3, .6);
-	simg = kuficImage(width/4, height/4);
-	dimg = createImage((simg.width*2), (simg.height*2), ARGB);
+	// simg = randomImage(width/4, height/4);
+	// simg = noiseImage(width/4, height/4, 3, .6);
+	// simg = kuficImage(2*width, 2*height);
+
 	
 	// simg.filter(GRAY);
-	simg.resize(width, 0);;
-	dimg.resize(width, 0);
+	// simg.filter(POSTERIZE, 4);
+	// simg.filter(BLUR, 2);
+	// simg.filter(DILATE);
+	// simg.filter(ERODE);
 	
-	kwidth = 3;
-	modfac = 1;
+	// max for height and with is 16384
+	pg = createGraphics(4000,4000, P2D);
+	// pg = createGraphics(constrain(dimg.width*4, 0, 16384),constrain(dimg.height*4, 0, 16384), P2D);
+	pg.noSmooth();
+	
+	// dmfac = 1;
+	// downsample = modfac = dmfac;
+	downsample = 1;
+	modfac = 3;
+	simg.resize(width/downsample,0);
+	
+	// Smaller values tend to fade out fast, larger values tend to oscillate
+	scalefac = 0001.50;
+	
+	// use minscalefac / maxscalefac to weight towards negative transmission / positive transmission
+	// minscalefac = 0.;
+	// maxscalefac = 1.;
 
-	// scalefac = 000.25; /*nasa*/
-	// scalefac = 000.50; /*nasa*/
-	// scalefac = 000.75; /*nasa*/
-	// scalefac = 000.80; /*nasa*/
-	// scalefac = 000.90; /*nasa*/
-	// scalefac = 000.95; /*nasa*/
-	// scalefac = 001.00; /*nasa*/
-	// scalefac = 002.00; /*nasa*/
-	// scalefac = 002.50; /*nasa*/
-	scalefac = 003.00; /*nasa*/
-	// scalefac = 003.50; /*nasa*/
-	// scalefac = 003.75; /*nasa*/
-	// scalefac = 005.00; /*nasa*/
-	// scalefac = 007.00; /*nasa*/
-	// scalefac = 010.00; /*nasa*/
-	// scalefac = 500.00;
 	xmg = loadxm(simg, kwidth);
 	
-	setDispersedImage(simg, dimg);
-
 	blueline = loadShader("blueline.glsl");
-	blueline.set("resolution", float(pg.width), float(pg.height));
-	blueline.set("tex0", dimg);
-	blueline.set("aspect", float(simg.width)/float(simg.height));
-	// scale the radius and thickness of each point drawn in the shader
-	wdf = 1.;
-	blueline.set("widthFactor", wdf);
-	// blueline.set("widthFactor", 1.);
-	// scale the angle computed from a pixel value
-	blueline.set("angleFactor", 1.);
 	
-	// frameRate(1.);
+	dispersed = true;
+	if(dispersed){
+		// useDispersed(dmfac);
+		useDispersed(modfac);
+	} else {
+		useOriginal();
+	}
+	blueline.set("resolution", float(pg.width), float(pg.height));
+	imageMode(CENTER);
+	
+	// displayscale = 1.0;
+	displayscale = .98;
+	
+	// frameRate(6.);
 }
 
 void draw(){
-	
 	pg.beginDraw();
 	pg.background(0);
 	pg.shader(blueline);
@@ -85,10 +83,39 @@ void draw(){
 	pg.endDraw();
 	
 	kernelp(simg, xmg);
-	setDispersedImage(simg,dimg);
 	
+	if(dispersed){
+		drawDispersed();
+	} else {
+		drawOriginal();
+	}
+	image(pg, width/2, height/2, width*displayscale, height*displayscale);
+}
+
+
+void useDispersed(int factor){
+	// dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
+	dimg = createImage((simg.width*modfac), (simg.height*modfac), ARGB);
+	// dimg = createImage((simg.width), (simg.height), ARGB);
+	// dimg = createImage((simg.width*4), (simg.height*4), ARGB);
+	dimg.resize(width/downsample,0);
+	setDispersedImage(simg, dimg);
+	blueline.set("aspect", float(dimg.width)/float(dimg.height));
 	blueline.set("tex0", dimg);
-	image(pg, 0, 0, width, height);
+}
+
+void useOriginal(){
+	blueline.set("aspect", float(simg.width)/float(simg.height));
+	blueline.set("tex0", simg);
+}
+
+void drawDispersed(){
+	setDispersedImage(simg,dimg);
+	blueline.set("tex0", dimg);
+}
+
+void drawOriginal(){
+	blueline.set("tex0", simg);
 }
 
 
@@ -110,7 +137,9 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 				0.1140 *  blue(img.pixels[loc])
 				) / 255;
 				
-				kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+				// kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+				kern[i][j] = map(gs, 0, 1, 1.*scalefac,-1.*scalefac);
+				// kern[i][j] = map(gs, 0, 1, -1.*minscalefac,1.*maxscalefac);
 			}
 		}
 		img.updatePixels();
@@ -183,10 +212,14 @@ color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				int yloc = y+j-offset;
 				int loc = xloc + img.width*yloc;
 				loc = constrain(loc,0,img.pixels.length-1);
-				float xmsn = (ximg[loc][i][j] / kwidth);
-				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 1.5));
-				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 2));
+				// float xmsn = (ximg[loc][i][j]);
+				// float xmsn = (ximg[loc][i][j] / kwidth);
+				float xmsn = (ximg[loc][i][j] / pow(kwidth, 1.5)); /* smooth fadeout */
+				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 2.0)); /* Fades out quickly */
+				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 1.25)); /* stuttery for some reason, the floating operation?*/
 				// float xmsn = (ximg[loc][i][j] / pow(kwidth, 3));
+				// float xmsn = (ximg[loc][i][j] * 4.);
+				// float xmsn = (ximg[loc][i][j] * 2.);
 				if(xloc == x && yloc == y){
 					rtotal -= (  red(img.pixels[loc]) * xmsn);
 					gtotal -= (green(img.pixels[loc]) * xmsn);
@@ -231,39 +264,22 @@ PImage noiseImage(int w, int h, int lod, float falloff){
 		return rimg;
 	}
 
-
-boolean leftsidetest(int x1, int y1, int x2, int y2, int xp, int yp){
-	return ((x2 - x1) * (yp - y1) - (xp - x1) * (y2 - y1) > 0) ? true : false;
-}
-
 PImage kuficImage(int w, int h){
 		PImage rimg = createImage(w,h, ARGB);
 		rimg.loadPixels();
 		for (int i = 0; i < rimg.width; i++){
 			for (int j = 0; j < rimg.height; j++){
+				chance = ((i % 2) + (j % 2));
 				
-				if(leftsidetest(i,j, rimg.width - i, rimg.height - j, i, j)){
-					chance = 0.00;
-				} else {
-					chance = ((i % 2) + (j % 2));
-					// chance = ((i % 2) * (j % 2));
-				}
-
 				float wallornot = random(2.);
 				int index = (i + j * rimg.width);
-				
-				if((i == 0 || i == rimg.width) || (j == 0 || j == rimg.height)){
-					color c = color(0);
-					rimg.pixels[index] = c;
-				} else {
-					if(wallornot <= chance){
-							color c = color(0);
-							rimg.pixels[index] = c;
-						} else {
-							color c = color(255);
-							rimg.pixels[index] = c;
-						}
-				}
+				if(wallornot <= chance){
+						color c = color(0);
+						rimg.pixels[index] = c;
+					} else {
+						color c = color(255-(255*(wallornot/2.)));
+						rimg.pixels[index] = c;
+					}
 				}
 			}
 		rimg.updatePixels();
