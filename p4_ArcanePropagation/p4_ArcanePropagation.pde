@@ -26,8 +26,9 @@ void setup(){
 	// simg = loadImage("./imgs/nasa.jpg");
 	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
+	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
-	// simg = noiseImage(width/4, height/4, 3, .6);
+	// simg = noiseImage(width/16, height/16, 3, .6);
 	// simg = kuficImage(width/4, height/4);
 
 	
@@ -61,8 +62,8 @@ void setup(){
 	// float sf = 012.00;   /* 021.25 */
 	// float sf = 015.00;   /* 017.00 */
 	// float sf = 017.00;   /* 015.00 */
-	// float sf = 020.00;   /* 012.75 */
-	float sf = 025.00;   /* 010.20 */
+	float sf = 020.00;   /* 012.75 */
+	// float sf = 025.00;   /* 010.20 */
 	// float sf = 027.00;   /* ————— */
 	// float sf = 030.00;   /* 008.50 */
 	// float sf = 034.00;   /* 007.50 */
@@ -87,8 +88,8 @@ void setup(){
 
 	scalefac = 255./sf;;
 	
-	xsmnfactor = 1.;
-	// xsmnfactor = pow(kwidth,2.);
+	// xsmnfactor = 1.;
+	xsmnfactor = pow(kwidth,2.);
 	// xsmnfactor = pow(kwidth,3.);
 	
 	xmg = loadxm(simg, kwidth);
@@ -110,7 +111,8 @@ void setup(){
 	// displayscale = .98;
 	// displayscale = .5;
 	
-	// frameRate(6.);
+	// frameRate(1.);
+	frameRate(6.);
 }
 
 void draw(){

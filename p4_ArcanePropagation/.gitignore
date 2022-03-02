@@ -4,6 +4,8 @@ imgs/
 
 build/
 
+build/**/
+
 frames/
 
 video/
