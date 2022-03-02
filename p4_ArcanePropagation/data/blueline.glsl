@@ -4,17 +4,16 @@ precision highp float;
 
 #define PROCESSING_COLOR_SHADER
 
-uniform float time;
-uniform vec2 mouse;
 uniform vec2 resolution;
 uniform sampler2D ppixels;
 
 uniform sampler2D tex0;
 uniform float aspect;
+uniform float rfac;
 
 float energy, angle = 0;
 float pxos,clip,ec;
-#define lineweight .003
+#define lineweight .000000000001
 
 vec2 radius, thickness;
 
@@ -47,24 +46,30 @@ float drawLine(vec2 uv, vec2 p1, vec2 p2) {
 
 // ———————
 
-void energyAngle1(){
-	energy = (color.r+color.g+color.b+color.a/4.0);
-	angle = mix(0.0, 2.*PI, energy);
-}
+#define C4Z 1
+#define C3M 2
+#define C3Z 3
 
-void energyAngle2(){
-	energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
-	angle = map(energy, -1., 1., 0., 2.*PI);
-}
-
-void energyAngle3(){
-	energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
-	angle = mix(0., 2.*PI, energy);
-}
-
-void energyAngle4(){
-	energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
-	angle = mix(0.,(2.*PI), energy);
+void pushEnergyAngle(int selector){
+	switch(selector)
+	{
+		case C4Z:
+			energy = (color.r+color.g+color.b+color.a/4.0);
+			angle = mix(0.0, 2.*PI, energy);
+			break;
+		case C3M:
+			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
+			angle = map(energy, -1., 1., 0., 2.*PI);
+			break;
+		case C3Z:
+			energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
+			angle = mix(0., 2.*PI, energy);
+			break;
+		default:
+			energy = (color.r+color.g+color.b+color.a/4.0);
+			angle = mix(0.0, 2.*PI, energy);
+			break;
+	}
 }
 
 float _point(in vec2 uv, vec2 o){
@@ -95,31 +100,66 @@ void pushgeo(int selector, vec2 uv){
 			pxos = _pointorbit(uv, uv);
 			break;
 		case lines:
-			pxos = _lineorbit(uv, uv+radius);
+			pxos = _lineorbit(uv, uv);
 			break;
 		default:
-			pxos = _point(uv,uv);
+			pxos = _pointorbit(uv, uv);
 			break;
 	}
 }
 
-vec4 makeGrade(){
+#define alpha1 1
+#define alphaE 2
+#define alphaC 3
+#define alphaY 4
+
+vec4 makeGrade(int selector){
 	float ac4 = (angle/(2.*PI))*(215./255.);
 	float ec = mix(-1.,1.,energy);
-	// return vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),color.a);
-	// return vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),ec);
-	// return vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),energy);
-	return vec4(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)),1.0);
-	// return vec4(angle,vec2(0.),color.a);
+	vec3 base = vec3(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)));
+	
+	vec4 mgrade;
+	
+	switch(selector)
+	{
+		case alpha1:
+			mgrade = vec4(base,1.0);
+			break;
+		case alphaE:
+			mgrade = vec4(base,ec);
+			break;
+		case alphaC:
+			mgrade = vec4(base,color.a);
+			break;
+		case alphaY:
+			mgrade = vec4(base,energy);
+			break;
+		default:
+			mgrade = vec4(base,1.0);
+			break;
+	}
+	return mgrade;
 }
 
-void pushgrade(){
-	grade = makeGrade();
-}
+#define normal  1
+#define inverse 2
 
-void pushgradeI(){
-	vec4 c = makeGrade();
-	grade = vec4(1.-c.rgb, c.a);
+void pushgrade(int selector, int selector2){
+	
+	switch(selector)
+	{
+		case normal:
+			grade = makeGrade(selector2);
+			break;
+		case inverse:
+			// vec4 c = makeGrade();
+			// grade = vec4(1.-c.rgb, c.a);
+			grade = 1. - makeGrade(selector2);
+			break;
+		default:
+			grade = makeGrade(selector2);
+			break;
+	}
 }
 
 #define pointgrade 1
@@ -151,7 +191,10 @@ vec4 pushfrag(int selector, vec2 uv){
 			c = (1.-vec4(pxos))*color*clip;
 			break;
 		case lineclipr:
-			c = vec4(1.0-vec3(pxos), energy)*clip;
+		c = vec4(1.-vec3(pxos), energy)+(1.0-color)*clip;
+		// c = vec4(1.0-vec3(pxos), energy)*clip;
+		// c = vec4(1.-vec3(pxos), 1.)*clip;
+		// c = vec4(1.0-vec3(pxos), color.a)*clip;
 			break;
 		default:
 			c = color*clip;
@@ -169,19 +212,33 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	// color  = (texture2D(tex0, vec2(position.x, 1.0 - position.y))+1.)/2.;
-		
-		// energyAngle1();
-		// energyAngle2();
-		// energyAngle3();
-	energyAngle4();
-		
-	thickness = pixel;
-	radius    = (2.*thickness);
 	
+	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
+	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
+	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,2 PI, E)          |
+	pushEnergyAngle(C3Z);
+	
+	thickness = pixel;
+	radius    = (rfac*thickness);
+	
+	//| points   | _pointorbit       |
+	//| lines    | _lineorbit        |
 	pushgeo(lines, position);
 	
-	pushgrade();
-	// pushgradeI();
-		
-		gl_FragColor = pushfrag(lineclipr, position);
+	//|              ARG1            |
+	//| normal   | grade             |
+	//| inverse  | 1 - grade         |
+	//|              ARG2            |
+	//| alpha1   | alpha => 1.0      |
+	//| alphaE   | alpha => ec       |
+	//| alphaC   | alpha => color.a  |
+	//| alphaY   | alpha => energy   |
+	pushgrade(normal, alpha1);
+	
+	//| pointgrade | point * grade * clip |
+	//| graderlock | grade * clip         |
+	//| colorclipr | color * clip         |
+	//| pointclipr | point * color * clip |
+	//| lineclipr  | line  * color * clip |
+	gl_FragColor = pushfrag(lineclipr, position);
 	}
