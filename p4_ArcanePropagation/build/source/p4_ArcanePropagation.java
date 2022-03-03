@@ -37,37 +37,47 @@ boolean dispersed;
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
+	// simg = loadImage("./imgs/abstract_1.PNG");
+	// simg = loadImage("./imgs/abstract_2.PNG");
+	// simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/abstract_3.PNG");
+	// simg = loadImage("./imgs/abstract_4.JPG");
+	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fezHassan.JPG");
+	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
 	// simg = noiseImage(width/16, height/16, 3, .6);
-	// simg = kuficImage(width/4, height/4);
+	// simg = kuficImage(width/16, height/4);
 
+	// mazeImage(simg);
 	
 	// simg.filter(GRAY);
 	// simg.filter(POSTERIZE, 4);
 	// simg.filter(BLUR, 2);
 	// simg.filter(DILATE);
 	// simg.filter(ERODE);
+	// simg.filter(INVERT);
 	
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
-	pg = createGraphics(9000,9000, P2D);
+	pg = createGraphics(4000,4000, P2D);
 	pg.noSmooth();
 	
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
-	modfac = 1;
+	modfac = 3;
 	simg.resize(width/downsample,0);
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
 	// transmit: As sf increases decay-rate decreases
+	//    smear: As sf increases      smear decreases
 	// float sf = 000.50;   /* 510.00 */
 	// float sf = 001.00;   /* 255.00 */
 	// float sf = 002.00;   /* 127.50 */
@@ -79,8 +89,8 @@ boolean dispersed;
 	// float sf = 012.00;   /* 021.25 */
 	// float sf = 015.00;   /* 017.00 */
 	// float sf = 017.00;   /* 015.00 */
-	float sf = 020.00f;   /* 012.75 */
-	// float sf = 025.00;   /* 010.20 */
+	// float sf = 020.00;   /* 012.75 */
+	float sf = 025.00f;   /* 010.20 */
 	// float sf = 027.00;   /* ————— */
 	// float sf = 030.00;   /* 008.50 */
 	// float sf = 034.00;   /* 007.50 */
@@ -115,7 +125,7 @@ boolean dispersed;
 	blueline.set("rfac", 2.0f);
 	// blueline.set("rfac", (float)modfac*100);
 	
-	dispersed = true;
+	dispersed = false;
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
@@ -128,7 +138,7 @@ boolean dispersed;
 	// displayscale = .98;
 	// displayscale = .5;
 	
-	frameRate(1.f);
+	// frameRate(1.);
 	// frameRate(6.);
 }
 
@@ -142,6 +152,7 @@ boolean dispersed;
 	
 	convolve(simg, xmg);
 	// transmit(simg, xmg);
+	// smear(simg, xmg);
 	
 	if(dispersed){
 		drawDispersed();
@@ -188,10 +199,17 @@ boolean dispersed;
 			
 			loc = constrain(loc,0,img.pixels.length-1);
 			// TODO: should gs be computed with a different divisor. 3? or should I just take the natural mean values instead of the graded grayscale?
+			
+			int cpx = img.pixels[loc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
 			float gs = (
-				0.2989f *   red(img.pixels[loc]) +
-				0.5870f * green(img.pixels[loc]) +
-				0.1140f *  blue(img.pixels[loc])
+				0.2989f * rpx +
+				0.5870f * gpx +
+				0.1140f * bpx
 				) / 255;
 			
 			// more interesting for p5sketch1
@@ -211,6 +229,70 @@ boolean dispersed;
 		return kern;
 	}
 
+ public int kerncenter(int dim){
+	float kcenter = -0.5f + (0.5f *dim);
+	return (int)kcenter;
+}
+
+ public int[][] makeEdgeKernel(int dim, int min, int max){
+	int[][] ek = new int[dim][dim];
+	int kc = kerncenter(dim);
+	for (int i = 0; i < dim; i++){
+		for (int j= 0; j < dim; j++){
+			if(i == kc && j == kc){
+				ek[i][j] = max;
+			} else {
+				ek[i][j] = min;
+			}
+			}
+		}
+	return ek;
+}
+ public float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
+	float[][] kern = new float[dim][dim];
+	int[][] edge = makeEdgeKernel(dim, -1, 9);
+	// {{-1,-1,-1},{-1,9,-1},{-1,-1,-1}}
+	img.loadPixels();
+	int offset = dim / 2;
+	for (int i = 0; i < dim; i++){
+		for (int j= 0; j < dim; j++){
+			
+			int xloc = x+i-offset;
+			int yloc = y+j-offset;
+			int loc = xloc + img.width*yloc;
+			
+			loc = constrain(loc,0,img.pixels.length-1);
+			
+			int cpx = img.pixels[loc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
+			rpx += edge[i][j]/9;
+			gpx += edge[i][j]/9;
+			bpx += edge[i][j]/9;
+			
+			// float gs = (
+			// 	0.2989 * rpx +
+			// 	0.5870 * gpx +
+			// 	0.1140 * bpx
+			// 	) / 255;
+			
+			// more interesting for p5sketch1
+			float gs = (
+				0.2989f * rpx +
+				0.5870f * gpx +
+				0.1140f * bpx
+				) / 3;
+
+				kern[i][j] = map(gs, 0, 1, -1.f*scalefac,1.f*scalefac);
+			}
+		}
+		img.updatePixels();
+		return kern;
+	}
+
  public float[][][] loadxm(PImage img, int kwidth) {
 	float[][][] xms = new float[PApplet.parseInt(img.width * img.height)][kwidth][kwidth];
 	float[][] kernel = new float[kwidth][kwidth];
@@ -218,6 +300,7 @@ boolean dispersed;
 	for (int i = 0; i < img.width; i++){
 		for (int j = 0; j < img.height; j++){
 			kernel = loadkernel(i,j, kwidth, img);
+			// kernel = loadEdgeWeight(i,j, kwidth, img);
 			int index = (i + j * img.width);
 			xms[index] = kernel;
 		}
@@ -269,6 +352,7 @@ boolean dispersed;
 		float rtotal = 0.0f;
 		float gtotal = 0.0f;
 		float btotal = 0.0f;
+
 		int offset = kwidth / 2;
 		for (int i = 0; i < kwidth; i++){
 			for (int j= 0; j < kwidth; j++){
@@ -280,14 +364,20 @@ boolean dispersed;
 				
 				float xmsn = (ximg[loc][i][j] / xsmnfactor);
 				
+				int cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+				
 				if(xloc == x && yloc == y){
-					rtotal -= (  red(img.pixels[loc]) * xmsn);
-					gtotal -= (green(img.pixels[loc]) * xmsn);
-					btotal -= ( blue(img.pixels[loc]) * xmsn);
+					rtotal -= (rpx * xmsn);
+					gtotal -= (gpx * xmsn);
+					btotal -= (bpx * xmsn);
 				} else {
-					rtotal += (  red(img.pixels[loc]) * xmsn);
-					gtotal += (green(img.pixels[loc]) * xmsn);
-					btotal += ( blue(img.pixels[loc]) * xmsn);
+					rtotal += (rpx * xmsn);
+					gtotal += (gpx * xmsn);
+					btotal += (bpx * xmsn);
 				}
 			}
 		}
@@ -295,22 +385,75 @@ boolean dispersed;
 		return color(rtotal, gtotal, btotal);
 	}
 
+ public void smear(PImage img, float[][][] ximage) {
+	img.loadPixels();
+	for (int i = 0; i < img.width; i++){
+		for (int j = 0; j < img.height; j++){
+			int c =  smearing(i,j, kwidth, img, ximage);
+			int index = (i + j * img.width);
+			img.pixels[index] = c;
+		}
+	}
+	img.updatePixels();
+	}
+
+ public int smearing(int x, int y, int kwidth, PImage img, float[][][] ximg)
+	{
+		
+		float rpx = 0.0f;
+		float gpx = 0.0f;
+		float bpx = 0.0f;
+		
+		
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = (ximg[loc][i][j] / xsmnfactor);
+				
+				int cpx = img.pixels[loc];
+				rpx = cpx >> 16 & 0xFF;
+				gpx = cpx >> 8 & 0xFF;
+				bpx = cpx & 0xFF;
+
+				if(xloc == x && yloc == y){
+					rpx -= (xmsn);
+					gpx -= (xmsn);
+					bpx -= (xmsn);
+				} else {
+					rpx += (xmsn);
+					gpx += (xmsn);
+					bpx += (xmsn);
+				}
+			}
+		}
+		return color(rpx, gpx, bpx);
+	}
+
  public void transmit(PImage img, float[][][] ximage)
 	{
 		img.loadPixels();
 		for (int i = 0; i < img.width; i++){
 			for (int j = 0; j < img.height; j++){
-				int c = transmission(i,j, kwidth, img, ximage);
-				int index = (i + j * img.width);
-				img.pixels[index] = c;
+				transmission(i,j, kwidth, img, ximage);
 			}
 		}
 		img.updatePixels();
 	}
 
- public int transmission(int x, int y, int kwidth, PImage img, float[][][] ximg)
+ public void transmission(int x, int y, int kwidth, PImage img, float[][][] ximg)
 	{
-
+		int cpx = img.pixels[x+y*img.width];
+		
+		float rpx = cpx >> 16 & 0xFF;
+		float gpx = cpx >> 8 & 0xFF;
+		float bpx = cpx & 0xFF;
+		
 		int offset = kwidth / 2;
 		for (int i = 0; i < kwidth; i++){
 			for (int j= 0; j < kwidth; j++){
@@ -321,35 +464,18 @@ boolean dispersed;
 				loc = constrain(loc,0,img.pixels.length-1);
 				float xmsn = (ximg[loc][i][j] / xsmnfactor);
 				
-				float rpx = 0.0f;
-				float gpx = 0.0f;
-				float bpx = 0.0f;
 				if(xloc == x && yloc == y){
-					rpx = red(img.pixels[loc])    - xmsn;
-					gpx = green(img.pixels[loc])  - xmsn;
-					bpx = blue(img.pixels[loc])   - xmsn;
-					img.pixels[loc] = color(rpx,gpx,bpx);
+					rpx -= xmsn;
+					gpx -= xmsn;
+					bpx -= xmsn;
 				} else {
-					rpx = red(img.pixels[loc])    + xmsn;
-					gpx = green(img.pixels[loc])  + xmsn;
-					bpx = blue(img.pixels[loc])   + xmsn;
-					img.pixels[loc] = color(rpx,gpx,bpx);
+					rpx += xmsn;
+					gpx += xmsn;
+					bpx += xmsn;
 				}
-				
-				// if(xloc == x && yloc == y){
-				// 	rpx = red(img.pixels[loc])    - (xmsn * img.pixels[loc]);
-				// 	gpx = green(img.pixels[loc])  - (xmsn * img.pixels[loc]);
-				// 	bpx = blue(img.pixels[loc])   - (xmsn * img.pixels[loc]);
-				// 	img.pixels[loc] = color(rpx,gpx,bpx);
-				// } else {
-				// 	rpx = red(img.pixels[loc])    + (xmsn * img.pixels[x+y*img.width]);
-				// 	gpx = green(img.pixels[loc])  + (xmsn * img.pixels[x+y*img.width]);
-				// 	bpx = blue(img.pixels[loc])   + (xmsn * img.pixels[x+y*img.width]);
-				// 	img.pixels[loc] = color(rpx,gpx,bpx);
-				// }
 			}
 		}
-		return img.pixels[x+y*img.width];
+		img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
 	}
 
  public PImage randomImage(int w, int h){
@@ -404,7 +530,32 @@ boolean dispersed;
 	}
 
 
-  public void settings() { size(800, 800, P3D);
+ public void mazeImage(PImage source){
+		source.loadPixels();
+		for (int i = 0; i < source.width; i++){
+			for (int j = 0; j < source.height; j++){
+				
+				int loc = (i + j * source.width);
+				
+				int cpx = source.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+				float apx = alpha(cpx);
+				
+				float avgF = ((rpx+gpx+bpx+apx)/4.f)/255.f;
+				
+				float r = round(avgF);
+				int c = color(r*255);
+				source.pixels[loc] = c;
+				}
+			}
+		source.updatePixels();
+	}
+
+
+  public void settings() { size(1000, 1000, P3D);
 pixelDensity(1); }
 
   static public void main(String[] passedArgs) {

@@ -87,7 +87,8 @@ float _pointorbit(in vec2 uv, vec2 center){
 float _lineorbit(in vec2 uv, vec2 center){
 	vec2 trig = vec2(cos(angle),sin(angle));
 	vec2 o = center + (radius * trig);
-	return drawLine(uv, center, o);
+	// return 1.0-drawLine(uv, center, o);
+	return 1.0-drawLine(uv, center, vec2(.5));
 }
 
 #define points 1
@@ -191,10 +192,7 @@ vec4 pushfrag(int selector, vec2 uv){
 			c = (1.-vec4(pxos))*color*clip;
 			break;
 		case lineclipr:
-		c = vec4(1.-vec3(pxos), energy)+(1.0-color)*clip;
-		// c = vec4(1.0-vec3(pxos), energy)*clip;
-		// c = vec4(1.-vec3(pxos), 1.)*clip;
-		// c = vec4(1.0-vec3(pxos), color.a)*clip;
+			c = ((vec4(pxos)+color)/2.)*clip;
 			break;
 		default:
 			c = color*clip;
@@ -216,7 +214,7 @@ void main( void ) {
 	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
 	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
 	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,2 PI, E)          |
-	pushEnergyAngle(C4Z);
+	pushEnergyAngle(C3M);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
@@ -233,7 +231,7 @@ void main( void ) {
 	//| alphaE   | alpha => ec       |
 	//| alphaC   | alpha => color.a  |
 	//| alphaY   | alpha => energy   |
-	pushgrade(normal, alphaY);
+	pushgrade(normal, alpha1);
 	
 	//| pointgrade | point * grade * clip |
 	//| graderlock | grade * clip         |
