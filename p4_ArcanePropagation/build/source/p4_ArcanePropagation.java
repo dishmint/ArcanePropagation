@@ -43,17 +43,18 @@ boolean dispersed;
 	// simg = loadImage("./imgs/abstract_3.PNG");
 	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
+	simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
 	// simg = noiseImage(width/16, height/16, 3, .6);
-	// simg = kuficImage(width/16, height/4);
+	// simg = kuficImage(width, height);
 
 	// mazeImage(simg);
 	
@@ -71,7 +72,7 @@ boolean dispersed;
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
-	modfac = 3;
+	modfac = 1;
 	simg.resize(width/downsample,0);
 	
 	// sf ~~ rate of decay
@@ -82,7 +83,7 @@ boolean dispersed;
 	// float sf = 001.00;   /* 255.00 */
 	// float sf = 002.00;   /* 127.50 */
 	// float sf = 003.00;   /* 085.00 */
-	// float sf = 004.00;   /* 063.75 */
+	float sf = 004.00f;   /* 063.75 */
 	// float sf = 005.00;   /* 051.00 */
 	// float sf = 006.00;   /* 042.50 */
 	// float sf = 010.00;   /* 025.50 */
@@ -90,7 +91,7 @@ boolean dispersed;
 	// float sf = 015.00;   /* 017.00 */
 	// float sf = 017.00;   /* 015.00 */
 	// float sf = 020.00;   /* 012.75 */
-	float sf = 025.00f;   /* 010.20 */
+	// float sf = 025.00;   /* 010.20 */
 	// float sf = 027.00;   /* ————— */
 	// float sf = 030.00;   /* 008.50 */
 	// float sf = 034.00;   /* 007.50 */
@@ -116,6 +117,7 @@ boolean dispersed;
 	scalefac = 255.f/sf;;
 	
 	// xsmnfactor = 1.;
+	// xsmnfactor = pow(kwidth,1.5);
 	xsmnfactor = pow(kwidth,2.f);
 	// xsmnfactor = pow(kwidth,3.);
 	
@@ -555,7 +557,7 @@ boolean dispersed;
 	}
 
 
-  public void settings() { size(1000, 1000, P3D);
+  public void settings() { size(900, 900, P3D);
 pixelDensity(1); }
 
   static public void main(String[] passedArgs) {

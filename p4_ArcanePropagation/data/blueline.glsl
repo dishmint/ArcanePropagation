@@ -214,7 +214,7 @@ void main( void ) {
 	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
 	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
 	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,2 PI, E)          |
-	pushEnergyAngle(C3M);
+	pushEnergyAngle(C4Z);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
@@ -231,7 +231,7 @@ void main( void ) {
 	//| alphaE   | alpha => ec       |
 	//| alphaC   | alpha => color.a  |
 	//| alphaY   | alpha => energy   |
-	pushgrade(normal, alpha1);
+	pushgrade(normal, alphaY);
 	
 	//| pointgrade | point * grade * clip |
 	//| graderlock | grade * clip         |
