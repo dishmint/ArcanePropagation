@@ -15,7 +15,7 @@ float energy, angle = 0;
 float pxos,clip,ec;
 #define lineweight .000000000001
 
-vec2 radius, thickness;
+vec2 radius, thickness, pixel;
 
 vec4 color,grade;
 
@@ -43,6 +43,14 @@ float drawLine(vec2 uv, vec2 p1, vec2 p2) {
 	
 	return mix(1.0, 0.0, smoothstep(0.5 * lineweight, 1.5 * lineweight, h));
 }
+
+
+float lineSegment(vec2 p, vec2 a, vec2 b) {
+	vec2 pa = p - a, ba = b - a;
+	float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+	return smoothstep(0.0, 1.0 / pixel.x, length(pa - ba*h));
+}
+
 
 // ———————
 
@@ -88,7 +96,8 @@ float _lineorbit(in vec2 uv, vec2 center){
 	vec2 trig = vec2(cos(angle),sin(angle));
 	vec2 o = center + (radius * trig);
 	// return 1.0-drawLine(uv, center, o);
-	return 1.0-drawLine(uv, center, vec2(.5));
+	// return 1.0-drawLine(uv, center, vec2(.5));
+	return lineSegment(uv, center, o);
 }
 
 #define points 1
@@ -101,7 +110,7 @@ void pushgeo(int selector, vec2 uv){
 			pxos = _pointorbit(uv, uv);
 			break;
 		case lines:
-			pxos = _lineorbit(uv, uv);
+			pxos = _lineorbit(uv, uv+.5);
 			break;
 		default:
 			pxos = _pointorbit(uv, uv);
@@ -193,6 +202,7 @@ vec4 pushfrag(int selector, vec2 uv){
 			break;
 		case lineclipr:
 			c = ((vec4(pxos)+color)/2.)*clip;
+			// c = (1.0-(vec4(pxos)))*clip;
 			break;
 		default:
 			c = color*clip;
@@ -204,7 +214,7 @@ vec4 pushfrag(int selector, vec2 uv){
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy );
-	vec2 pixel = 1./resolution;
+	pixel = 1./resolution;
 	position.y*=aspect;
 	position.y += (1.0 - aspect) / 2.0;
 	
@@ -221,7 +231,7 @@ void main( void ) {
 	
 	//| points   | _pointorbit       |
 	//| lines    | _lineorbit        |
-	pushgeo(points, position);
+	pushgeo(lines, position);
 	
 	//|              ARG1            |
 	//| normal   | grade             |

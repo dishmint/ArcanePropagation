@@ -13,7 +13,8 @@ float scalefac,xsmnfactor,chance,displayscale;
 boolean dispersed;
 
 void setup(){
-	size(900,900, P3D);
+	size(800,800, P3D);
+	// size(1000,1000, P3D);
 	surface.setTitle("Arcane Propagations");
 	pixelDensity(1);
 	
@@ -26,18 +27,19 @@ void setup(){
 	// simg = loadImage("./imgs/abstract_3.PNG");
 	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
-	simg = loadImage("./imgs/fzn_dishmint.JPG");
+	// simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
 	// simg = noiseImage(width/16, height/16, 3, .6);
 	// simg = kuficImage(width, height);
+	// simg = kuficImage(width/16, height/16);
 
 	// mazeImage(simg);
 	
@@ -46,9 +48,11 @@ void setup(){
 	// simg.filter(BLUR, 2);
 	// simg.filter(DILATE);
 	// simg.filter(ERODE);
-	// simg.filter(INVERT);
+	 //simg.filter(INVERT);
 	
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
+	// pg = createGraphics(400,400, P2D);
+	// pg = createGraphics(1200,1200, P2D);
 	pg = createGraphics(4000,4000, P2D);
 	pg.noSmooth();
 	
@@ -66,7 +70,7 @@ void setup(){
 	// float sf = 001.00;   /* 255.00 */
 	// float sf = 002.00;   /* 127.50 */
 	// float sf = 003.00;   /* 085.00 */
-	float sf = 004.00;   /* 063.75 */
+	// float sf = 004.00;   /* 063.75 */
 	// float sf = 005.00;   /* 051.00 */
 	// float sf = 006.00;   /* 042.50 */
 	// float sf = 010.00;   /* 025.50 */
@@ -74,7 +78,7 @@ void setup(){
 	// float sf = 015.00;   /* 017.00 */
 	// float sf = 017.00;   /* 015.00 */
 	// float sf = 020.00;   /* 012.75 */
-	// float sf = 025.00;   /* 010.20 */
+	float sf = 025.00;   /* 010.20 */
 	// float sf = 027.00;   /* ————— */
 	// float sf = 030.00;   /* 008.50 */
 	// float sf = 034.00;   /* 007.50 */
@@ -110,7 +114,7 @@ void setup(){
 	blueline.set("rfac", 2.0);
 	// blueline.set("rfac", (float)modfac*100);
 	
-	dispersed = false;
+	dispersed = true;
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
