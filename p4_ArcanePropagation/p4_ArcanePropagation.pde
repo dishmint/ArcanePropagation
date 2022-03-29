@@ -14,7 +14,8 @@ boolean dispersed;
 
 void setup(){
 	size(800,800, P3D);
-	// size(1000,1000, P3D);
+	// size(900,900, P3D);
+	// size(1440,1440, P3D);
 	surface.setTitle("Arcane Propagations");
 	pixelDensity(1);
 	
@@ -23,7 +24,7 @@ void setup(){
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
-	// simg = loadImage("./imgs/fruit.jpg");
+	simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/abstract_3.PNG");
 	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
@@ -32,9 +33,10 @@ void setup(){
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
+	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
 	// simg = noiseImage(width/16, height/16, 3, .6);
@@ -48,73 +50,95 @@ void setup(){
 	// simg.filter(BLUR, 2);
 	// simg.filter(DILATE);
 	// simg.filter(ERODE);
-	 //simg.filter(INVERT);
+	// simg.filter(INVERT);
+	// simg.filter(THRESHOLD, .8);
 	
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(400,400, P2D);
 	// pg = createGraphics(1200,1200, P2D);
-	pg = createGraphics(4000,4000, P2D);
+	// pg = createGraphics(4000,4000, P2D);
+	// pg = createGraphics(5000,5000, P2D);
+	// pg = createGraphics(10000,10000, P2D);
+	// pg = createGraphics(11000,11000, P2D);
+	pg = createGraphics(14000,14000, P2D);
 	pg.noSmooth();
 	
-	// dmfac = 1;
-	// downsample = modfac = dmfac;
-	downsample = 1;
-	modfac = 1;
+	dmfac = 1;
+	downsample = modfac = dmfac;
+	// downsample = 1;
+	// modfac = 1;
 	simg.resize(width/downsample,0);
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
 	// transmit: As sf increases decay-rate decreases
 	//    smear: As sf increases      smear decreases
-	// float sf = 000.50;   /* 510.00 */
-	// float sf = 001.00;   /* 255.00 */
-	// float sf = 002.00;   /* 127.50 */
-	// float sf = 003.00;   /* 085.00 */
-	// float sf = 004.00;   /* 063.75 */
-	// float sf = 005.00;   /* 051.00 */
-	// float sf = 006.00;   /* 042.50 */
-	// float sf = 010.00;   /* 025.50 */
-	// float sf = 012.00;   /* 021.25 */
-	// float sf = 015.00;   /* 017.00 */
-	// float sf = 017.00;   /* 015.00 */
-	// float sf = 020.00;   /* 012.75 */
-	float sf = 025.00;   /* 010.20 */
-	// float sf = 027.00;   /* ————— */
-	// float sf = 030.00;   /* 008.50 */
-	// float sf = 034.00;   /* 007.50 */
-	// float sf = 050.00;   /* 005.10 */
-	// float sf = 051.00;   /* 005.00 */
-	// float sf = 060.00;   /* 004.25 */
-	// float sf = 068.00;   /* 003.75 */
-	// float sf = 075.00;   /* 003.40 */
-	// float sf = 085.00;   /* 003.00 */
-	// float sf = 100.00;   /* 002.55 */
-	// float sf = 102.00;   /* 002.50 */
-	// float sf = 125.00;   /* 002.04 */
-	// float sf = 150.00;   /* 001.70 */
-	// float sf = 170.00;   /* 001.50 */
-	// float sf = 204.00;   /* 001.25 */
-	// float sf = 250.00;   /* 001.02 */
-	// float sf = 255.00;   /* 001.00 */
-	// float sf = 382.50;   /* 000.66 */
-	// float sf = 510.00;   /* 000.50 */
-	// float sf = 637.50;   /* 000.40 */
-	// float sf = 765.00;   /* 000.33 */
+	// float sf = 0000.50;   /* 510.00 */
+	// float sf = 0001.00;   /* 255.00 */
+	// float sf = 0002.00;   /* 127.50 */
+	// float sf = 0003.00;   /* 085.00 */
+	// float sf = 0004.00;   /* 063.75 */
+	// float sf = 0005.00;   /* 051.00 */
+	// float sf = 0006.00;   /* 042.50 */
+	// float sf = 0010.00;   /* 025.50 */
+	// float sf = 0012.00;   /* 021.25 */
+	// float sf = 0015.00;   /* 017.00 */
+	// float sf = 0017.00;   /* 015.00 */
+	// float sf = 0020.00;   /* 012.75 */
+	// float sf = 0025.00;   /* 010.20 */
+	float sf = 0027.00;   /* ————— */
+	// float sf = 0030.00;   /* 008.50 */
+	// float sf = 0034.00;   /* 007.50 */
+	// float sf = 0050.00;   /* 005.10 */
+	// float sf = 0051.00;   /* 005.00 */
+	// float sf = 0060.00;   /* 004.25 */
+	// float sf = 0068.00;   /* 003.75 */
+	// float sf = 0075.00;   /* 003.40 */
+	// float sf = 0085.00;   /* 003.00 */
+	// float sf = 0100.00;   /* 002.55 */
+	// float sf = 0102.00;   /* 002.50 */
+	// float sf = 0125.00;   /* 002.04 */
+	// float sf = 0150.00;   /* 001.70 */
+	// float sf = 0170.00;   /* 001.50 */
+	// float sf = 0204.00;   /* 001.25 */
+	// float sf = 0250.00;   /* 001.02 */
+	// float sf = 0255.00;   /* 001.00 */
+	// float sf = 0382.50;   /* 000.66 */
+	// float sf = 0510.00;   /* 000.50 */
+	// float sf = 0637.50;   /* 000.40 */
+	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
+	// float sf = 1020.00;   /* 000.25 */
+	// float sf = 2040.00;   /* 000.125 */
 
-	scalefac = 255./sf;;
+	scalefac = 255./sf;
 	
 	// xsmnfactor = 1.;
+	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
 	xsmnfactor = pow(kwidth,2.);
 	// xsmnfactor = pow(kwidth,3.);
+	// xsmnfactor = pow(kwidth,4.);
+	// xsmnfactor = pow(kwidth,6.);
 	
 	xmg = loadxm(simg, kwidth);
 	
 	blueline = loadShader("blueline.glsl");
-	blueline.set("rfac", 2.0);
-	// blueline.set("rfac", (float)modfac*100);
+	// blueline.set("rfac", 0.125000);
+	// blueline.set("rfac", 0.250000);
+	// blueline.set("rfac", (float)modfac/4);
+	// blueline.set("rfac", 1.000000); /* Going 10% smaller seems to work liks a mask, reducing horizontal image lines to 0 for some reason.. */
+	// blueline.set("rfac", 1.001000);
+	// blueline.set("rfac", 1.010000);
+	// blueline.set("rfac", 1.100000);
+	blueline.set("rfac", 1.200000);
+	// blueline.set("rfac", 1.250000);
+	// blueline.set("rfac", 1.300000);
+	// blueline.set("rfac", 1.400000);
+	// blueline.set("rfac", 1.410000);
+	// blueline.set("rfac", 1.500000); /* black screen */
+	// blueline.set("rfac", 2.000000); /* black screen */
 	
-	dispersed = true;
+	dispersed = false;
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
@@ -123,12 +147,15 @@ void setup(){
 	blueline.set("resolution", float(pg.width), float(pg.height));
 	imageMode(CENTER);
 	
+	// displayscale = 2.0;
 	displayscale = 1.0;
 	// displayscale = .98;
+	// displayscale = .65;
 	// displayscale = .5;
 	
 	// frameRate(1.);
 	// frameRate(6.);
+	// noLoop();
 }
 
 void draw(){
@@ -139,8 +166,8 @@ void draw(){
 	pg.rect(0, 0, pg.width, pg.height);
 	pg.endDraw();
 	
-	convolve(simg, xmg);
-	// transmit(simg, xmg);
+	// convolve(simg, xmg);
+	transmit(simg, xmg);
 	// smear(simg, xmg);
 	
 	if(dispersed){
@@ -149,6 +176,11 @@ void draw(){
 		drawOriginal();
 	}
 	image(pg, width/2, height/2, width*displayscale, height*displayscale);
+	// if(frameCount > 600){
+	// 	noLoop();
+	// } else {
+	// 	saveFrame("/Users/faizonzaman/Documents/Assets/Frames/ArcanePropagation/arcprop-######.png");
+	// }
 }
 
 

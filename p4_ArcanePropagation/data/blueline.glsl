@@ -26,32 +26,6 @@ float map(float value, float min1, float max1, float min2, float max2) {
 	return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 
-// https://stackoverflow.com/questions/15276454/is-it-possible-to-draw-line-thickness-in-a-fragment-shader
-
-float drawLine(vec2 uv, vec2 p1, vec2 p2) {
-	
-	float a = abs(distance(p1, uv));
-	float b = abs(distance(p2, uv));
-	float c = abs(distance(p1, p2));
-	
-	if ( a >= c || b >=  c ) return 0.0;
-	
-	float p = (a + b + c) * 0.5;
-	
-	// median to (p1, p2) vector
-	float h = 2. / c * sqrt( p * ( p - a) * ( p - b) * ( p - c));
-	
-	return mix(1.0, 0.0, smoothstep(0.5 * lineweight, 1.5 * lineweight, h));
-}
-
-
-float lineSegment(vec2 p, vec2 a, vec2 b) {
-	vec2 pa = p - a, ba = b - a;
-	float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-	return smoothstep(0.0, 1.0 / pixel.x, length(pa - ba*h));
-}
-
-
 // ———————
 
 #define C4Z 1
@@ -92,14 +66,6 @@ float _pointorbit(in vec2 uv, vec2 center){
 	return _point(uv, o);
 }
 
-float _lineorbit(in vec2 uv, vec2 center){
-	vec2 trig = vec2(cos(angle),sin(angle));
-	vec2 o = center + (radius * trig);
-	// return 1.0-drawLine(uv, center, o);
-	// return 1.0-drawLine(uv, center, vec2(.5));
-	return lineSegment(uv, center, o);
-}
-
 #define points 1
 #define lines  2
 
@@ -108,9 +74,6 @@ void pushgeo(int selector, vec2 uv){
 	{
 		case points:
 			pxos = _pointorbit(uv, uv);
-			break;
-		case lines:
-			pxos = _lineorbit(uv, uv+.5);
 			break;
 		default:
 			pxos = _pointorbit(uv, uv);
@@ -123,14 +86,41 @@ void pushgeo(int selector, vec2 uv){
 #define alphaC 3
 #define alphaY 4
 
-vec4 makeGrade(int selector){
-	float ac4 = (angle/(2.*PI))*(215./255.);
-	float ec = mix(-1.,1.,energy);
-	vec3 base = vec3(ac4, 1.-abs(ec), 1.-(abs(ec)*(200./255.)));
+#define red   1
+#define blue  2
+#define green 3
+#define rblue 4
+
+vec3 makebase(int selector){
+	vec3 b;
+	switch(selector)
+	{
+		case red:
+			b = vec3(1.0,0.0,0.0)*(angle/(2.*PI));
+			break;
+		case blue:
+			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(2.*PI));
+			break;
+		case green:
+			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(2.*PI));
+			break;
+		case rblue:
+			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			break;
+		default:
+			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			break;
+	}
+	return b;
+}
+
+
+vec4 makeGrade(int selector, int selector2){
+	vec3 base = makebase(selector);
 	
 	vec4 mgrade;
 	
-	switch(selector)
+	switch(selector2)
 	{
 		case alpha1:
 			mgrade = vec4(base,1.0);
@@ -154,60 +144,70 @@ vec4 makeGrade(int selector){
 #define normal  1
 #define inverse 2
 
-void pushgrade(int selector, int selector2){
+void pushgrade(int selector, int selector2, int selector3){
 	
 	switch(selector)
 	{
 		case normal:
-			grade = makeGrade(selector2);
+			grade =      makeGrade(selector2, selector3);
 			break;
 		case inverse:
-			// vec4 c = makeGrade();
-			// grade = vec4(1.-c.rgb, c.a);
-			grade = 1. - makeGrade(selector2);
+			grade = 1. - makeGrade(selector2, selector3);
 			break;
 		default:
-			grade = makeGrade(selector2);
+			grade =      makeGrade(selector2, selector3);
 			break;
 	}
 }
 
-#define pointgrade 1
-#define graderlock 2
-#define colorclipr 3
-#define pointclipr 4
-#define lineclipr 5
+#define GEO   1
+#define NOGEO 2
 
-vec4 pushfrag(int selector, vec2 uv){
+#define GRADE   1
+#define NOGRADE 2
+#define SOURCE  3
+
+vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	if (uv.y > 1. || uv.y < 0.0){
 			clip = 0.0;
 		} else {
 			clip = 1.0;
 		}
 	
-	vec4 c = vec4(0.0);
-	switch(selector)
+	vec4 geo = vec4(0.);
+	vec4 thm = vec4(0.);
+	
+	switch(geoQ)
 	{
-		case pointgrade:
-			c = (1.-vec4(pxos))*grade*clip;
+		case GEO:
+			geo = vec4(pxos);
 			break;
-		case graderlock:
-			c = clip*grade;
-			break;
-		case colorclipr:
-			c = color*clip;
-			break;
-		case pointclipr:
-			c = (1.-vec4(pxos))*color*clip;
-			break;
-		case lineclipr:
-			c = ((vec4(pxos)+color)/2.)*clip;
-			// c = (1.0-(vec4(pxos)))*clip;
+		case NOGEO:
+		geo = vec4(1.0);
 			break;
 		default:
-			c = color*clip;
+			geo = vec4(pxos);
 			break;
 	}
+
+	switch(gradeQ)
+	{
+		case GRADE:
+			thm = grade;
+			break;
+		case NOGRADE:
+			thm = vec4(1.0);
+			break;
+		case SOURCE:
+			thm = color;
+			break;
+		default:
+			thm = grade;
+			break;
+	}
+	
+	vec4 c = geo * thm * clip;
+	
 	return c;
 }
 
@@ -219,7 +219,6 @@ void main( void ) {
 	position.y += (1.0 - aspect) / 2.0;
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
-	// color  = (texture2D(tex0, vec2(position.x, 1.0 - position.y))+1.)/2.;
 	
 	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
 	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
@@ -230,23 +229,21 @@ void main( void ) {
 	radius    = (rfac*thickness);
 	
 	//| points   | _pointorbit       |
-	//| lines    | _lineorbit        |
-	pushgeo(lines, position);
+	pushgeo(points, position);
 	
 	//|              ARG1            |
 	//| normal   | grade             |
 	//| inverse  | 1 - grade         |
 	//|              ARG2            |
+	//| red | green | blue |  rblue  |
+	//|              ARG3            |
 	//| alpha1   | alpha => 1.0      |
 	//| alphaE   | alpha => ec       |
 	//| alphaC   | alpha => color.a  |
 	//| alphaY   | alpha => energy   |
-	pushgrade(normal, alphaY);
+	pushgrade(normal, green, alphaY);
 	
-	//| pointgrade | point * grade * clip |
-	//| graderlock | grade * clip         |
-	//| colorclipr | color * clip         |
-	//| pointclipr | point * color * clip |
-	//| lineclipr  | line  * color * clip |
-	gl_FragColor = pushfrag(pointgrade, position);
+	//| GEO   / NOGEO            | shape or 1.0           |
+	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
+	gl_FragColor = pushfrag(GEO, GRADE, position);
 	}
