@@ -82,9 +82,8 @@ void pushgeo(int selector, vec2 uv){
 }
 
 #define alpha1 1
-#define alphaE 2
-#define alphaC 3
-#define alphaY 4
+#define alphaC 2
+#define alphaY 3
 
 #define red   1
 #define blue  2
@@ -114,7 +113,6 @@ vec3 makebase(int selector){
 	return b;
 }
 
-
 vec4 makeGrade(int selector, int selector2){
 	vec3 base = makebase(selector);
 	
@@ -124,9 +122,6 @@ vec4 makeGrade(int selector, int selector2){
 	{
 		case alpha1:
 			mgrade = vec4(base,1.0);
-			break;
-		case alphaE:
-			mgrade = vec4(base,ec);
 			break;
 		case alphaC:
 			mgrade = vec4(base,color.a);
@@ -238,10 +233,9 @@ void main( void ) {
 	//| red | green | blue |  rblue  |
 	//|              ARG3            |
 	//| alpha1   | alpha => 1.0      |
-	//| alphaE   | alpha => ec       |
 	//| alphaC   | alpha => color.a  |
 	//| alphaY   | alpha => energy   |
-	pushgrade(normal, green, alphaY);
+	pushgrade(normal, rblue, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |

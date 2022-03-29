@@ -24,18 +24,27 @@ void setup(){
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
-	simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/abstract_3.PNG");
 	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
 	// simg = loadImage("./imgs/enter.jpg");
+	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
+	
+	// simg = loadImage("./imgs/roc_flour.jpg");
+	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
+	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
+	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
+	// simg = loadImage("./imgs/universe.jpg");
+	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
+	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
@@ -58,9 +67,9 @@ void setup(){
 	// pg = createGraphics(1200,1200, P2D);
 	// pg = createGraphics(4000,4000, P2D);
 	// pg = createGraphics(5000,5000, P2D);
-	// pg = createGraphics(10000,10000, P2D);
+	pg = createGraphics(10000,10000, P2D);
 	// pg = createGraphics(11000,11000, P2D);
-	pg = createGraphics(14000,14000, P2D);
+	// pg = createGraphics(14000,14000, P2D);
 	pg.noSmooth();
 	
 	dmfac = 1;
@@ -85,8 +94,8 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
-	float sf = 0027.00;   /* ————— */
+	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
 	// float sf = 0050.00;   /* 005.10 */
@@ -130,9 +139,9 @@ void setup(){
 	// blueline.set("rfac", 1.001000);
 	// blueline.set("rfac", 1.010000);
 	// blueline.set("rfac", 1.100000);
-	blueline.set("rfac", 1.200000);
+	// blueline.set("rfac", 1.200000);
 	// blueline.set("rfac", 1.250000);
-	// blueline.set("rfac", 1.300000);
+	blueline.set("rfac", 1.300000);
 	// blueline.set("rfac", 1.400000);
 	// blueline.set("rfac", 1.410000);
 	// blueline.set("rfac", 1.500000); /* black screen */
