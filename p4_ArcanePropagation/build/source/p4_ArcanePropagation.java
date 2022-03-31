@@ -42,7 +42,7 @@ boolean dispersed, hav;
 	surface.setTitle("Arcane Propagations");
 	/* pixelDensity commented out by preprocessor */;
 	
-	// simg = loadImage("./imgs/buff_skate.JPG");
+	simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
@@ -60,14 +60,14 @@ boolean dispersed, hav;
 	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
 	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("./imgs/universe.jpg" ) ;
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	simg = loadImage("./imgs/mountains_1.jpg");
+	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
@@ -91,8 +91,8 @@ boolean dispersed, hav;
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(400,400, P2D);
 	// pg = createGraphics(1200,1200, P2D);
-	pg = createGraphics(4000,4000, P2D);
-	// pg = createGraphics(5000,5000, P2D);
+	// pg = createGraphics(4000,4000, P2D);
+	pg = createGraphics(5000,5000, P2D);
 	// pg = createGraphics(10000,10000, P2D);
 	// pg = createGraphics(11000,11000, P2D);
 	// pg = createGraphics(14000,14000, P2D);
@@ -172,11 +172,13 @@ boolean dispersed, hav;
 	
 	blueline = loadShader("blueline.glsl");
 	// the unitsize determines the dimensions of a pixels for the shader
-	// blueline.set("unitsize", 1.00);
+	// blueline.set("unitsize", 2.00);
+	blueline.set("unitsize", 1.00f);
 	// blueline.set("unitsize", 0.50);
-	blueline.set("unitsize", 0.25f);
+	// blueline.set("unitsize", 0.25);
 	// the thickness used to determine a points position is determined by thickness/tfac
 	blueline.set("tfac", 1.0f);
+	// blueline.set("tfac", .05);
 	// blueline.set("tfac", .005);
 	
 	/*
@@ -185,7 +187,7 @@ boolean dispersed, hav;
 	*/
 	
 	// blueline.set("rfac", 0.000000);
-	// blueline.set("rfac", 0.0001);
+	// blueline.set("rfac", 0.000100);
 	// blueline.set("rfac", 0.125000);
 	// blueline.set("rfac", 0.250000);
 	// blueline.set("rfac", 0.750000);
@@ -240,19 +242,10 @@ boolean dispersed, hav;
 	pg.endDraw();
 	
 	// convolve(simg, xmg);
-	// transmit(simg, xmg);
+	transmit(simg, xmg);
 	// smear(simg, xmg);
 	
-	if(frameCount % 20 == 0){
-		drawswitch = 1 - drawswitch;
-	}
-	
-	if(drawswitch == 0){
-		transmit(simg, xmg);
-	} else {
-		convolve(simg, xmg);
-		// smear(simg, xmg, 4);
-	}
+	// switchdraw(20);
 	
 	
 	if(dispersed){
@@ -264,6 +257,17 @@ boolean dispersed, hav;
 	image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
 }
 
+ public void switchdraw(int mod){
+	if(frameCount % mod == 0){
+		drawswitch = 1 - drawswitch;
+	}
+	
+	if(drawswitch == 0){
+		transmit(simg, xmg);
+	} else {
+		smear(simg, xmg, 4);
+	}
+}
 
  public void useDispersed(int factor){
 	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
@@ -410,8 +414,8 @@ boolean dispersed, hav;
 	img.loadPixels();
 	for (int i = 0; i < img.width; i++){
 		for (int j = 0; j < img.height; j++){
-			kernel = loadkernel(i,j, kwidth, img);
-			// kernel = loadEdgeWeight(i,j, kwidth, img);
+			// kernel = loadkernel(i,j, kwidth, img);
+			kernel = loadEdgeWeight(i,j, kwidth, img);
 			int index = (i + j * img.width);
 			xms[index] = kernel;
 		}
@@ -708,86 +712,6 @@ boolean dispersed, hav;
 			}
 		source.updatePixels();
 	}
-
-
-	// void shrink(PImage img, float[][][] ximage) {
-	// 	img.loadPixels();
-	// 	for (int i = 0; i < img.width; i++){
-	// 		for (int j = 0; j < img.height; j++){
-	// 			color c =  shrinking(i,j, kwidth, img, ximage);
-	// 			int index = (i + j * img.width);
-	// 			img.pixels[index] = c;
-	// 		}
-	// 	}
-	// 	img.updatePixels();
-	// 	}
-	//
-	// color shrinking(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	// 	{
-	// 		int cloc = x + img.width*y;
-	// 		cloc = constrain(cloc,0,img.pixels.length-1);
-	// 		color spx = img.pixels[cloc];
-	// 		float rpx = spx >> 16 & 0xFF;
-	// 		float gpx = spx >> 8 & 0xFF;
-	// 		float bpx = spx & 0xFF;
-	// 		// float rpx = 0.0;
-	// 		// float gpx = 0.0;
-	// 		// float bpx = 0.0;
-	//
-	// 		float xcore = map(x, 0, img.width,-1,1);
-	// 		float ycore = map(y, 0, img.height,1,-1);
-	// 		PVector core = new PVector(xcore,ycore);
-	//
-	// 		PVector center = new PVector(0.0,0.0);
-	//
-	// 		int offset = kwidth / 2;
-	// 		for (int i = 0; i < kwidth; i++){
-	// 			for (int j= 0; j < kwidth; j++){
-	//
-	// 				int xloc = x+i-offset;
-	// 				int yloc = y+j-offset;
-	// 				int loc = xloc + img.width*yloc;
-	// 				loc = constrain(loc,0,img.pixels.length-1);
-	//
-	// 				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-	//
-	// 				color cpx = img.pixels[loc];
-	//
-	//
-	// 				// compute angle between current pixel and center of canvas
-	// 				// [\ : nw] [| : n]  [/: ne]
-	// 				// [> :  w] [  -  ]  [<:  e]
-	// 				// [/ : sw] [| : s]  [\: se]
-	//
-	// 				float xc = map(xloc, 0, img.width,-1,1);
-	// 				float yc = map(yloc, 0, img.height,1,-1);
-	// 				PVector cp = new PVector(xc,yc);
-	//
-	// 				// if (x,y) lies on the line between (xloc,yloc) and (center) then x,y takes the value at xloc,yloc
-	// 				// https://stackoverflow.com/questions/17692922/check-is-a-point-x-y-is-between-two-points-drawn-on-a-straight-line
-	// 				if ((cp.dist(center) + center.dist(core)) == cp.dist(center)){
-	// 					// return true; // C is on the line.
-	// 					rpx = cpx >> 16 & 0xFF;
-	// 					gpx = cpx >> 8 & 0xFF;
-	// 					bpx = cpx & 0xFF;
-	//
-	// 					rpx += xmsn;
-	// 					gpx += xmsn;
-	// 					bpx += xmsn;
-	// 				} else {
-	// 					rpx = cpx >> 16 & 0xFF;
-	// 					gpx = cpx >> 8 & 0xFF;
-	// 					bpx = cpx & 0xFF;
-	//
-	// 					rpx += xmsn;
-	// 					gpx += xmsn;
-	// 					bpx += xmsn;
-	// 				}
-	//
-	// 			}
-	// 		}
-	// 		return color(rpx, gpx, bpx);
-	// 	}
 
 
   public void settings() { size(1422, 800, P3D);

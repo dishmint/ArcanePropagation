@@ -25,7 +25,7 @@ void setup(){
 	surface.setTitle("Arcane Propagations");
 	pixelDensity(1);
 	
-	// simg = loadImage("./imgs/buff_skate.JPG");
+	simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
@@ -43,14 +43,14 @@ void setup(){
 	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
 	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("./imgs/universe.jpg" ) ;
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	simg = loadImage("./imgs/mountains_1.jpg");
+	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
@@ -74,8 +74,8 @@ void setup(){
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(400,400, P2D);
 	// pg = createGraphics(1200,1200, P2D);
-	pg = createGraphics(4000,4000, P2D);
-	// pg = createGraphics(5000,5000, P2D);
+	// pg = createGraphics(4000,4000, P2D);
+	pg = createGraphics(5000,5000, P2D);
 	// pg = createGraphics(10000,10000, P2D);
 	// pg = createGraphics(11000,11000, P2D);
 	// pg = createGraphics(14000,14000, P2D);
@@ -155,11 +155,13 @@ void setup(){
 	
 	blueline = loadShader("blueline.glsl");
 	// the unitsize determines the dimensions of a pixels for the shader
-	// blueline.set("unitsize", 1.00);
+	// blueline.set("unitsize", 2.00);
+	blueline.set("unitsize", 1.00);
 	// blueline.set("unitsize", 0.50);
-	blueline.set("unitsize", 0.25);
+	// blueline.set("unitsize", 0.25);
 	// the thickness used to determine a points position is determined by thickness/tfac
 	blueline.set("tfac", 1.0);
+	// blueline.set("tfac", .05);
 	// blueline.set("tfac", .005);
 	
 	/*
@@ -168,7 +170,7 @@ void setup(){
 	*/
 	
 	// blueline.set("rfac", 0.000000);
-	// blueline.set("rfac", 0.0001);
+	// blueline.set("rfac", 0.000100);
 	// blueline.set("rfac", 0.125000);
 	// blueline.set("rfac", 0.250000);
 	// blueline.set("rfac", 0.750000);
@@ -223,7 +225,7 @@ void draw(){
 	pg.endDraw();
 	
 	// convolve(simg, xmg);
-	// transmit(simg, xmg);
+	transmit(simg, xmg);
 	// smear(simg, xmg);
 	
 	// switchdraw(20);
