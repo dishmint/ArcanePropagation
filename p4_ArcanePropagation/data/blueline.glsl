@@ -10,10 +10,11 @@ uniform sampler2D ppixels;
 uniform sampler2D tex0;
 uniform float aspect;
 uniform float rfac;
+uniform float tfac;
+uniform float unitsize;
 
 float energy, angle = 0;
 float pxos,clip,ec;
-#define lineweight .000000000001
 
 vec2 radius, thickness, pixel;
 
@@ -55,8 +56,8 @@ void pushEnergyAngle(int selector){
 }
 
 float _point(in vec2 uv, vec2 o){
-	float s1 = step(o.x - thickness.x, uv.x) - step(o.x + thickness.x, uv.x);
-	float s2 = step(o.y - thickness.y, uv.y) - step(o.y + thickness.y, uv.y);
+	float s1 = step(o.x - (thickness.x/tfac), uv.x) - step(o.x + (thickness.x/tfac), uv.x);
+	float s2 = step(o.y - (thickness.y/tfac), uv.y) - step(o.y + (thickness.y/tfac), uv.y);
 	return s1*s2;
 }
 
@@ -85,10 +86,11 @@ void pushgeo(int selector, vec2 uv){
 #define alphaC 2
 #define alphaY 3
 
-#define red   1
-#define blue  2
-#define green 3
-#define rblue 4
+#define red    1
+#define blue   2
+#define green  3
+#define yellow 4
+#define rblue  5
 
 vec3 makebase(int selector){
 	vec3 b;
@@ -102,6 +104,9 @@ vec3 makebase(int selector){
 			break;
 		case green:
 			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(2.*PI));
+			break;
+		case yellow:
+			b = vec3(1., 1., 0.0)*(angle/(2.*PI));
 			break;
 		case rblue:
 			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
@@ -209,7 +214,8 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy );
-	pixel = 1./resolution;
+	pixel = unitsize/resolution;
+
 	position.y*=aspect;
 	position.y += (1.0 - aspect) / 2.0;
 	
@@ -226,15 +232,15 @@ void main( void ) {
 	//| points   | _pointorbit       |
 	pushgeo(points, position);
 	
-	//|              ARG1            |
-	//| normal   | grade             |
-	//| inverse  | 1 - grade         |
-	//|              ARG2            |
-	//| red | green | blue |  rblue  |
-	//|              ARG3            |
-	//| alpha1   | alpha => 1.0      |
-	//| alphaC   | alpha => color.a  |
-	//| alphaY   | alpha => energy   |
+	//|              ARG1                     |
+	//| normal   | grade                      |
+	//| inverse  | 1 - grade                  |
+	//|              ARG2                     |
+	//| red | green | blue | yellow |  rblue  |
+	//|              ARG3                     |
+	//| alpha1   | alpha => 1.0               |
+	//| alphaC   | alpha => color.a           |
+	//| alphaY   | alpha => energy            |
 	pushgrade(normal, rblue, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |

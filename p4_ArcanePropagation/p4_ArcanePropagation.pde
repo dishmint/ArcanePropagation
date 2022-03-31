@@ -6,16 +6,22 @@ PGraphics pg;
 
 PImage simg,dimg;
 float[][][] xmg;
-int downsample,modfac,dmfac;
+int downsample,modfac,dmfac,ogw,ogh;
 int kwidth = 3;
+int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale;
 
-boolean dispersed;
+boolean dispersed, hav;
 
 void setup(){
-	size(800,800, P3D);
+	// size(800,800, P3D);
 	// size(900,900, P3D);
+	// size(1200,1200, P3D);
 	// size(1440,1440, P3D);
+	// size(1280,720, P3D);
+	// size(1422,800, P3D);
+	size(1422,800, P3D);
+	// size(1778,1000, P3D);
 	surface.setTitle("Arcane Propagations");
 	pixelDensity(1);
 	
@@ -42,16 +48,19 @@ void setup(){
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = loadImage("./imgs/mountains_1.jpg");
+	simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
 	// simg = noiseImage(width/16, height/16, 3, .6);
+	// simg = noiseImage(height/16, height/16, 3, .6);
+	// simg = noiseImage(height/32, height/32, 3, .6);
 	// simg = kuficImage(width, height);
 	// simg = kuficImage(width/16, height/16);
-
+	// simg = kuficImage(height/16, height/16);
+	
 	// mazeImage(simg);
 	
 	// simg.filter(GRAY);
@@ -65,9 +74,9 @@ void setup(){
 	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(400,400, P2D);
 	// pg = createGraphics(1200,1200, P2D);
-	// pg = createGraphics(4000,4000, P2D);
+	pg = createGraphics(4000,4000, P2D);
 	// pg = createGraphics(5000,5000, P2D);
-	pg = createGraphics(10000,10000, P2D);
+	// pg = createGraphics(10000,10000, P2D);
 	// pg = createGraphics(11000,11000, P2D);
 	// pg = createGraphics(14000,14000, P2D);
 	pg.noSmooth();
@@ -76,12 +85,20 @@ void setup(){
 	downsample = modfac = dmfac;
 	// downsample = 1;
 	// modfac = 1;
-	simg.resize(width/downsample,0);
+	
+	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
+	float sw = (float)simg.width;
+	float sh = (float)simg.height;
+	float scale = min(width/sw, height/sh);
+	
+	int nw = Math.round(sw*scale);
+	int nh = Math.round(sh*scale);
+	simg.resize(nw, nh);
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
 	// transmit: As sf increases decay-rate decreases
-	//    smear: As sf increases      smear decreases
+	// smear: As sf increases      smear decreases
 	// float sf = 0000.50;   /* 510.00 */
 	// float sf = 0001.00;   /* 255.00 */
 	// float sf = 0002.00;   /* 127.50 */
@@ -94,7 +111,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -117,31 +134,52 @@ void setup(){
 	// float sf = 0637.50;   /* 000.40 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
-	// float sf = 2040.00;   /* 000.125 */
+	float sf = 2040.00;   /* 000.125 */
 
 	scalefac = 255./sf;
 	
 	// xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
-	xsmnfactor = pow(kwidth,2.);
+	// xsmnfactor = pow(kwidth,2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
+	xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
 	
+	/*
+	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
+	*/
+	hav = false;
 	xmg = loadxm(simg, kwidth);
 	
 	blueline = loadShader("blueline.glsl");
+	// the unitsize determines the dimensions of a pixels for the shader
+	// blueline.set("unitsize", 1.00);
+	// blueline.set("unitsize", 0.50);
+	blueline.set("unitsize", 0.25);
+	// the thickness used to determine a points position is determined by thickness/tfac
+	blueline.set("tfac", 1.0);
+	// blueline.set("tfac", .005);
+	
+	/*
+	- The radius of a point orbit is determined by rfac * thickness
+	- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
+	*/
+	
+	// blueline.set("rfac", 0.000000);
+	// blueline.set("rfac", 0.0001);
 	// blueline.set("rfac", 0.125000);
 	// blueline.set("rfac", 0.250000);
-	// blueline.set("rfac", (float)modfac/4);
-	// blueline.set("rfac", 1.000000); /* Going 10% smaller seems to work liks a mask, reducing horizontal image lines to 0 for some reason.. */
+	// blueline.set("rfac", 0.750000);
+	// blueline.set("rfac", 1.000000);
+	// blueline.set("rfac", 1.000900);
 	// blueline.set("rfac", 1.001000);
 	// blueline.set("rfac", 1.010000);
 	// blueline.set("rfac", 1.100000);
 	// blueline.set("rfac", 1.200000);
 	// blueline.set("rfac", 1.250000);
-	blueline.set("rfac", 1.300000);
+	blueline.set("rfac", 1.300000); /* Default */
 	// blueline.set("rfac", 1.400000);
 	// blueline.set("rfac", 1.410000);
 	// blueline.set("rfac", 1.500000); /* black screen */
@@ -153,49 +191,76 @@ void setup(){
 	} else {
 		useOriginal();
 	}
-	blueline.set("resolution", float(pg.width), float(pg.height));
+	// blueline.set("resolution", float(pg.width), float(pg.height));
+	float resu = 100.;
+	blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
 	imageMode(CENTER);
 	
 	// displayscale = 2.0;
+	// displayscale = 1.50;
+	// displayscale = 1.25;
 	displayscale = 1.0;
 	// displayscale = .98;
+	// displayscale = .75;
 	// displayscale = .65;
 	// displayscale = .5;
 	
 	// frameRate(1.);
 	// frameRate(6.);
 	// noLoop();
+	background(0);
 }
 
 void draw(){
-	
 	pg.beginDraw();
 	pg.background(0);
+	// pg.background(0,0,0,25);
+	// pg.background(0,0,0,100);
+	// pg.background(0,0,0,125);
+	// pg.background(0,0,0,150);
 	pg.shader(blueline);
 	pg.rect(0, 0, pg.width, pg.height);
 	pg.endDraw();
 	
 	// convolve(simg, xmg);
-	transmit(simg, xmg);
+	// transmit(simg, xmg);
 	// smear(simg, xmg);
+	
+	// switchdraw(20);
+	
 	
 	if(dispersed){
 		drawDispersed();
 	} else {
 		drawOriginal();
 	}
-	image(pg, width/2, height/2, width*displayscale, height*displayscale);
-	// if(frameCount > 600){
-	// 	noLoop();
-	// } else {
-	// 	saveFrame("/Users/faizonzaman/Documents/Assets/Frames/ArcanePropagation/arcprop-######.png");
-	// }
+	
+	image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
 }
 
+void switchdraw(int mod){
+	if(frameCount % mod == 0){
+		drawswitch = 1 - drawswitch;
+	}
+	
+	if(drawswitch == 0){
+		transmit(simg, xmg);
+	} else {
+		smear(simg, xmg, 4);
+	}
+}
 
 void useDispersed(int factor){
 	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
-	dimg.resize(width/downsample,0);
+	
+	float sw = (float)dimg.width;
+	float sh = (float)dimg.height;
+	float scale = min(width/sw, height/sh);
+	
+	int nw = Math.round(sw*scale);
+	int nh = Math.round(sh*scale);
+	dimg.resize(nw, nh);
+	
 	setDispersedImage(simg, dimg);
 	blueline.set("aspect", float(dimg.width)/float(dimg.height));
 	blueline.set("tex0", dimg);
@@ -236,23 +301,24 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			float gpx = cpx >> 8 & 0xFF;
 			float bpx = cpx & 0xFF;
 			
-			float gs = (
-				0.2989 * rpx +
-				0.5870 * gpx +
-				0.1140 * bpx
-				) / 255;
+			float gs = 1.;
+			if(hav){
+				// human grayscale
+				gs = (
+					0.2989 * rpx +
+					0.5870 * gpx +
+					0.1140 * bpx
+					) / 255.;
+			} else {
+				// channel average
+				gs = (rpx + gpx + bpx) / 255.;
+			}
 			
-			// more interesting for p5sketch1
-			// float gs = (
-			// 	0.2989 *   red(img.pixels[loc]) +
-			// 	0.5870 * green(img.pixels[loc]) +
-			// 	0.1140 *  blue(img.pixels[loc])
-			// 	) / 3;
-
-			// float gs = (red(img.pixels[loc]) + green(img.pixels[loc]) + blue(img.pixels[loc])) / 3;
-				
-				kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
-				// kern[i][j] = map(gs, 0, 1, 1.*scalefac,-1.*scalefac);
+			// the close values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
+			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			// kern[i][j] = gs;
+			// kern[i][j] = map(gs, 0, 1, 0.,1.*scalefac);
+			// kern[i][j] = map(gs, 0, 1, -1.,1.);
 			}
 		}
 		img.updatePixels();
@@ -415,11 +481,11 @@ color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 		return color(rtotal, gtotal, btotal);
 	}
 
-void smear(PImage img, float[][][] ximage) {
+void smear(PImage img, float[][][] ximage, int selector) {
 	img.loadPixels();
 	for (int i = 0; i < img.width; i++){
 		for (int j = 0; j < img.height; j++){
-			color c =  smearing(i,j, kwidth, img, ximage);
+			color c =  smearing(i,j, kwidth, img, ximage, selector);
 			int index = (i + j * img.width);
 			img.pixels[index] = c;
 		}
@@ -427,7 +493,7 @@ void smear(PImage img, float[][][] ximage) {
 	img.updatePixels();
 	}
 
-color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg)
+color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
 	{
 		
 		float rpx = 0.0;
@@ -451,14 +517,58 @@ color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				gpx = cpx >> 8 & 0xFF;
 				bpx = cpx & 0xFF;
 
-				if(xloc == x && yloc == y){
-					rpx -= (xmsn);
-					gpx -= (xmsn);
-					bpx -= (xmsn);
-				} else {
-					rpx += (xmsn);
-					gpx += (xmsn);
-					bpx += (xmsn);
+				switch(sel){
+					case 1:
+						if(xloc == x && yloc == y){
+							rpx -= (xmsn);
+							gpx -= (xmsn);
+							bpx -= (xmsn);
+							} else {
+								rpx += (xmsn);
+								gpx += (xmsn);
+								bpx += (xmsn);
+							}
+						break;
+					case 2:
+						if(xloc == x && yloc == y){
+							rpx -= (xmsn);
+							gpx -= (xmsn);
+							bpx -= (xmsn);
+							} else {
+								rpx *= (xmsn);
+								gpx *= (xmsn);
+								bpx *= (xmsn);
+							}
+						break;
+					case 3:
+						if(xloc == x && yloc == y){
+							rpx += (xmsn);
+							gpx += (xmsn);
+							bpx += (xmsn);
+							} else {
+								rpx *= (xmsn);
+								gpx *= (xmsn);
+								bpx *= (xmsn);
+							}
+						break;
+					case 4:
+						if(xloc == x && yloc == y){
+							rpx = (xmsn);
+							gpx = (xmsn);
+							bpx = (xmsn);
+						}
+						break;
+					default:
+						if(xloc == x && yloc == y){
+							rpx -= (xmsn);
+							gpx -= (xmsn);
+							bpx -= (xmsn);
+							} else {
+								rpx += (xmsn);
+								gpx += (xmsn);
+								bpx += (xmsn);
+							}
+						break;
 				}
 			}
 		}
