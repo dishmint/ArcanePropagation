@@ -49,8 +49,8 @@ void pushEnergyAngle(int selector){
 			angle = mix(0., 2.*PI, energy);
 			break;
 		default:
-			energy = (color.r+color.g+color.b+color.a/4.0);
-			angle = mix(0.0, 2.*PI, energy);
+			energy = map(color.r+color.g+color.b+color.a/4.0, 0.,1., .5,1.);
+			angle = mix(0.5, 2.*PI, energy);
 			break;
 	}
 }
