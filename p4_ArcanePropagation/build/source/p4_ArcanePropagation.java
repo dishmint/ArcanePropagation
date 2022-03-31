@@ -414,8 +414,8 @@ boolean dispersed, hav;
 	img.loadPixels();
 	for (int i = 0; i < img.width; i++){
 		for (int j = 0; j < img.height; j++){
-			// kernel = loadkernel(i,j, kwidth, img);
-			kernel = loadEdgeWeight(i,j, kwidth, img);
+			kernel = loadkernel(i,j, kwidth, img);
+			// kernel = loadEdgeWeight(i,j, kwidth, img);
 			int index = (i + j * img.width);
 			xms[index] = kernel;
 		}

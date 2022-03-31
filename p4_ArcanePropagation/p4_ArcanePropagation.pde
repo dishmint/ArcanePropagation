@@ -6,7 +6,7 @@ PGraphics pg;
 
 PImage simg,dimg;
 float[][][] xmg;
-int downsample,modfac,dmfac,ogw,ogh;
+int downsample,modfac,dmfac;
 int kwidth = 3;
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale;
