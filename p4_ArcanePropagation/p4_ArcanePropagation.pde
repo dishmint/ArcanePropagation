@@ -45,7 +45,7 @@ void setup(){
 	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
 	// simg = loadImage("./imgs/universe.jpg" ) ;
 	
-	simg = loadImage("./imgs/buildings.jpg");
+	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
@@ -57,9 +57,14 @@ void setup(){
 	// simg = noiseImage(width/16, height/16, 3, .6);
 	// simg = noiseImage(height/16, height/16, 3, .6);
 	// simg = noiseImage(height/32, height/32, 3, .6);
+	// simg = noiseImage(height/32, height/64, 3, .6);
+	simg = noiseImage(width/32, height/64, 3, .6);
 	// simg = kuficImage(width, height);
 	// simg = kuficImage(width/16, height/16);
-	// simg = kuficImage(height/16, height/16);
+	// simg = kuficImage(width/16, height/32);
+	// simg = kuficImage(width/32, height/32);
+	// simg = kuficImage(width/64, height/64);
+	// simg = kuficImage(width/5, height/5);
 	
 	// mazeImage(simg);
 	
@@ -84,7 +89,7 @@ void setup(){
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
-	modfac = 4;
+	modfac = 5;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.width;
@@ -114,7 +119,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
+	float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -137,7 +142,7 @@ void setup(){
 	// float sf = 0637.50;   /* 000.40 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
-	float sf = 2040.00;   /* 000.125 */
+	// float sf = 2040.00;   /* 000.125 */
 
 	scalefac = 255./sf;
 	
