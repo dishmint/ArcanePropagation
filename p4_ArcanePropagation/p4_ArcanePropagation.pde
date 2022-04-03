@@ -9,9 +9,9 @@ float[][][] xmg;
 int downsample,modfac,dmfac;
 int kwidth = 3;
 int drawswitch = 0;
-float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale;
+float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
-boolean dispersed, hav;
+boolean dispersed, hav, shaderQ;
 
 void setup(){
 	// size(800,800, P3D);
@@ -23,10 +23,11 @@ void setup(){
 	size(1422,800, P3D);
 	// size(1778,1000, P3D);
 	surface.setTitle("Arcane Propagations");
-	// pixelDensity(1);
+	imageMode(CENTER);
+	pixelDensity(1);
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
-	// simg = loadImage("./imgs/face.png");
+	simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
@@ -58,7 +59,7 @@ void setup(){
 	// simg = noiseImage(height/16, height/16, 3, .6);
 	// simg = noiseImage(height/32, height/32, 3, .6);
 	// simg = noiseImage(height/32, height/64, 3, .6);
-	simg = noiseImage(width/32, height/64, 3, .6);
+	// simg = noiseImage(width/32, height/64, 3, .6);
 	// simg = kuficImage(width, height);
 	// simg = kuficImage(width/16, height/16);
 	// simg = kuficImage(width/16, height/32);
@@ -76,16 +77,6 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
-	// max height and with is 16384 for the Apple M1 graphics card (according to Processing debug message)
-	// pg = createGraphics(400,400, P2D);
-	// pg = createGraphics(1200,1200, P2D);
-	// pg = createGraphics(4000,4000, P2D);
-	pg = createGraphics(5000,5000, P2D);
-	// pg = createGraphics(10000,10000, P2D);
-	// pg = createGraphics(11000,11000, P2D);
-	// pg = createGraphics(14000,14000, P2D);
-	pg.noSmooth();
-	
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
@@ -99,9 +90,6 @@ void setup(){
 	int nw = Math.round(sw*scale);
 	int nh = Math.round(sh*scale);
 	simg.resize(nw, nh);
-	
-	dximg = createImage(simg.width/modfac, simg.height/modfac, ARGB);
-	
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
@@ -119,7 +107,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -138,7 +126,7 @@ void setup(){
 	// float sf = 0250.00;   /* 001.02 */
 	// float sf = 0255.00;   /* 001.00 */
 	// float sf = 0382.50;   /* 000.66 */
-	// float sf = 0510.00;   /* 000.50 */
+	float sf = 0510.00;   /* 000.50 */
 	// float sf = 0637.50;   /* 000.40 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
@@ -146,10 +134,13 @@ void setup(){
 
 	scalefac = 255./sf;
 	
+	// Determine the leak-rate (transmission factor) of each pixel
 	// xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
-	xsmnfactor = pow(kwidth,2.); /* default */
+	xsmnfactor = pow(kwidth - 1,3.); /* default */
+	// xsmnfactor = pow(kwidth,2.); /* default */
+	// xsmnfactor = pow(kwidth,2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
@@ -158,62 +149,49 @@ void setup(){
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
+	gsd = 255.; /* 255 | 3 */
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	blueline = loadShader("blueline.glsl");
-	// the unitsize determines the dimensions of a pixels for the shader
-	// blueline.set("unitsize", 2.00);
-	blueline.set("unitsize", 1.00);
-	// blueline.set("unitsize", 0.50);
-	// blueline.set("unitsize", 0.25);
-	// the thickness used to determine a points position is determined by thickness/tfac
-	blueline.set("tfac", 1.0);
-	// blueline.set("tfac", .05);
-	// blueline.set("tfac", .005);
-	
-	/*
-	- The radius of a point orbit is determined by rfac * thickness
-	- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
-	*/
-	
-	// blueline.set("rfac", 0.000000);
-	// blueline.set("rfac", 0.000100);
-	// blueline.set("rfac", 0.125000);
-	// blueline.set("rfac", 0.250000);
-	// blueline.set("rfac", 0.750000);
-	// blueline.set("rfac", 1.000000);
-	// blueline.set("rfac", 1.000900);
-	// blueline.set("rfac", 1.001000);
-	// blueline.set("rfac", 1.010000);
-	// blueline.set("rfac", 1.100000);
-	// blueline.set("rfac", 1.200000);
-	// blueline.set("rfac", 1.250000);
-	blueline.set("rfac", 1.300000); /* Default */
-	// blueline.set("rfac", 1.400000);
-	// blueline.set("rfac", 1.410000);
-	// blueline.set("rfac", 1.500000); /* black screen */
-	// blueline.set("rfac", 2.000000); /* black screen */
-	
 	dispersed = true;
-	if(dispersed){
-		useDispersed(modfac);
+	shaderQ = false;
+	if(shaderQ){
+		// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
+		pg = createGraphics(5000,5000, P2D);
+		// pg = createGraphics(10000,10000, P2D);
+		pg.noSmooth();
+		
+		blueline = loadShader("blueline.glsl");
+		// the unitsize determines the dimensions of a pixels for the shader
+		blueline.set("unitsize", 1.00);
+		// the thickness used to determine a points position is determined by thickness/tfac
+		blueline.set("tfac", 1.0);
+		
+		/*
+		- The radius of a point orbit is determined by rfac * thickness
+		- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
+		- rfac >= 1.5 == black screen
+		- rfac == 0.0 == 1:1
+		*/
+		
+		// TODO: add rfac slider
+		blueline.set("rfac", 1.300000);
+		
+		float resu = 100.;
+		blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
+		
+		if(dispersed){
+			useDispersed(modfac);
+		} else {
+			useOriginal();
+		}
+
+		// scale the dimensions of pg when drawn to the screen
+		displayscale = 1.0;
+		
 	} else {
-		useOriginal();
+		dximg = createImage(simg.width/modfac, simg.height/modfac, ARGB);
 	}
-	// blueline.set("resolution", float(pg.width), float(pg.height));
-	float resu = 100.;
-	blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
-	imageMode(CENTER);
-	
-	// displayscale = 2.0;
-	// displayscale = 1.50;
-	// displayscale = 1.25;
-	displayscale = 1.0;
-	// displayscale = .98;
-	// displayscale = .75;
-	// displayscale = .65;
-	// displayscale = .5;
 	
 	// frameRate(1.);
 	// frameRate(6.);
@@ -222,27 +200,54 @@ void setup(){
 }
 
 void draw(){
-	background(0);
-	// pgDraw();
+	selectDraw("transmitMBL");
+}
+
+void selectDraw(String selector){
+	switch(selector){
+		case "transmit":
+			transmit(simg, xmg);
+			break;
+		case "convolve":
+			convolve(simg, xmg);
+			break;
+		case "smear":
+			smear(simg, xmg, 4);
+			break;
+		case "transmitMBL":
+			transmitMBL(simg, xmg);
+			break;
+		default:
+			transmit(simg, xmg);
+			break;
+	}
 	
-	// convolve(simg, xmg);
-	transmit(simg, xmg);
-	// smear(simg, xmg);
-	
-	// switchdraw(20);
-	
+	if(shaderQ){
+		pgDraw();
+		shaderDraw();
+	} else {
+		background(0);
+		pointDraw();
+	}
+}
+
+void shaderDraw(){
 	if(dispersed){
-		// drawDispersed();
-		// dximg = simg;
+		drawDispersed();
+	} else {
+		drawOriginal();
+	}
+	image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
+}
+
+void pointDraw(){
+	if(dispersed){
 		loadDX();
 		pointorbit(dximg);
 	} else {
-		drawOriginal();
 		pointorbit(simg);
 	}
-	// image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
 }
-
 
 void loadDX(){
 	simg.loadPixels();
@@ -294,10 +299,10 @@ void pointorbit(PImage nimg){
 					0.2989 * rpx +
 					0.5870 * gpx +
 					0.1140 * bpx
-					) / 255.;
+					) / gsd;
 			} else {
 				// channel average
-				gs = (rpx + gpx + bpx) / 255.;
+				gs = (rpx + gpx + bpx) / gsd;
 			}
 			pushMatrix();
 			showAsPoint(x,y,gs);
@@ -317,8 +322,14 @@ void showAsPoint(int x, int y, float energy) {
 	// float ang = energyAngle(enc);
 	float px = x + (.5 * cos(ang));
 	float py = y + (.5 * sin(ang));
-	// float px = x + (1./float(modfac) * cos(ang));
-	// float py = y + (1./float(modfac) * sin(ang));
+	// float px = x + ((1./float(modfac)) * cos(ang));
+	// float py = y + ((1./float(modfac)) * sin(ang));
+	// float px = x + ((scale * (1./float(modfac))) * cos(ang));
+	// float py = y + ((scale * (1./float(modfac))) * sin(ang));
+	// float px = x + (.5+(scale/float(modfac))) * cos(ang);
+	// float py = y + (.5+(scale/float(modfac))) * sin(ang);
+	// float px = x + ((1./float(modfac))*.5) * cos(ang);
+	// float py = y + ((1./float(modfac))*.5) * sin(ang);
 
 	if(dispersed){
 		translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
@@ -424,10 +435,10 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 					0.2989 * rpx +
 					0.5870 * gpx +
 					0.1140 * bpx
-					) / 255.;
+					) / gsd;
 			} else {
 				// channel average
-				gs = (rpx + gpx + bpx) / 255.;
+				gs = (rpx + gpx + bpx) / gsd;
 			}
 			
 			// the close values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
@@ -485,18 +496,18 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 			gpx += edge[i][j]/9;
 			bpx += edge[i][j]/9;
 			
-			// float gs = (
-			// 	0.2989 * rpx +
-			// 	0.5870 * gpx +
-			// 	0.1140 * bpx
-			// 	) / 255;
-			
-			// more interesting for p5sketch1
-			float gs = (
-				0.2989 * rpx +
-				0.5870 * gpx +
-				0.1140 * bpx
-				) / 3;
+			float gs = 1.;
+			if(hav){
+				// human grayscale
+				gs = (
+					0.2989 * rpx +
+					0.5870 * gpx +
+					0.1140 * bpx
+					) / gsd;
+			} else {
+				// channel average
+				gs = (rpx + gpx + bpx) / gsd;
+			}
 
 				kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
 			}
@@ -732,6 +743,69 @@ void transmission(int x, int y, int kwidth, PImage img, float[][][] ximg)
 			}
 		}
 		img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
+	}
+
+void transmitMBL(PImage img, float[][][] ximage)
+	{
+		img.loadPixels();
+		for (int i = 0; i < img.width; i++){
+			for (int j = 0; j < img.height; j++){
+				transmissionMBL(i,j, kwidth, img, ximage);
+			}
+		}
+		img.updatePixels();
+	}
+
+void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
+	{
+		int sloc = x+y*img.width;
+		
+		color spx = img.pixels[sloc];
+		float srpx = spx >> 16 & 0xFF;
+		float sgpx = spx >> 8 & 0xFF;
+		float sbpx = spx & 0xFF;
+		
+		
+		float gs = 1.;
+		if(hav){
+			// human grayscale
+			gs = (
+				0.2989 * srpx +
+				0.5870 * sgpx +
+				0.1140 * sbpx
+				) / gsd;
+		} else {
+			// channel average
+			gs = (srpx + sgpx + sbpx) / gsd;
+		}
+		
+		// float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
+		float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
+		// float xmsn = ximg[sloc][i][j] / xsmnfactor;
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				color cpx = img.pixels[loc];
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+				
+				if(xloc == x && yloc == y){
+					continue;
+				} else {
+					rpx += xmsn;
+					gpx += xmsn;
+					bpx += xmsn;
+				}
+				
+				img.pixels[loc] = color(rpx,gpx,bpx);
+			}
+		}
 	}
 
 PImage randomImage(int w, int h){
