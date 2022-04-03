@@ -23,7 +23,7 @@ void setup(){
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
-	// simg = loadImage("./imgs/fruit.jpg");
+	simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/abstract_3.PNG");
 	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
@@ -40,7 +40,7 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
@@ -72,7 +72,7 @@ void setup(){
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
-	modfac = 5;
+	modfac = 10;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.width;
@@ -127,11 +127,10 @@ void setup(){
 	scalefac = 255./sf;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
-	// xsmnfactor = 1.;
+	xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
-	xsmnfactor = pow(kwidth - 1,3.); /* default */
-	// xsmnfactor = pow(kwidth,2.); /* default */
+	// xsmnfactor = pow(kwidth - 1,3.); /* default */
 	// xsmnfactor = pow(kwidth,2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
@@ -146,17 +145,13 @@ void setup(){
 	xmg = loadxm(simg, kwidth);
 	
 	dispersed = true;
-	// displayscale = 1.0;
 	dximg = createImage(simg.width/modfac, simg.height/modfac, ARGB);
-	
-	// frameRate(1.);
-	// frameRate(6.);
-	// noLoop();
 	background(0);
 }
 
 void draw(){
-	selectDraw("transmit");
+	selectDraw("transmitMBL");
+	// image(simg, width/2,height/2);
 }
 
 void selectDraw(String selector){
@@ -174,7 +169,7 @@ void selectDraw(String selector){
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
-			switchdraw(20, 3);
+			switchdraw(20, 4);
 			break;
 		default:
 			transmit(simg, xmg);
@@ -248,11 +243,9 @@ void pointorbit(PImage nimg){
 
 void showAsPoint(int x, int y, float energy) {
 	float enc = lerp(-1., 1., energy);
-
 	color cc = energyDegree(enc);
 	stroke(cc);
 	float ang = radians(energyAngle(enc));
-	// float ang = energyAngle(enc);
 	// float px = x + (.25 * cos(ang));
 	// float py = y + (.25 * sin(ang));
 	float px = x + (.5 * cos(ang));
@@ -292,8 +285,9 @@ void showAsPoint(int x, int y, float energy) {
 }
 
 float energyAngle(float ec) {
-	float ecc = (ec + 1.) / 2.;
-	float a = ecc * 360.;
+	// float ecc = (ec + 1.) / 2.;
+	// float a = ecc * 360.;
+	float a = map(ec, -1., 1., 0., 360.);
 	return constrain(a, 0, 360);
 }
 
@@ -305,7 +299,8 @@ color energyDegree(float energy) {
 	float gpx = 255. - (abs(energy) * 255.);
 	float bpx = 255. - (abs(energy) * 200.);
 	// return color(rpx, gpx, bpx, 255/9);
-	return color(rpx, gpx, bpx);
+	// return color(rpx, gpx, bpx);
+	return color(rpx, gpx, bpx, 255. - (255*energy));
 }
 
 void switchdraw(int mod, int smearSelector){
@@ -354,7 +349,8 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			}
 			
 			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
-			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			// kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			kern[i][j] = map(gs, 0, 1, -.5,.5);
 			// kern[i][j] = gs;
 			// kern[i][j] = map(gs, 0, 1, 0.,1.*scalefac);
 			// kern[i][j] = map(gs, 0, 1, -1.,1.);
@@ -691,7 +687,7 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 			gs = (srpx + sgpx + sbpx) / gsd;
 		}
 		
-		float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
+		// float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
 		// float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
 		// float xmsn = ximg[sloc][i][j] / xsmnfactor;
 		int offset = kwidth / 2;
@@ -709,8 +705,13 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				
 				if(xloc == x && yloc == y){
 					continue;
+					// float xmsn = ximg[sloc][i][j] / 8;
+					// rpx -= xmsn;
+					// gpx -= xmsn;
+					// bpx -= xmsn;
 				} else {
-					// float xmsn = ximg[sloc][i][j] / xsmnfactor;
+					float xmsn = ximg[sloc][i][j] / xsmnfactor;
+					// float xmsn = ximg[sloc][i][j] / 8;
 					rpx += xmsn;
 					gpx += xmsn;
 					bpx += xmsn;
