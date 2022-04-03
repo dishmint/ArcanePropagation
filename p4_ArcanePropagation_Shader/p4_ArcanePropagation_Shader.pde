@@ -4,30 +4,23 @@
 PShader blueline;
 PGraphics pg;
 
-PImage simg,dimg,dximg;
+PImage simg,dimg;
 float[][][] xmg;
 int downsample,modfac,dmfac;
 int kwidth = 3;
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
-boolean dispersed, hav, shaderQ;
+boolean dispersed, hav;
 
 void setup(){
-	// size(800,800, P3D);
-	// size(900,900, P3D);
-	// size(1200,1200, P3D);
-	// size(1440,1440, P3D);
-	// size(1280,720, P3D);
-	// size(1422,800, P3D);
 	size(1422,800, P3D);
-	// size(1778,1000, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(1);
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
-	simg = loadImage("./imgs/face.png");
+	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
@@ -49,7 +42,7 @@ void setup(){
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -77,10 +70,10 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
-	// dmfac = 1;
-	// downsample = modfac = dmfac;
-	downsample = 1;
-	modfac = 5;
+	dmfac = 1;
+	downsample = modfac = dmfac;
+	// downsample = 1;
+	// modfac = 5;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.width;
@@ -107,7 +100,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
+	float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -126,7 +119,7 @@ void setup(){
 	// float sf = 0250.00;   /* 001.02 */
 	// float sf = 0255.00;   /* 001.00 */
 	// float sf = 0382.50;   /* 000.66 */
-	float sf = 0510.00;   /* 000.50 */
+	// float sf = 0510.00;   /* 000.50 */
 	// float sf = 0637.50;   /* 000.40 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
@@ -153,45 +146,41 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = true;
-	shaderQ = false;
-	if(shaderQ){
-		// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
-		pg = createGraphics(5000,5000, P2D);
-		// pg = createGraphics(10000,10000, P2D);
-		pg.noSmooth();
-		
-		blueline = loadShader("blueline.glsl");
-		// the unitsize determines the dimensions of a pixels for the shader
-		blueline.set("unitsize", 1.00);
-		// the thickness used to determine a points position is determined by thickness/tfac
-		blueline.set("tfac", 1.0);
-		
-		/*
-		- The radius of a point orbit is determined by rfac * thickness
-		- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
-		- rfac >= 1.5 == black screen
-		- rfac == 0.0 == 1:1
-		*/
-		
-		// TODO: add rfac slider
-		blueline.set("rfac", 1.300000);
-		
-		float resu = 100.;
-		blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
-		
-		if(dispersed){
-			useDispersed(modfac);
-		} else {
-			useOriginal();
-		}
-
-		// scale the dimensions of pg when drawn to the screen
-		displayscale = 1.0;
-		
+	dispersed = false;
+	// displayscale = 1.0;
+	displayscale = 0.5;
+	
+	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
+	// pg = createGraphics(5000,5000, P2D);
+	pg = createGraphics(2*simg.width,2*simg.height, P2D);
+	// pg = createGraphics(10000,10000, P2D);
+	pg.noSmooth();
+	
+	blueline = loadShader("blueline.glsl");
+	float resu = 100.;
+	blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
+	
+	// the unitsize determines the dimensions of a pixels for the shader
+	blueline.set("unitsize", 1.00);
+	// the thickness used to determine a points position is determined by thickness/tfac
+	blueline.set("tfac", 1.0);
+	
+	/*
+	- The radius of a point orbit is determined by rfac * thickness
+	- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
+	- rfac >= 1.5 == black screen
+	- rfac == 0.0 == 1:1
+	*/
+	
+	// TODO: add rfac slider
+	blueline.set("rfac", 1.300000);
+	
+	if(dispersed){
+		useDispersed(modfac);
 	} else {
-		dximg = createImage(simg.width/modfac, simg.height/modfac, ARGB);
+		useOriginal();
 	}
+	
 	
 	// frameRate(1.);
 	// frameRate(6.);
@@ -200,7 +189,7 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("transmitMBL");
+	selectDraw("convolve");
 }
 
 void selectDraw(String selector){
@@ -217,18 +206,17 @@ void selectDraw(String selector){
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
 			break;
+		case "switch":
+			switchdraw(20, 3);
+			break;
 		default:
 			transmit(simg, xmg);
 			break;
 	}
 	
-	if(shaderQ){
-		pgDraw();
-		shaderDraw();
-	} else {
-		background(0);
-		pointDraw();
-	}
+	background(0);
+	pgDraw();
+	shaderDraw();
 }
 
 void shaderDraw(){
@@ -240,132 +228,15 @@ void shaderDraw(){
 	image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
 }
 
-void pointDraw(){
-	if(dispersed){
-		loadDX();
-		pointorbit(dximg);
-	} else {
-		pointorbit(simg);
-	}
-}
-
-void loadDX(){
-	simg.loadPixels();
-	dximg.loadPixels();
-	for (int i = 0; i < dximg.width; i++){
-		for (int j = 0; j < dximg.height; j++){
-			int dindex = (i + j * dximg.width);
-			int x = i - 1;
-			int y = j - 1;
-			x = constrain(x, 0, dximg.width - 1);
-			y = constrain(y, 0, dximg.height - 1);
-			int sindex = ((x*modfac) + ((y*modfac) * (simg.width)));
-			if (sindex < simg.pixels.length){
-				dximg.pixels[dindex] = simg.pixels[sindex];
-				}
-			}
-		}
-	simg.updatePixels();
-	dximg.updatePixels();
-}
-
 void pgDraw(){
 	pg.beginDraw();
 	pg.background(0);
-	// pg.background(0,0,0,25);
-	// pg.background(0,0,0,100);
-	// pg.background(0,0,0,125);
-	// pg.background(0,0,0,150);
 	pg.shader(blueline);
 	pg.rect(0, 0, pg.width, pg.height);
 	pg.endDraw();
 }
 
-void pointorbit(PImage nimg){
-	nimg.loadPixels();
-	for(int x = 0; x < nimg.width;x++){
-		for(int y = 0; y < nimg.height; y++){
-			int index = (x + (y * nimg.width));
-			color cpx = nimg.pixels[index];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			float gs = 1.;
-			if(hav){
-				// human grayscale
-				gs = (
-					0.2989 * rpx +
-					0.5870 * gpx +
-					0.1140 * bpx
-					) / gsd;
-			} else {
-				// channel average
-				gs = (rpx + gpx + bpx) / gsd;
-			}
-			pushMatrix();
-			showAsPoint(x,y,gs);
-			popMatrix();
-		}
-	}
-	nimg.updatePixels();
-}
-
-
-void showAsPoint(int x, int y, float energy) {
-	float enc = lerp(-1., 1., energy);
-
-	color cc = energyDegree(enc);
-	stroke(cc);
-	float ang = radians(energyAngle(enc));
-	// float ang = energyAngle(enc);
-	float px = x + (.5 * cos(ang));
-	float py = y + (.5 * sin(ang));
-	// float px = x + ((1./float(modfac)) * cos(ang));
-	// float py = y + ((1./float(modfac)) * sin(ang));
-	// float px = x + ((scale * (1./float(modfac))) * cos(ang));
-	// float py = y + ((scale * (1./float(modfac))) * sin(ang));
-	// float px = x + (.5+(scale/float(modfac))) * cos(ang);
-	// float py = y + (.5+(scale/float(modfac))) * sin(ang);
-	// float px = x + ((1./float(modfac))*.5) * cos(ang);
-	// float py = y + ((1./float(modfac))*.5) * sin(ang);
-
-	if(dispersed){
-		translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
-		point(
-			(px) * modfac,
-			(py) * modfac
-		);
-		} else {
-		translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
-		point(
-			(px),
-			(py)
-		);
-		}
-
-}
-
-
-float energyAngle(float ec) {
-	float ecc = (ec + 1.) / 2.;
-	float a = ecc * 360.;
-	return constrain(a, 0, 360);
-}
-
-color energyDegree(float energy) {
-	float ac = energyAngle(energy);
-	float ac4 = lerp(0., 1., ac / 360.) * 215.;
-	
-	float rpx = ac4;
-	float gpx = 255. - (abs(energy) * 255.);
-	float bpx = 255. - (abs(energy) * 200.);
-	// return color(rpx, gpx, bpx, 255/9);
-	return color(rpx, gpx, bpx);
-}
-
-void switchdraw(int mod){
+void switchdraw(int mod, int smearSelector){
 	if(frameCount % mod == 0){
 		drawswitch = 1 - drawswitch;
 	}
@@ -373,7 +244,7 @@ void switchdraw(int mod){
 	if(drawswitch == 0){
 		transmit(simg, xmg);
 	} else {
-		smear(simg, xmg, 4);
+		smear(simg, xmg, smearSelector);
 	}
 }
 
@@ -441,7 +312,7 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 				gs = (rpx + gpx + bpx) / gsd;
 			}
 			
-			// the close values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
+			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
 			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
 			// kern[i][j] = gs;
 			// kern[i][j] = map(gs, 0, 1, 0.,1.*scalefac);
@@ -779,8 +650,8 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 			gs = (srpx + sgpx + sbpx) / gsd;
 		}
 		
-		// float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
-		float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
+		float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
+		// float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
 		// float xmsn = ximg[sloc][i][j] / xsmnfactor;
 		int offset = kwidth / 2;
 		for (int i = 0; i < kwidth; i++){
@@ -798,11 +669,11 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				if(xloc == x && yloc == y){
 					continue;
 				} else {
+					// float xmsn = ximg[sloc][i][j] / xsmnfactor;
 					rpx += xmsn;
 					gpx += xmsn;
 					bpx += xmsn;
 				}
-				
 				img.pixels[loc] = color(rpx,gpx,bpx);
 			}
 		}

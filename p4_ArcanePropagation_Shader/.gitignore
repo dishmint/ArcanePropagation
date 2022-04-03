@@ -1,0 +1,11 @@
+dep/
+
+imgs/
+
+build/
+
+build/**/
+
+frames/
+
+video/
