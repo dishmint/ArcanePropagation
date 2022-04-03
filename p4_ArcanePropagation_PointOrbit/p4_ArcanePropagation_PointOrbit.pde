@@ -21,11 +21,7 @@ void setup(){
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
-	// simg = loadImage("./imgs/abstract_1.PNG");
-	// simg = loadImage("./imgs/abstract_2.PNG");
 	simg = loadImage("./imgs/fruit.jpg");
-	// simg = loadImage("./imgs/abstract_3.PNG");
-	// simg = loadImage("./imgs/abstract_4.JPG");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
