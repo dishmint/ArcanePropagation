@@ -13,7 +13,9 @@ float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 boolean dispersed, hav;
 
 void setup(){
-	size(1422,800, P3D);
+	// size(1422,800, P3D);
+	// size(1422,800, P3D);
+	size(1600,900, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
@@ -21,7 +23,7 @@ void setup(){
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
-	simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
@@ -39,7 +41,7 @@ void setup(){
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = loadImage("./imgs/mountains_1.jpg");
+	simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
@@ -68,12 +70,18 @@ void setup(){
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
 	downsample = 1;
-	modfac = 10;
+	// modfac = 2;
+	// modfac = 5;
+	modfac = 8;
+	// modfac = 20;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.width;
 	float sh = (float)simg.height;
 	float scale = min(width/sw, height/sh);
+	// float sw = (float)simg.pixelWidth;
+	// float sh = (float)simg.pixelHeight;
+	// float scale = min(pixelWidth/sw, pixelHeight/sh);
 	
 	int nw = Math.round(sw*scale);
 	int nh = Math.round(sh*scale);
@@ -85,45 +93,23 @@ void setup(){
 	// smear: As sf increases      smear decreases
 	// float sf = 0000.50;   /* 510.00 */
 	// float sf = 0001.00;   /* 255.00 */
-	// float sf = 0002.00;   /* 127.50 */
-	// float sf = 0003.00;   /* 085.00 */
-	// float sf = 0004.00;   /* 063.75 */
 	// float sf = 0005.00;   /* 051.00 */
-	// float sf = 0006.00;   /* 042.50 */
-	// float sf = 0010.00;   /* 025.50 */
-	// float sf = 0012.00;   /* 021.25 */
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
-	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
-	// float sf = 0027.00;   /* ————— */
-	// float sf = 0030.00;   /* 008.50 */
-	// float sf = 0034.00;   /* 007.50 */
-	// float sf = 0050.00;   /* 005.10 */
 	// float sf = 0051.00;   /* 005.00 */
-	// float sf = 0060.00;   /* 004.25 */
-	// float sf = 0068.00;   /* 003.75 */
-	// float sf = 0075.00;   /* 003.40 */
-	// float sf = 0085.00;   /* 003.00 */
-	// float sf = 0100.00;   /* 002.55 */
-	// float sf = 0102.00;   /* 002.50 */
-	// float sf = 0125.00;   /* 002.04 */
-	// float sf = 0150.00;   /* 001.70 */
-	// float sf = 0170.00;   /* 001.50 */
-	// float sf = 0204.00;   /* 001.25 */
-	// float sf = 0250.00;   /* 001.02 */
 	// float sf = 0255.00;   /* 001.00 */
-	// float sf = 0382.50;   /* 000.66 */
-	float sf = 0510.00;   /* 000.50 */
-	// float sf = 0637.50;   /* 000.40 */
+	// float sf = 0510.00;   /* 000.50 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
 	// float sf = 2040.00;   /* 000.125 */
+	// float sf = 2040.00;   /* 000.125 */
+	// float sf = 3750.00;   /* 000.068 */
+	float sf = 4080.00;   /* 000.0625 */
 
 	scalefac = 255./sf;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
-	xsmnfactor = 1.;
+	// xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
 	// xsmnfactor = pow(kwidth - 1,3.); /* default */
@@ -131,7 +117,7 @@ void setup(){
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
-	// xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
+	xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
 	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
