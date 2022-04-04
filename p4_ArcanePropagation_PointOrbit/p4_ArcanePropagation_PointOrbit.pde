@@ -20,6 +20,8 @@ void setup(){
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
 	
+	hint(ENABLE_STROKE_PURE);
+	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
@@ -38,10 +40,10 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	simg = loadImage("./imgs/mountains_1.jpg");
+	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
 	// simg = randomImage(width/32, height/32);
 	// simg = randomImage(width/4, height/4);
@@ -67,12 +69,19 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
+	
+	// downsample functions much like displayscale does in the shader project, except that it can't make the image bigger, only smaller.
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
-	downsample = 1;
+	// downsample = 1;
+	downsample = 2;
+	// downsample = 3;
+	// downsample = 4;
+	// modfac = 1;
 	// modfac = 2;
+	modfac = 3;
 	// modfac = 5;
-	modfac = 8;
+	// modfac = 8;
 	// modfac = 20;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -85,7 +94,8 @@ void setup(){
 	
 	int nw = Math.round(sw*scale);
 	int nh = Math.round(sh*scale);
-	simg.resize(nw, nh);
+	// simg.resize(nw, nh);
+	simg.resize(nw/downsample, nh/downsample);
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
@@ -132,11 +142,11 @@ void setup(){
 }
 
 void draw(){
-	// selectDraw("switch", "point");
+	selectDraw("switch", "point");
 	// selectDraw("switch", "line");
 	// selectDraw("switch", "xline");
 	// selectDraw("transmit", "point");
-	selectDraw("transmit", "line");
+	// selectDraw("transmit", "line");
 	// selectDraw("transmit", "xline");
 	// selectDraw("transmit", "xliner");
 }
@@ -156,7 +166,8 @@ void selectDraw(String selector, String style){
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
-			switchdraw(20, 1);
+		// switchdraw(20, 1);
+			switchdraw(60, 1);
 			break;
 		default:
 			transmit(simg, xmg);
