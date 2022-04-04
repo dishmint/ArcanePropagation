@@ -132,11 +132,16 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("transmitMBL");
-	// image(simg, width/2,height/2);
+	// selectDraw("switch", "point");
+	// selectDraw("switch", "line");
+	// selectDraw("switch", "xline");
+	// selectDraw("transmit", "point");
+	selectDraw("transmit", "line");
+	// selectDraw("transmit", "xline");
+	// selectDraw("transmit", "xliner");
 }
 
-void selectDraw(String selector){
+void selectDraw(String selector, String style){
 	switch(selector){
 		case "transmit":
 			transmit(simg, xmg);
@@ -145,13 +150,13 @@ void selectDraw(String selector){
 			convolve(simg, xmg);
 			break;
 		case "smear":
-			smear(simg, xmg, 4);
+			smear(simg, xmg, 1);
 			break;
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
-			switchdraw(20, 4);
+			switchdraw(20, 1);
 			break;
 		default:
 			transmit(simg, xmg);
@@ -159,15 +164,15 @@ void selectDraw(String selector){
 	}
 	
 	background(0);
-	pointDraw();
+	pointDraw(style);
 }
 
-void pointDraw(){
+void pointDraw(String style){
 	if(dispersed){
 		loadDX();
-		pointorbit(dximg);
+		pointorbit(dximg, style);
 	} else {
-		pointorbit(simg);
+		pointorbit(simg, style);
 	}
 }
 
@@ -191,31 +196,52 @@ void loadDX(){
 	dximg.updatePixels();
 }
 
-void pointorbit(PImage nimg){
+float computeGS(color px){
+	float rpx = px >> 16 & 0xFF;
+	float gpx = px >> 8 & 0xFF;
+	float bpx = px & 0xFF;
+	
+	float gs = 1.;
+	if(hav){
+		// human grayscale
+		gs = (
+			0.2989 * rpx +
+			0.5870 * gpx +
+			0.1140 * bpx
+			) / gsd;
+	} else {
+		// channel average
+		gs = (rpx + gpx + bpx) / gsd;
+	}
+	return gs;
+}
+
+void pointorbit(PImage nimg, String selector){
 	nimg.loadPixels();
 	for(int x = 0; x < nimg.width;x++){
 		for(int y = 0; y < nimg.height; y++){
 			int index = (x + (y * nimg.width));
 			color cpx = nimg.pixels[index];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			float gs = 1.;
-			if(hav){
-				// human grayscale
-				gs = (
-					0.2989 * rpx +
-					0.5870 * gpx +
-					0.1140 * bpx
-					) / gsd;
-			} else {
-				// channel average
-				gs = (rpx + gpx + bpx) / gsd;
-			}
+			float gs = computeGS(cpx);
 			pushMatrix();
-			showAsPoint(x,y,gs);
+			
+			switch(selector){
+				case "point":
+					showAsPoint(x,y,gs);
+					break;
+				case "line":
+					showAsLine(x,y,gs);
+					break;
+				case "xline":
+					showTLines(nimg,x,y,gs);
+					break;
+				case "xliner":
+					showTRotator(nimg,x,y,gs);
+					break;
+				default:
+					showAsPoint(x,y,gs);
+					break;
+			}
 			popMatrix();
 		}
 	}
@@ -248,11 +274,6 @@ void showAsPoint(int x, int y, float energy) {
 			(px) * modfac,
 			(py) * modfac
 		);
-		// line(
-		// 	x * modfac,y * modfac,
-		// 	(px) * modfac,
-		// 	(py) * modfac
-		// );
 		popMatrix();
 		} else {
 			pushMatrix();
@@ -266,6 +287,168 @@ void showAsPoint(int x, int y, float energy) {
 
 }
 
+void showAsLine(int x, int y, float energy) {
+	float enc = lerp(-1., 1., energy);
+	color cc = energyDegree(enc);
+	stroke(cc);
+	float ang = radians(energyAngle(enc));
+	float px = x + (.5 * cos(ang));
+	float py = y + (.5 * sin(ang));
+
+	if(dispersed){
+		pushMatrix();
+		translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
+		line(
+				x  * modfac,
+				y  * modfac,
+			(px) * modfac,
+			(py) * modfac
+		);
+		popMatrix();
+		} else {
+			pushMatrix();
+			translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+			line(x, y, px, py);
+			popMatrix();
+		}
+
+}
+
+void showTLines(PImage img, int x, int y, float energy) {
+
+	int sloc = x+y*img.width;
+	sloc = constrain(sloc, 0, img.pixels.length - 1);
+	color cc = img.pixels[sloc];
+
+	int offset = kwidth / 2;
+	for (int i = 0; i < kwidth; i++){
+		for (int j= 0; j < kwidth; j++){
+			
+			int xloc = x+i-offset;
+			int yloc = y+j-offset;
+			int loc = xloc + img.width*yloc;
+			
+			loc = constrain(loc,0,img.pixels.length-1);
+			
+			color cpx = img.pixels[loc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
+			strokeWeight(1);
+			// stroke(lerpColor(cc, cpx, energy), 255 * .125);
+			stroke(energyDegree(energy), 255 * .125);
+			// stroke(lerpColor(0, 255, energy), 255 * .125);
+			if(xloc == x && yloc == y){
+				continue;
+			} else{
+				if(dispersed){
+					pushMatrix();
+					translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
+
+					line(
+						(x + .5) * modfac,
+						(y + .5) * modfac,
+						(xloc + .5) * modfac,
+						(yloc + .5) * modfac
+						);
+					popMatrix();
+					} else {
+						pushMatrix();
+						translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+						line(
+							(x + (.5)),
+							(y + (.5)),
+							(xloc + (.5)),
+							(yloc + (.5))
+							);
+						popMatrix();
+					}
+			}
+			}
+		}
+}
+
+void showTRotator(PImage img, int x, int y, float energy) {
+
+	// int sloc = x+y*img.width;
+	// sloc = constrain(sloc, 0, img.pixels.length - 1);
+	// color cc = img.pixels[sloc];
+
+	float enc = lerp(-1., 1., energy);
+	float ang = radians(energyAngle(enc));
+
+	int offset = kwidth / 2;
+	for (int i = 0; i < kwidth; i++){
+		for (int j= 0; j < kwidth; j++){
+			
+			int xloc = x+i-offset;
+			int yloc = y+j-offset;
+			int loc = xloc + img.width*yloc;
+			
+			loc = constrain(loc,0,img.pixels.length-1);
+			
+			color cpx = img.pixels[loc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
+			strokeWeight(1);
+			// stroke(lerpColor(cc, cpx, energy), 255 * .125);
+			stroke(energyDegree(energy), 255 * .125);
+			// stroke(lerpColor(0, 255, energy), 255 * .125);
+			if(xloc == x && yloc == y){
+				continue;
+			} else{
+				if(dispersed){
+					pushMatrix();
+					translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
+					line(
+						(x + .5) * modfac,
+						(y + .5) * modfac,
+						(xloc + (.5 * cos(ang))) * modfac,
+						(yloc + (.5 * sin(ang))) * modfac
+						);
+					popMatrix();
+					} else {
+						pushMatrix();
+						translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+						line(
+							(x + .5),
+							(y + .5),
+							(xloc + (.5 * cos(ang))),
+							(yloc + (.5 * sin(ang)))
+							);
+						popMatrix();
+					}
+				// if(dispersed){
+				// 	pushMatrix();
+				// 	translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
+				// 	line(
+				// 		(x + (.5 * cos(ang))) * modfac,
+				// 		(y + (.5 * sin(ang))) * modfac,
+				// 		(xloc + (.5 * cos(ang))) * modfac,
+				// 		(yloc + (.5 * sin(ang))) * modfac
+				// 		);
+				// 	popMatrix();
+				// 	} else {
+				// 		pushMatrix();
+				// 		translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+				// 		line(
+				// 			(x + (.5 * cos(ang))),
+				// 			(y + (.5 * sin(ang))),
+				// 			(xloc + (.5 * cos(ang))),
+				// 			(yloc + (.5 * sin(ang)))
+				// 			);
+				// 		popMatrix();
+				// 	}
+			}
+			}
+		}
+}
+
 float energyAngle(float ec) {
 	// float ecc = (ec + 1.) / 2.;
 	// float a = ecc * 360.;
@@ -274,15 +457,16 @@ float energyAngle(float ec) {
 }
 
 color energyDegree(float energy) {
-	float ac = energyAngle(energy);
-	float ac4 = lerp(0., 1., ac / 360.) * 215.;
-	
-	float rpx = ac4;
-	float gpx = 255. - (abs(energy) * 255.);
-	float bpx = 255. - (abs(energy) * 200.);
+	// float ac = energyAngle(energy);
+	// float ac4 = lerp(0., 1., ac / 360.) * 215.;
+	//
+	// float rpx = ac4;
+	// float gpx = 255. - (abs(energy) * 255.);
+	// float bpx = 255. - (abs(energy) * 200.);
 	// return color(rpx, gpx, bpx, 255/9);
 	// return color(rpx, gpx, bpx);
-	return color(rpx, gpx, bpx, 255. - (255*energy));
+	// return color(rpx, gpx, bpx, 255. - (255*energy));
+	return lerpColor(color(0, 255, 255), color(215, 0, 55), energy);
 }
 
 void switchdraw(int mod, int smearSelector){
@@ -312,23 +496,7 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			// TODO: should gs be computed with a different divisor. 3? or should I just take the natural mean values instead of the graded grayscale?
 			
 			color cpx = img.pixels[loc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			float gs = 1.;
-			if(hav){
-				// human grayscale
-				gs = (
-					0.2989 * rpx +
-					0.5870 * gpx +
-					0.1140 * bpx
-					) / gsd;
-			} else {
-				// channel average
-				gs = (rpx + gpx + bpx) / gsd;
-			}
+			float gs = computeGS(cpx);
 			
 			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
 			// kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
