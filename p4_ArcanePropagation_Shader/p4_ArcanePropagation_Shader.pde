@@ -41,8 +41,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -100,7 +100,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -123,7 +123,7 @@ void setup(){
 	// float sf = 0637.50;   /* 000.40 */
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
-	// float sf = 2040.00;   /* 000.125 */
+	float sf = 2040.00;   /* 000.125 */
 
 	scalefac = 255./sf;
 	
@@ -173,7 +173,8 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	blueline.set("rfac", 1.300000);
+	blueline.set("rfac", 0.0);
+	// blueline.set("rfac", 1.300000);
 	
 	if(dispersed){
 		useDispersed(modfac);
@@ -189,7 +190,7 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("convolve");
+	selectDraw("switch");
 }
 
 void selectDraw(String selector){
@@ -207,7 +208,7 @@ void selectDraw(String selector){
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
-			switchdraw(20, 3);
+			switchdraw(20, 1);
 			break;
 		default:
 			transmit(simg, xmg);

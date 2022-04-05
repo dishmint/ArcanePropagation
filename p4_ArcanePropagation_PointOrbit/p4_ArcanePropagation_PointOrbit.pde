@@ -8,14 +8,13 @@ float[][][] xmg;
 int downsample,modfac,dmfac;
 int kwidth = 3;
 int drawswitch = 0;
-float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
+float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 
 boolean dispersed, hav;
 
 void setup(){
-	// size(1422,800, P3D);
-	// size(1422,800, P3D);
-	size(1600,900, P3D);
+	size(1422,800, P3D);
+	// size(1600,900, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
@@ -73,15 +72,18 @@ void setup(){
 	// downsample functions much like displayscale does in the shader project, except that it can't make the image bigger, only smaller.
 	// dmfac = 1;
 	// downsample = modfac = dmfac;
-	// downsample = 1;
-	downsample = 2;
-	// downsample = 3;
-	// downsample = 4;
+	// downsampleFloat = .5;
+	// downsampleFloat = 1.0;
+	downsampleFloat = 1.5;
+	// downsampleFloat = 2.0;
+	// downsampleFloat = 3.0;
+	// downsampleFloat = 4.0;
 	// modfac = 1;
 	// modfac = 2;
-	modfac = 3;
-	// modfac = 5;
+	// modfac = 3;
+	modfac = 5;
 	// modfac = 8;
+	// modfac = 10;
 	// modfac = 20;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -92,10 +94,12 @@ void setup(){
 	// float sh = (float)simg.pixelHeight;
 	// float scale = min(pixelWidth/sw, pixelHeight/sh);
 	
-	int nw = Math.round(sw*scale);
-	int nh = Math.round(sh*scale);
-	// simg.resize(nw, nh);
-	simg.resize(nw/downsample, nh/downsample);
+	int nw = Math.round(sw*scale/downsampleFloat);
+	int nh = Math.round(sh*scale/downsampleFloat);
+	// int nw = Math.round(sw*scale);
+	// int nh = Math.round(sh*scale);
+	simg.resize(nw, nh);
+	// simg.resize(nw/downsample, nh/downsample);
 	
 	// sf ~~ rate of decay
 	// convolve: As sf increases decay-rate increases
@@ -142,13 +146,36 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("switch", "point");
-	// selectDraw("switch", "line");
-	// selectDraw("switch", "xline");
-	// selectDraw("transmit", "point");
+	
+	// selectDraw("convolve", "point");
+	// selectDraw("convolve", "line");
+	// selectDraw("convolve", "xline");
+	// selectDraw("convolve", "xliner");
+	// selectDraw("convolve", "xliner2");
+	
+	selectDraw("transmit", "point");
 	// selectDraw("transmit", "line");
 	// selectDraw("transmit", "xline");
 	// selectDraw("transmit", "xliner");
+	// selectDraw("transmit", "xliner2");
+
+	// selectDraw("transmitMBL", "point");
+	// selectDraw("transmitMBL", "line");
+	// selectDraw("transmitMBL", "xline");
+	// selectDraw("transmitMBL", "xliner");
+	// selectDraw("transmitMBL", "xliner2");
+	
+	// selectDraw("switch", "point");
+	// selectDraw("switch", "line");
+	// selectDraw("switch", "xline");
+	// selectDraw("switch", "xliner");
+	// selectDraw("switch", "xliner2");
+	
+	// selectDraw("switchTotal", "point");
+	// selectDraw("switchTotal", "line");
+	// selectDraw("switchTotal", "xline");
+	// selectDraw("switchTotal", "xliner");
+	// selectDraw("switchTotal", "xliner2");
 }
 
 void selectDraw(String selector, String style){
@@ -162,12 +189,21 @@ void selectDraw(String selector, String style){
 		case "smear":
 			smear(simg, xmg, 1);
 			break;
+		case "smearTotal":
+			smearTotal(simg, xmg, 1);
+			break;
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
 		// switchdraw(20, 1);
 			switchdraw(60, 1);
+			break;
+		case "switchTotal":
+		// switchdrawTotal(60, 1);
+		// switchdrawTotal(60, 2);
+		// switchdrawTotal(60, 3);
+			switchdrawTotal(100, 4);
 			break;
 		default:
 			transmit(simg, xmg);
@@ -248,6 +284,9 @@ void pointorbit(PImage nimg, String selector){
 					break;
 				case "xliner":
 					showTRotator(nimg,x,y,gs);
+					break;
+				case "xliner2":
+					showTRotator2(nimg,x,y,gs);
 					break;
 				default:
 					showAsPoint(x,y,gs);
@@ -460,6 +499,91 @@ void showTRotator(PImage img, int x, int y, float energy) {
 		}
 }
 
+void showTRotator2(PImage img, int x, int y, float energy) {
+
+	// int sloc = x+y*img.width;
+	// sloc = constrain(sloc, 0, img.pixels.length - 1);
+	// color cc = img.pixels[sloc];
+
+	float enc = lerp(-1., 1., energy);
+	float ang = radians(energyAngle(enc));
+
+	int offset = kwidth / 2;
+	for (int i = 0; i < kwidth; i++){
+		for (int j= 0; j < kwidth; j++){
+			
+			int xloc = x+i-offset;
+			int yloc = y+j-offset;
+			int loc = xloc + img.width*yloc;
+			
+			loc = constrain(loc,0,img.pixels.length-1);
+			
+			color cpx = img.pixels[loc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
+			strokeWeight(1);
+			// stroke(lerpColor(cc, cpx, energy), 255 * .125);
+			stroke(energyDegree(energy), 255 * .125);
+			// stroke(lerpColor(0, 255, energy), 255 * .125);
+			if(xloc == x && yloc == y){
+				continue;
+			} else{
+				if(dispersed){
+					pushMatrix();
+					translate((width/2)-(modfac*(dximg.width/2)),(height/2)-(modfac*(dximg.height/2)));
+					PVector midpoint = new PVector(lerp(float(x), float(xloc), .5), lerp(float(y), float(yloc), .5));
+					PVector p1 = new PVector(float(x), float(y));
+					PVector p2 = new PVector(float(xloc), float(yloc));
+					float l = PVector.dist(p1,p2);
+					pushMatrix();
+					// translate((x*modfac)+midpoint.x, (y*modfac)+midpoint.y);
+					translate((midpoint.x*modfac), (midpoint.y*modfac));
+					rotate(ang);
+					// translate(-midpoint.x, -midpoint.y);
+					// float distance = dist();
+					// line(
+					// 	(-l/2) * modfac,
+					// 	(-l/2) * modfac,
+					// 	(l/2) * modfac,
+					// 	(l/2) * modfac
+					// 	);
+					// popMatrix();
+					// line(
+					// 	(-l/2),
+					// 	(-l/2),
+					// 	(l/2) ,
+					// 	(l/2)
+					// 	);
+					line(
+						(-l/2) * (modfac/2),
+						(-l/2) * (modfac/2),
+						(l/2) * (modfac/2) ,
+						(l/2) * (modfac/2)
+						);
+					popMatrix();
+					// rotate(-ang);
+					popMatrix();
+					} else {
+						pushMatrix();
+						translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+						rotate(ang);
+						line(
+							(x + .5),
+							(y + .5),
+							(xloc + (.5)),
+							(yloc + (.5))
+							);
+						// rotate(-ang);
+						popMatrix();
+					}
+				}
+			}
+		}
+}
+
 float energyAngle(float ec) {
 	// float ecc = (ec + 1.) / 2.;
 	// float a = ecc * 360.;
@@ -470,14 +594,38 @@ float energyAngle(float ec) {
 color energyDegree(float energy) {
 	// float ac = energyAngle(energy);
 	// float ac4 = lerp(0., 1., ac / 360.) * 215.;
-	//
 	// float rpx = ac4;
 	// float gpx = 255. - (abs(energy) * 255.);
 	// float bpx = 255. - (abs(energy) * 200.);
+	
 	// return color(rpx, gpx, bpx, 255/9);
 	// return color(rpx, gpx, bpx);
 	// return color(rpx, gpx, bpx, 255. - (255*energy));
-	return lerpColor(color(0, 255, 255), color(215, 0, 55), energy);
+	// return lerpColor(color(0, 255, 255), color(215, 0, 55), energy);
+	// return lerpColor(color(0, 0, 0), color(255, 0, 0), energy);
+	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
+	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
+	
+	// return lerpColor(color(50.*0.101961, 50.*0.145098, 50.*0.117647), color(255.*0.101961, 255.*0.145098, 255.*0.117647), energy);
+	color c1 = color(
+		map(0.101961, 0.,.145098, 0, 50),
+		map(0.145098, 0.,.145098, 0, 50),
+		map(0.117647, 0.,.145098, 0, 50)
+		);
+	color c2 = color(
+		map(0.101961, 0.,.145098, 0, 255),
+		map(0.145098, 0.,.145098, 0, 255),
+		map(0.117647, 0.,.145098, 0, 255)
+		);
+	return lerpColor(c1, c2, energy);
+}
+
+float colorAmp(float min, float max, float value){
+	return map(value, min, max, 0,255);
+}
+
+float colorAmp(float value, float min, float max, float hmin, float hmax){
+	return map(value, min, max, hmin,hmax);
 }
 
 void switchdraw(int mod, int smearSelector){
@@ -489,6 +637,18 @@ void switchdraw(int mod, int smearSelector){
 		transmit(simg, xmg);
 	} else {
 		smear(simg, xmg, smearSelector);
+	}
+}
+
+void switchdrawTotal(int mod, int smearSelector){
+	if(frameCount % mod == 0){
+		drawswitch = 1 - drawswitch;
+	}
+	
+	if(drawswitch == 0){
+		transmit(simg, xmg);
+	} else {
+		smearTotal(simg, xmg, smearSelector);
 	}
 }
 
@@ -641,6 +801,7 @@ void convolve(PImage img, float[][][] ximage) {
 // Adjusted slightly for the purposes of this sketch
 color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 	{
+		//  TODO: It may be the case that (rgb)total shouldn't start at 0.
 		float rtotal = 0.0;
 		float gtotal = 0.0;
 		float btotal = 0.0;
@@ -769,6 +930,100 @@ color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
 			}
 		}
 		return color(rpx, gpx, bpx);
+	}
+
+void smearTotal(PImage img, float[][][] ximage, int selector) {
+	img.loadPixels();
+	for (int i = 0; i < img.width; i++){
+		for (int j = 0; j < img.height; j++){
+			color c =  smearingTotal(i,j, kwidth, img, ximage, selector);
+			int index = (i + j * img.width);
+			img.pixels[index] = c;
+		}
+	}
+	img.updatePixels();
+	}
+
+color smearingTotal(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
+	{
+		
+		float rtotal = 0.0;
+		float gtotal = 0.0;
+		float btotal = 0.0;
+		
+		
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = (ximg[loc][i][j] / xsmnfactor);
+				
+				color cpx = img.pixels[loc];
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+				switch(sel){
+					case 1:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal += rpx * (xmsn);
+								gtotal += gpx * (xmsn);
+								btotal += bpx * (xmsn);
+							}
+						break;
+					case 2:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal *= rpx * (xmsn);
+								gtotal *= gpx * (xmsn);
+								btotal *= bpx * (xmsn);
+							}
+						break;
+					case 3:
+						if(xloc == x && yloc == y){
+							rtotal += rpx * (xmsn);
+							gtotal += gpx * (xmsn);
+							btotal += bpx * (xmsn);
+							} else {
+								rtotal *= rpx * (xmsn);
+								gtotal *= gpx * (xmsn);
+								btotal *= bpx * (xmsn);
+							}
+						break;
+					case 4:
+						if(xloc == x && yloc == y){
+							rtotal = rpx * (xmsn);
+							gtotal = gpx * (xmsn);
+							btotal = bpx * (xmsn);
+						}
+						break;
+					default:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal += rpx * (xmsn);
+								gtotal += gpx * (xmsn);
+								btotal += bpx * (xmsn);
+							}
+						break;
+				}
+			}
+		}
+		return color(rtotal, gtotal, btotal);
 	}
 
 void transmit(PImage img, float[][][] ximage)
