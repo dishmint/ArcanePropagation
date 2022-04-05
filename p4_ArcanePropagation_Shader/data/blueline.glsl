@@ -241,7 +241,7 @@ void main( void ) {
 	//| alpha1   | alpha => 1.0               |
 	//| alphaC   | alpha => color.a           |
 	//| alphaY   | alpha => energy            |
-	pushgrade(normal, rblue, alphaY);
+	pushgrade(normal, green, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |

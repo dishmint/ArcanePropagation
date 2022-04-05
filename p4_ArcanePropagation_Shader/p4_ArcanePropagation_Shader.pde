@@ -20,6 +20,7 @@ void setup(){
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(1);
+	hint(ENABLE_STROKE_PURE);
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
@@ -43,8 +44,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -55,6 +56,7 @@ void setup(){
 	// simg = noiseImage(height/32, height/32, 3, .6);
 	// simg = noiseImage(height/32, height/64, 3, .6);
 	// simg = noiseImage(width/32, height/64, 3, .6);
+	// simg = noiseImage(width/64, height/32, 3, .6);
 	// simg = kuficImage(width, height);
 	// simg = kuficImage(width/16, height/16);
 	// simg = kuficImage(width/16, height/32);
@@ -102,7 +104,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -126,7 +128,8 @@ void setup(){
 	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
 	// float sf = 1020.00;   /* 000.25 */
 	// float sf = 2040.00;   /* 000.125 */
-
+	// float sf = 3750.00;   /* 000.068 */
+	float sf = 4080.00;   /* 000.0625 */
 	scalefac = 255./sf;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
@@ -134,11 +137,11 @@ void setup(){
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
 	// xsmnfactor = pow(kwidth - 1,3.); /* default */
-	xsmnfactor = pow(kwidth,2.); /* default */
+	// xsmnfactor = pow(kwidth,2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
-	// xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
+	xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
 	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
@@ -147,7 +150,7 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = false;
+	dispersed = true;
 	displayscale = 1.0;
 	// displayscale = 0.5;
 	
@@ -191,7 +194,11 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("convolve");
+	// selectDraw("convolve");
+	// selectDraw("transmit");
+	selectDraw("transmitMBL");
+	// selectDraw("switch");
+	// selectDraw("switchTotal");
 }
 
 void selectDraw(String selector){
@@ -203,13 +210,35 @@ void selectDraw(String selector){
 			convolve(simg, xmg);
 			break;
 		case "smear":
-			smear(simg, xmg, 4);
+			smear(simg, xmg, 1);
+			break;
+		case "smearTotal":
+			smearTotal(simg, xmg, 1);
 			break;
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
 			break;
 		case "switch":
-			switchdraw(20, 1);
+			// switchdraw((frameCount % 20)+1, 1);
+			switchdraw((frameCount % 60)+1, 1);
+			// switchdraw(20, 1);
+			// switchdraw(20, 2);
+			// switchdraw(20, 3);
+			// switchdraw(20, 4);
+			
+			// switchdraw(60, 1);
+			// switchdraw(60, 2);
+			// switchdraw(60, 3);
+			// switchdraw(60, 4);
+			break;
+		case "switchTotal":
+			// switchdrawTotal(60, 1);
+			// switchdrawTotal(60, 2);
+			// switchdrawTotal(60, 3);
+			// switchdrawTotal(100, 1);
+			// switchdrawTotal(100, 2);
+			// switchdrawTotal(100, 3);
+			// switchdrawTotal(100, 4);
 			break;
 		default:
 			transmit(simg, xmg);
@@ -250,6 +279,18 @@ void switchdraw(int mod, int smearSelector){
 	}
 }
 
+void switchdrawTotal(int mod, int smearSelector){
+	if(frameCount % mod == 0){
+		drawswitch = 1 - drawswitch;
+	}
+	
+	if(drawswitch == 0){
+		transmit(simg, xmg);
+	} else {
+		smearTotal(simg, xmg, smearSelector);
+	}
+}
+
 void useDispersed(int factor){
 	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
 	
@@ -280,6 +321,25 @@ void drawOriginal(){
 	blueline.set("tex0", simg);
 }
 
+float computeGS(color px){
+	float rpx = px >> 16 & 0xFF;
+	float gpx = px >> 8 & 0xFF;
+	float bpx = px & 0xFF;
+	
+	float gs = 1.;
+	if(hav){
+		// human grayscale
+		gs = (
+			0.2989 * rpx +
+			0.5870 * gpx +
+			0.1140 * bpx
+			) / gsd;
+	} else {
+		// channel average
+		gs = (rpx + gpx + bpx) / gsd;
+	}
+	return gs;
+}
 
 float[][] loadkernel(int x, int y, int dim, PImage img){
 	float[][] kern = new float[dim][dim];
@@ -297,22 +357,7 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			
 			color cpx = img.pixels[loc];
 			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			float gs = 1.;
-			if(hav){
-				// human grayscale
-				gs = (
-					0.2989 * rpx +
-					0.5870 * gpx +
-					0.1140 * bpx
-					) / gsd;
-			} else {
-				// channel average
-				gs = (rpx + gpx + bpx) / gsd;
-			}
+			float gs = computeGS(cpx);
 			
 			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
 			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
@@ -366,20 +411,9 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 			gpx += edge[i][j]/9;
 			bpx += edge[i][j]/9;
 			
-			float gs = 1.;
-			if(hav){
-				// human grayscale
-				gs = (
-					0.2989 * rpx +
-					0.5870 * gpx +
-					0.1140 * bpx
-					) / gsd;
-			} else {
-				// channel average
-				gs = (rpx + gpx + bpx) / gsd;
-			}
-
-				kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			float gs = computeGS(cpx);
+			
+			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
 			}
 		}
 		img.updatePixels();
@@ -572,6 +606,101 @@ color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
 		return color(rpx, gpx, bpx);
 	}
 
+	
+void smearTotal(PImage img, float[][][] ximage, int selector) {
+	img.loadPixels();
+	for (int i = 0; i < img.width; i++){
+		for (int j = 0; j < img.height; j++){
+			color c =  smearingTotal(i,j, kwidth, img, ximage, selector);
+			int index = (i + j * img.width);
+			img.pixels[index] = c;
+		}
+	}
+	img.updatePixels();
+	}
+
+color smearingTotal(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
+	{
+		
+		float rtotal = 0.0;
+		float gtotal = 0.0;
+		float btotal = 0.0;
+		
+		
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = (ximg[loc][i][j] / xsmnfactor);
+				
+				color cpx = img.pixels[loc];
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+				switch(sel){
+					case 1:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal += rpx * (xmsn);
+								gtotal += gpx * (xmsn);
+								btotal += bpx * (xmsn);
+							}
+						break;
+					case 2:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal *= rpx * (xmsn);
+								gtotal *= gpx * (xmsn);
+								btotal *= bpx * (xmsn);
+							}
+						break;
+					case 3:
+						if(xloc == x && yloc == y){
+							rtotal += rpx * (xmsn);
+							gtotal += gpx * (xmsn);
+							btotal += bpx * (xmsn);
+							} else {
+								rtotal *= rpx * (xmsn);
+								gtotal *= gpx * (xmsn);
+								btotal *= bpx * (xmsn);
+							}
+						break;
+					case 4:
+						if(xloc == x && yloc == y){
+							rtotal = rpx * (xmsn);
+							gtotal = gpx * (xmsn);
+							btotal = bpx * (xmsn);
+						}
+						break;
+					default:
+						if(xloc == x && yloc == y){
+							rtotal -= rpx * (xmsn);
+							gtotal -= gpx * (xmsn);
+							btotal -= bpx * (xmsn);
+							} else {
+								rtotal += rpx * (xmsn);
+								gtotal += gpx * (xmsn);
+								btotal += bpx * (xmsn);
+							}
+						break;
+				}
+			}
+		}
+		return color(rtotal, gtotal, btotal);
+	}
+
 void transmit(PImage img, float[][][] ximage)
 	{
 		img.loadPixels();
@@ -631,23 +760,7 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 		int sloc = x+y*img.width;
 		
 		color spx = img.pixels[sloc];
-		float srpx = spx >> 16 & 0xFF;
-		float sgpx = spx >> 8 & 0xFF;
-		float sbpx = spx & 0xFF;
-		
-		
-		float gs = 1.;
-		if(hav){
-			// human grayscale
-			gs = (
-				0.2989 * srpx +
-				0.5870 * sgpx +
-				0.1140 * sbpx
-				) / gsd;
-		} else {
-			// channel average
-			gs = (srpx + sgpx + sbpx) / gsd;
-		}
+		float gs = computeGS(spx);
 		
 		float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
 		// float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;

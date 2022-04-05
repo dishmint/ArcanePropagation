@@ -6,7 +6,7 @@ PGraphics pg;
 PImage simg,dximg;
 float[][][] xmg;
 int downsample,modfac,dmfac;
-int kwidth = 3;
+int kwidth = 5;
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 
@@ -21,7 +21,7 @@ void setup(){
 	
 	hint(ENABLE_STROKE_PURE);
 	
-	// simg = loadImage("./imgs/buff_skate.JPG");
+	simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
 	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/fruit.jpg");
@@ -39,7 +39,7 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
@@ -51,6 +51,7 @@ void setup(){
 	// simg = noiseImage(height/32, height/32, 3, .6);
 	// simg = noiseImage(height/32, height/64, 3, .6);
 	// simg = noiseImage(width/32, height/64, 3, .6);
+	// simg = noiseImage(width/32, height/32, 3, .6);
 	// simg = kuficImage(width, height);
 	// simg = kuficImage(width/16, height/16);
 	// simg = kuficImage(width/16, height/32);
@@ -74,17 +75,21 @@ void setup(){
 	// downsample = modfac = dmfac;
 	// downsampleFloat = .5;
 	// downsampleFloat = 1.0;
-	downsampleFloat = 1.5;
+	downsampleFloat = 1.25;
+	// downsampleFloat = 1.5;
+	// downsampleFloat = 1.75;
 	// downsampleFloat = 2.0;
 	// downsampleFloat = 3.0;
 	// downsampleFloat = 4.0;
 	// modfac = 1;
 	// modfac = 2;
 	// modfac = 3;
-	modfac = 5;
+	// modfac = 5;
 	// modfac = 8;
-	// modfac = 10;
+	modfac = 10;
 	// modfac = 20;
+	// modfac = 25;
+	// modfac = 50;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.width;
@@ -153,14 +158,14 @@ void draw(){
 	// selectDraw("convolve", "xliner");
 	// selectDraw("convolve", "xliner2");
 	
-	selectDraw("transmit", "point");
+	// selectDraw("transmit", "point");
 	// selectDraw("transmit", "line");
 	// selectDraw("transmit", "xline");
 	// selectDraw("transmit", "xliner");
 	// selectDraw("transmit", "xliner2");
 
 	// selectDraw("transmitMBL", "point");
-	// selectDraw("transmitMBL", "line");
+	selectDraw("transmitMBL", "line");
 	// selectDraw("transmitMBL", "xline");
 	// selectDraw("transmitMBL", "xliner");
 	// selectDraw("transmitMBL", "xliner2");
@@ -539,32 +544,23 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 					PVector p2 = new PVector(float(xloc), float(yloc));
 					float l = PVector.dist(p1,p2);
 					pushMatrix();
-					// translate((x*modfac)+midpoint.x, (y*modfac)+midpoint.y);
 					translate((midpoint.x*modfac), (midpoint.y*modfac));
 					rotate(ang);
-					// translate(-midpoint.x, -midpoint.y);
-					// float distance = dist();
-					// line(
-					// 	(-l/2) * modfac,
-					// 	(-l/2) * modfac,
-					// 	(l/2) * modfac,
-					// 	(l/2) * modfac
-					// 	);
-					// popMatrix();
-					// line(
-					// 	(-l/2),
-					// 	(-l/2),
-					// 	(l/2) ,
-					// 	(l/2)
-					// 	);
 					line(
 						(-l/2) * (modfac/2),
 						(-l/2) * (modfac/2),
 						(l/2) * (modfac/2) ,
 						(l/2) * (modfac/2)
 						);
+					
+					// line(
+					// 	(-l / float(modfac)),
+					// 	(-l / float(modfac)),
+					// 	( l / float(modfac)) ,
+					// 	( l / float(modfac))
+					// 	);
+						
 					popMatrix();
-					// rotate(-ang);
 					popMatrix();
 					} else {
 						pushMatrix();
@@ -587,8 +583,12 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 float energyAngle(float ec) {
 	// float ecc = (ec + 1.) / 2.;
 	// float a = ecc * 360.;
-	float a = map(ec, -1., 1., 0., 360.);
-	return constrain(a, 0, 360);
+	// float a = map(ec, -1., 1., 0., 360.);
+	// return constrain(a, 0, 360);
+	
+	float ecc = (ec + 1.) / 2.;
+	float a = lerp(0., 360., ecc);
+	return a;
 }
 
 color energyDegree(float energy) {
@@ -601,23 +601,22 @@ color energyDegree(float energy) {
 	// return color(rpx, gpx, bpx, 255/9);
 	// return color(rpx, gpx, bpx);
 	// return color(rpx, gpx, bpx, 255. - (255*energy));
-	// return lerpColor(color(0, 255, 255), color(215, 0, 55), energy);
+	return lerpColor(color(0, 255, 255), color(215, 0, 55), energy);
 	// return lerpColor(color(0, 0, 0), color(255, 0, 0), energy);
 	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
 	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
 	
-	// return lerpColor(color(50.*0.101961, 50.*0.145098, 50.*0.117647), color(255.*0.101961, 255.*0.145098, 255.*0.117647), energy);
-	color c1 = color(
-		map(0.101961, 0.,.145098, 0, 50),
-		map(0.145098, 0.,.145098, 0, 50),
-		map(0.117647, 0.,.145098, 0, 50)
-		);
-	color c2 = color(
-		map(0.101961, 0.,.145098, 0, 255),
-		map(0.145098, 0.,.145098, 0, 255),
-		map(0.117647, 0.,.145098, 0, 255)
-		);
-	return lerpColor(c1, c2, energy);
+	// color c1 = color(
+	// 	map(0.101961, 0.,.145098, 0, 50),
+	// 	map(0.145098, 0.,.145098, 0, 50),
+	// 	map(0.117647, 0.,.145098, 0, 50)
+	// 	);
+	// color c2 = color(
+	// 	map(0.101961, 0.,.145098, 0, 255),
+	// 	map(0.145098, 0.,.145098, 0, 255),
+	// 	map(0.117647, 0.,.145098, 0, 255)
+	// 	);
+	// return lerpColor(c1, c2, energy);
 }
 
 float colorAmp(float min, float max, float value){
@@ -1085,23 +1084,7 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 		int sloc = x+y*img.width;
 		
 		color spx = img.pixels[sloc];
-		float srpx = spx >> 16 & 0xFF;
-		float sgpx = spx >> 8 & 0xFF;
-		float sbpx = spx & 0xFF;
-		
-		
-		float gs = 1.;
-		if(hav){
-			// human grayscale
-			gs = (
-				0.2989 * srpx +
-				0.5870 * sgpx +
-				0.1140 * sbpx
-				) / gsd;
-		} else {
-			// channel average
-			gs = (srpx + sgpx + sbpx) / gsd;
-		}
+		float gs = computeGS(spx);
 		
 		// float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
 		// float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
@@ -1119,14 +1102,23 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				float gpx = cpx >> 8 & 0xFF;
 				float bpx = cpx & 0xFF;
 				
+				float xmsn = ximg[sloc][i][j] / xsmnfactor;
 				if(xloc == x && yloc == y){
-					continue;
+					// continue;
 					// float xmsn = ximg[sloc][i][j] / 8;
+					rpx /= xmsn;
+					gpx /= xmsn;
+					bpx /= xmsn;
+					
+					// rpx *= xmsn;
+					// gpx *= xmsn;
+					// bpx *= xmsn;
+					
 					// rpx -= xmsn;
 					// gpx -= xmsn;
 					// bpx -= xmsn;
 				} else {
-					float xmsn = ximg[sloc][i][j] / xsmnfactor;
+					// float xmsn = ximg[sloc][i][j] / xsmnfactor;
 					// float xmsn = ximg[sloc][i][j] / 8;
 					rpx += xmsn;
 					gpx += xmsn;
