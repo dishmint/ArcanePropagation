@@ -13,8 +13,8 @@ float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 boolean dispersed, hav;
 
 void setup(){
-	size(1422,800, P3D);
-	// size(1600,900, P3D);
+	// size(1422,800, P3D);
+	size(1600,900, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
