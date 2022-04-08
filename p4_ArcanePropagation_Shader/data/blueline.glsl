@@ -91,6 +91,7 @@ void pushgeo(int selector, vec2 uv){
 #define green  3
 #define yellow 4
 #define rblue  5
+#define yellowbrick 6
 
 vec3 makebase(int selector){
 	vec3 b;
@@ -107,6 +108,10 @@ vec3 makebase(int selector){
 			break;
 		case yellow:
 			b = vec3(1., 1., 0.0)*(angle/(2.*PI));
+			break;
+		case yellowbrick:
+		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(2.*PI)));
+			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(2.*PI)));
 			break;
 		case rblue:
 			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
@@ -232,16 +237,16 @@ void main( void ) {
 	//| points   | _pointorbit       |
 	pushgeo(points, position);
 	
-	//|              ARG1                     |
-	//| normal   | grade                      |
-	//| inverse  | 1 - grade                  |
-	//|              ARG2                     |
-	//| red | green | blue | yellow |  rblue  |
-	//|              ARG3                     |
-	//| alpha1   | alpha => 1.0               |
-	//| alphaC   | alpha => color.a           |
-	//| alphaY   | alpha => energy            |
-	pushgrade(normal, green, alphaY);
+	//|                       ARG1                          |
+	//| normal   | grade                                    |
+	//| inverse  | 1 - grade                                |
+	//|                       ARG2                          |
+	//| red | green | blue | yellow | yellowbrick |  rblue  |
+	//|                       ARG3                          |
+	//| alpha1   | alpha => 1.0                             |
+	//| alphaC   | alpha => color.a                         |
+	//| alphaY   | alpha => energy                          |
+	pushgrade(normal, yellowbrick, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |

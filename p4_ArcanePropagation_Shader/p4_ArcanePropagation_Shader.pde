@@ -44,8 +44,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -104,7 +104,7 @@ void setup(){
 	// float sf = 0015.00;   /* 017.00 */
 	// float sf = 0017.00;   /* 015.00 */
 	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
+	float sf = 0025.00;   /* 010.20 */
 	// float sf = 0027.00;   /* ————— */
 	// float sf = 0030.00;   /* 008.50 */
 	// float sf = 0034.00;   /* 007.50 */
@@ -129,7 +129,7 @@ void setup(){
 	// float sf = 1020.00;   /* 000.25 */
 	// float sf = 2040.00;   /* 000.125 */
 	// float sf = 3750.00;   /* 000.068 */
-	float sf = 4080.00;   /* 000.0625 */
+	// float sf = 4080.00;   /* 000.0625 */
 	scalefac = 255./sf;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
@@ -137,11 +137,11 @@ void setup(){
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
 	// xsmnfactor = pow(kwidth - 1,3.); /* default */
-	// xsmnfactor = pow(kwidth,2.); /* default */
+	xsmnfactor = pow(kwidth, 2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
-	xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
+	// xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
 	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
@@ -156,8 +156,8 @@ void setup(){
 	
 	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(5000,5000, P2D);
-	// pg = createGraphics(2*simg.width,2*simg.height, P2D);
-	pg = createGraphics(10000,10000, P2D);
+	pg = createGraphics(2*simg.width,2*simg.height, P2D);
+	// pg = createGraphics(10000,10000, P2D);
 	pg.noSmooth();
 	
 	blueline = loadShader("blueline.glsl");
@@ -177,15 +177,15 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	blueline.set("rfac", 0.0);
-	// blueline.set("rfac", 1.300000);
+	// blueline.set("rfac", 0.0);
+	// blueline.set("rfac", 1.00000);
+	blueline.set("rfac", 1.300000);
 	
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
 		useOriginal();
 	}
-	
 	
 	// frameRate(1.);
 	// frameRate(6.);
@@ -194,9 +194,9 @@ void setup(){
 }
 
 void draw(){
-	// selectDraw("convolve");
+	selectDraw("convolve");
 	// selectDraw("transmit");
-	selectDraw("transmitMBL");
+	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
 }
