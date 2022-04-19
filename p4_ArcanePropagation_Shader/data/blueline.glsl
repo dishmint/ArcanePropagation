@@ -92,6 +92,7 @@ void pushgeo(int selector, vec2 uv){
 #define yellow 4
 #define rblue  5
 #define yellowbrick 6
+#define gred 7
 
 vec3 makebase(int selector){
 	vec3 b;
@@ -115,6 +116,10 @@ vec3 makebase(int selector){
 			break;
 		case rblue:
 			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			break;
+		case gred:
+		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(2.*PI)));
+			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(2.*PI)));
 			break;
 		default:
 			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
@@ -246,7 +251,7 @@ void main( void ) {
 	//| alpha1   | alpha => 1.0                             |
 	//| alphaC   | alpha => color.a                         |
 	//| alphaY   | alpha => energy                          |
-	pushgrade(normal, yellowbrick, alphaY);
+	pushgrade(normal, gred, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |

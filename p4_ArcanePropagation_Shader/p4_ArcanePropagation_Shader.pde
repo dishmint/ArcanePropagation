@@ -179,7 +179,9 @@ void setup(){
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 1.00000);
-	blueline.set("rfac", 1.300000);
+	blueline.set("rfac", 1.0625);
+	// blueline.set("rfac", 1.25);
+	// blueline.set("rfac", 1.300000);
 	
 	if(dispersed){
 		useDispersed(modfac);
