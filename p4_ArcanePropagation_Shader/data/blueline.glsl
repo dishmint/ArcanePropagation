@@ -242,16 +242,16 @@ void main( void ) {
 	//| points   | _pointorbit       |
 	pushgeo(points, position);
 	
-	//|                       ARG1                          |
-	//| normal   | grade                                    |
-	//| inverse  | 1 - grade                                |
-	//|                       ARG2                          |
-	//| red | green | blue | yellow | yellowbrick |  rblue  |
-	//|                       ARG3                          |
-	//| alpha1   | alpha => 1.0                             |
-	//| alphaC   | alpha => color.a                         |
-	//| alphaY   | alpha => energy                          |
-	pushgrade(normal, gred, alphaY);
+	//|                       ARG1                                 |
+	//| normal   | grade                                           |
+	//| inverse  | 1 - grade                                       |
+	//|                       ARG2                                 |
+	//| red | green | blue | yellow | yellowbrick |  rblue | gred  |
+	//|                       ARG3                                 |
+	//| alpha1   | alpha => 1.0                                    |
+	//| alphaC   | alpha => color.a                                |
+	//| alphaY   | alpha => energy                                 |
+	pushgrade(normal, rblue, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
