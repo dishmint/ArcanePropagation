@@ -1,5 +1,8 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
+import com.wolfram.jlink.*;
+
+KernelLink ml = null;
 
 PGraphics pg;
 
@@ -11,7 +14,7 @@ int kwidthsq = (int)(pow(kwidth, 2));
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 
-boolean dispersed, hav;
+boolean dispersed, hav, klinkQ;
 
 void setup(){
 	size(1422, 800, P3D);
@@ -66,7 +69,7 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
-	downsampleFloat = 1.25;
+	downsampleFloat = 2.00;
 	modfac = 3;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -146,6 +149,41 @@ void setup(){
 	
 	background(0);
 	noCursor();
+	
+	klinkQ = true;
+	if(klinkQ){
+		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
+		// String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink";
+		
+		try {
+			ml = MathLinkFactory.createKernelLink(mlargs);
+			} catch (MathLinkException e) {
+				System.out.println("Fatal error opening link: " + e.getMessage());
+				return;
+			}
+		
+		// Test to see if JLink will evaluate
+		try {
+			// Get rid of the initial InputNamePacket the kernel will send
+			// when it is launched.
+			ml.discardAnswer();
+			ml.evaluate("2+2");
+			ml.waitForAnswer();
+
+			int result = ml.getInteger();
+			println("2 + 2 = " + result);
+
+			// If you want the result back as a string, use evaluateToInputForm
+			// or evaluateToOutputForm. The second arg for either is the
+			// requested page width for formatting the string. Pass 0 for
+			// PageWidth->Infinity. These methods get the result in one
+			// step--no need to call waitForAnswer.
+			String strResult = ml.evaluateToOutputForm("4+4", 0);
+			System.out.println("4 + 4 = " + strResult);
+			} catch (MathLinkException e) {
+				println("MathLinkException occurred: " + e.getMessage());
+			}
+	}
 }
 
 void draw(){
@@ -1370,4 +1408,8 @@ void mazeImage(PImage source){
 				}
 			}
 		source.updatePixels();
+	}
+
+	void stop() {
+		ml.close();
 	}
