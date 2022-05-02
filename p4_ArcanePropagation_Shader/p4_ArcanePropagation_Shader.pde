@@ -44,8 +44,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);

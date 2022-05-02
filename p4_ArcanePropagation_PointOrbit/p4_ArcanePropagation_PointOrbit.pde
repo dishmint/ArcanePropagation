@@ -40,14 +40,14 @@ void setup(){
 	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
 	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/universe.jpg" ) ;
+	// simg = loadImage("./imgs/universe.jpg");
 	
 	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/clouds.jpg");
+	simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
-	simg = loadImage("./imgs/mountains_1.jpg");
+	// simg = loadImage("./imgs/mountains_1.jpg");
 	
 	// int noisew =  width/32;
 	// int noiseh = height/32;
@@ -66,8 +66,8 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
-	downsampleFloat = 2.00;
-	modfac = 45;
+	downsampleFloat = 1.25;
+	modfac = 3;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.pixelWidth;
@@ -127,8 +127,8 @@ void setup(){
 	// xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
-	xsmnfactor = pow(kwidth - 1,3.); /* default */
-	// xsmnfactor = pow(kwidth,2.); /* default */
+	// xsmnfactor = pow(kwidth - 1,3.); /* default */
+	xsmnfactor = pow(kwidth,2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
@@ -153,7 +153,9 @@ void draw(){
 	//convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	//style — point | line | xline | xliner | xliner2
 
-	selectDraw("convolve", "xliner2");
+	selectDraw("still", "point");
+	// selectDraw("transmitMBL", "point");
+	// selectDraw("posterize", "point", 25);
 }
 
 void selectDraw(String selector, String style){
@@ -180,27 +182,43 @@ void selectDraw(String selector, String style){
 		case "switchTotal":
 		// switchdrawTotal(int frames, int selector);
 			switchdrawTotal(20, 4);
-		break;
+			break;
 		case "blur":
 			simg.filter(BLUR, 1);
-		break;
+			break;
 		case "posterize":
-			simg.filter(POSTERIZE, (frameCount % 255) + 2);
-		break;
+			simg.filter(POSTERIZE, (frameCount % 253) + 2);
+			break;
 		case "dilate":
 			simg.filter(DILATE);
-		break;
+			break;
 		case "erode":
 			simg.filter(ERODE);
-		break;
+			break;
 		case "weightedblur":
 			weightedblur(simg, xmg);
-		break;
+			break;
 		default:
 			break;
 		}
 	
-	// background(0);
+	background(0);
+	pointDraw(style);
+}
+
+void selectDraw(String selector, String style, int sparam){
+	switch(selector){
+		case "blur":
+			simg.filter(BLUR, sparam);
+			break;
+		case "posterize":
+			simg.filter(POSTERIZE, sparam);
+			break;
+		default:
+			break;
+		}
+	
+	background(0);
 	pointDraw(style);
 }
 
@@ -321,8 +339,11 @@ void showAsPoint(int x, int y, float energy) {
 	stroke(energyDegree(energy));
 	float ang = radians(energyAngle(enc));
 	
-	float px = x + (1./(modfac/2) * cos(ang));
-	float py = y + (1./(modfac/2) * sin(ang));
+	// float px = x + (1./(modfac/2) * cos(ang));
+	// float py = y + (1./(modfac/2) * sin(ang));
+	
+	float px = x + (1./(modfac) * cos(ang));
+	float py = y + (1./(modfac) * sin(ang));
 	
 	if(dispersed){
 		pushMatrix();
