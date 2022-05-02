@@ -196,11 +196,12 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("convolve");
+	// selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
+	selectDraw("CA");
 }
 
 void selectDraw(String selector){
@@ -219,6 +220,9 @@ void selectDraw(String selector){
 			break;
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
+			break;
+		case "CA":
+			cellularAutomaton(simg, xmg);
 			break;
 		case "switch":
 			// switchdraw((frameCount % 20)+1, 1);
@@ -792,6 +796,71 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 			}
 		}
 	}
+
+
+void cellularAutomaton(PImage img, float[][][] ximage)
+	{
+		img.loadPixels();
+		for (int i = 0; i < img.pixelWidth; i++){
+			for (int j = 0; j < img.pixelHeight; j++){
+				cellularAutomatize(i,j, kwidth, img, ximage);
+			}
+		}
+		img.updatePixels();
+	}
+
+void cellularAutomatize(int x, int y, int kwidth, PImage img, float[][][] ximg)
+	{
+		int cloc = x+y*img.pixelWidth;
+		color cpx = img.pixels[cloc];
+		
+		float rpx = cpx >> 16 & 0xFF;
+		float gpx = cpx >> 8 & 0xFF;
+		float bpx = cpx & 0xFF;
+		
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				color npx = img.pixels[loc];
+				float xmsn = (ximg[loc][i][j] / xsmnfactor);
+				
+				float nrpx = npx >> 16 & 0xFF;
+				float ngpx = npx >> 8 & 0xFF;
+				float nbpx = npx & 0xFF;
+				
+				// rpx += (nrpx * xmsn);
+				// gpx += (ngpx * xmsn);
+				// bpx += (nbpx * xmsn);
+				
+				rpx += nrpx;
+				gpx += ngpx;
+				bpx += nbpx;
+			}
+		}
+		
+		color caColor = getCAColor(rpx,gpx,bpx);
+		img.pixels[cloc] = caColor;
+	}
+
+color getCAColor(float rp, float bp, float gp){
+	color caC;
+	float avg = (rp+bp+gp)/3.0;
+	// Rule 30 approximation
+	if(avg == 255.0 || avg == 0.0){
+		caC = color(255,255,255);
+		} else if(avg < 127.5){
+			caC = color(255,255,255);
+			} else {
+				caC = color(0,0,0);
+			}
+			
+			return caC;
+		}
 
 PImage randomImage(int w, int h){
 		PImage rimg = createImage(w,h, ARGB);

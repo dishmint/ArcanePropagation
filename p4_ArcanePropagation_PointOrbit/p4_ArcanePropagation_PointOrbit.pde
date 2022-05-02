@@ -150,10 +150,9 @@ void setup(){
 	background(0);
 	noCursor();
 	
-	klinkQ = true;
+	klinkQ = false;
 	if(klinkQ){
 		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
-		// String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink";
 		
 		try {
 			ml = MathLinkFactory.createKernelLink(mlargs);
@@ -162,11 +161,11 @@ void setup(){
 				return;
 			}
 		
-		// Test to see if JLink will evaluate
+		// Test to see if JLink will evaluate | works!
 		try {
-			// Get rid of the initial InputNamePacket the kernel will send
-			// when it is launched.
+			// Get rid of the initial InputNamePacket the kernel will send when it is launched.
 			ml.discardAnswer();
+			// Get 2D CA rules.
 			ml.evaluate("2+2");
 			ml.waitForAnswer();
 
@@ -178,8 +177,9 @@ void setup(){
 			// requested page width for formatting the string. Pass 0 for
 			// PageWidth->Infinity. These methods get the result in one
 			// step--no need to call waitForAnswer.
-			String strResult = ml.evaluateToOutputForm("4+4", 0);
-			System.out.println("4 + 4 = " + strResult);
+			
+			// String strResult = ml.evaluateToOutputForm("4+4", 0);
+			// System.out.println("4 + 4 = " + strResult);
 			} catch (MathLinkException e) {
 				println("MathLinkException occurred: " + e.getMessage());
 			}
@@ -191,9 +191,10 @@ void draw(){
 	//convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	//style — point | line | xline | xliner | xliner2
 
-	selectDraw("still", "point");
+	// selectDraw("still", "point");
 	// selectDraw("transmitMBL", "point");
 	// selectDraw("posterize", "point", 25);
+	selectDraw("CA", "point");
 }
 
 void selectDraw(String selector, String style){
@@ -235,6 +236,9 @@ void selectDraw(String selector, String style){
 			break;
 		case "weightedblur":
 			weightedblur(simg, xmg);
+			break;
+		case "CA":
+			cellularAutomaton(simg, xmg);
 			break;
 		default:
 			break;
@@ -454,9 +458,7 @@ void showTLines(PImage img, int x, int y, float energy) {
 			
 			strokeWeight(1);
 			stroke(lerpColor(cc, cpx, energy), 255 * .125);
-			// stroke(energyDegree(energy), 255 * .125);
-			// stroke(lerpColor(0, 255, energy), 255 * .125);
-			// stroke(energyDegree(energy));
+
 			if(xloc == x && yloc == y){
 				continue;
 			} else{
@@ -509,10 +511,8 @@ void showTRotator(PImage img, int x, int y, float energy) {
 			float bpx = cpx & 0xFF;
 			
 			strokeWeight(1);
-			// stroke(lerpColor(cc, cpx, energy), 255 * .125);
-			// stroke(energyDegree(energy), 255 * .125);
-			// stroke(lerpColor(0, 255, energy), 255 * .125);
 			stroke(energyDegree(energy));
+			
 			if(xloc == x && yloc == y){
 				continue;
 			} else{
@@ -563,11 +563,8 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 			float bpx = cpx & 0xFF;
 			
 			strokeWeight(1);
-			// stroke(lerpColor(cc, cpx, energy), 255 * .125);
-			// stroke(energyDegree(energy), 255 * .125);
-			// stroke(energyDegree(energy), 255 * .0625);
-			// stroke(lerpColor(0, 255, energy), 255 * .125);
 			stroke(energyDegree(energy));
+			
 			if(xloc == x && yloc == y){
 				continue;
 			} else{
@@ -616,126 +613,7 @@ float energyAngle(float ec) {
 
 color energyDegree(float energy) {
 	float ne = (energy+1.)/2.;
-	// COLOR BY ANGLE
-	// float ac = energyAngle(energy);
-	// float ac4 = lerp(0., 1., ac / 360.) * 215.;
-	
-	// float ac4 = lerp(0., 1., ac / radians(360.)) * 215.;
-	// float rpx = ac4;
-	//
-	// float gpx = 255. - (abs(energy) * 255.);
-	// float bpx = 255. - (abs(energy) * 200.);
-	
-	// float gpx = 255. - (ne * 255.);
-	// float bpx = 255. - (ne * 200.);
-	
-	// return color(rpx, gpx, bpx, lerp(0., 255., (ac/radians(360.))));
-	// return color(rpx, gpx, bpx, lerp(0., 255., energy*(ac/radians(360.))));
-	// return color(rpx, gpx, bpx, lerp(0., 255., energy));
-	// return color(rpx, gpx, bpx, lerp(0., 255., ne));
-	// return color(rpx, gpx, bpx);
-	// return color(rpx, gpx, bpx, 255. - (255*energy));
-	
-	// COLOR BY ENERGY
 	return lerpColor(color(0, 255, 255, 255), color(215, 0, 55, 255), ne);
-	
-	// return lerpColor(color(0, 255, 255), color(215, 0, 55) , ne);
-	// return lerpColor(color(0, 0, 0), color(255, 255, 255)  , ne);
-	// return lerpColor(color(0, 0, 255), color(255, 255, 255), ne);
-	// return lerpColor(color(255, 255, 255), color(0, 0, 255), ne);
-	
-	// DRAGON
-	// float bezr = bezierPoint(255, 63.75, 15.7, 0., ne);
-	// float bezg = bezierPoint(0, 191.25, 50,  67.5, ne);
-	// float bezb = bezierPoint(0, 102, 19.50,  76. , ne);
-	// return color(bezr, bezg, bezb);
-	
-	// FLIR
-	// float bezr = bezierPoint(255, 255,   0,   0, ne);
-	// float bezg = bezierPoint(  0, 255, 255,   0, ne);
-	// float bezb = bezierPoint(  0,   0,   0, 255, ne);
-	// return color(bezr, bezg, bezb);
-	
-	// BEACH
-	// float bezr = bezierPoint(  0, 63.75,   220, 255, abs(energy));
-	// float bezg = bezierPoint(  0, 53.75,   167, 255, abs(energy));
-	// float bezb = bezierPoint(  0,  0.00,   49,  255, abs(energy));
-	// return color(bezr, bezg, bezb);
-	
-	// BEACH2
-	// float bezr = bezierPoint(  0, 63.75,   220, 255, ne);
-	// float bezg = bezierPoint(  0, 53.75,   167, 255, ne);
-	// float bezb = bezierPoint(  0,  0.00,   49,  255, ne);
-	// return color(bezr, bezg, bezb);
-
-	// GOLD SHEEN3
-	// float bezr = bezierPoint(  0, 63.75,   220, 255, ne);
-	// float bezg = bezierPoint(  0, 53.75,   167, 255, ne);
-	// float bezb = bezierPoint(  0,  0.00,   49,  255, ne);
-	// float balpha = lerp(0.,255., ne);
-	// float balpha = 255*.125;
-	// return color(bezr, bezg, bezb, balpha);
-	
-	// return lerpColor(color(0, 0, 0), color(255, 255, 255), energy);
-	// return lerpColor(color(0, 0, 0), color(255, 255, 255), radians(ac)/radians(360.));
-	/* since ac is already between 0 and 360, there's no reason to convert 360 to radians... and ac is just energy sclaed to 360, so I can just scale energy between 0 and 1 instead. */
-	// return lerpColor(color(0, 0, 0), color(255, 255, 255), ac/360.);
-	// return lerpColor(color(87,114,118,0), color(255, 158, 61,255), ac/360.);
-	// return lerpColor(color(0,0,0), color(255, 158, 61), (energy+1.)/2.);
-	// return lerpColor(color(0,0,0), color(255, 158, 61), ac/radians(360.));
-	
-	// return lerpColor(color(255, 255, 255, energy*255), color(215, 0, 55, energy*255), energy);
-	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), energy);
-	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), lerp(0.,1.,energy));
-	
-	// return lerpColor(color(255, 255, 255), color(215, 0, 55), lerp(0.,1.,energy));
-	//
-	// return lerpColor(color(0, 0, 0), color(215, 0, 55), lerp(-1.,1.,energy));
-	
-	// return lerpColor(color(255, 255, 255), color(215, 0, 55), (energy+1.)/2.);
-	// return lerpColor(color(255, 255, 255), color(215, 0, 55), energy);
-	
-	// return lerpColor(color(255, 255, 255,0), color(215, 0, 55, 255), energy);
-	
-	// return lerpColor(color(255, 255, 255,150), color(215, 0, 55, 255), energy);
-	// return lerpColor(color(255, 255, 255,200), color(215, 0, 55, 255), energy);
-	
-	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), energy);
-	
-	// return lerpColor(color(0, 0, 0), color(215, 0, 55), (energy+1.)/2.);
-	
-	// return lerpColor(color(0, 0, 0), color(215, 0, 55), (energy+1.)/2.);
-	
-	// return lerpColor(color(215, 0, 55), color(20,20,20), (energy+1.)/2.);
-	
-	// return lerpColor(color(215, 0, 55), color(20,20,20), ac/radians(360.));
-	
-	// return lerpColor(color(0,0,0), color(215, 0, 55), ac/radians(360.));
-	
-	// return lerpColor(color(255,255,255), color(215, 0, 55), ac/radians(360.));
-	
-	// return lerpColor(color(0,0,0), color(215, 0, 55), (energy+1.)/2.);
-	
-	// return lerpColor(color(255, 255, 255), color(215, 0, 55), energy);
-	// return lerpColor(color(0, 0, 128), color(255, 255, 255), energy);
-	// return lerpColor(color(255, 215, 0), color(55, 15, 05), energy);
-	// return lerpColor(color(255, 215, 0), color(0, 0, 0), energy);
-	// return lerpColor(color(255, 215, 0), color(255, 0, 55), energy);
-	// return lerpColor(color(0, 0, 0), color(255, 0, 0), energy);
-	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
-	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
-	
-	// color c1 = color(
-	// 	map(0.101961, 0.,.145098, 0, 50),
-	// 	map(0.145098, 0.,.145098, 0, 50),
-	// 	map(0.117647, 0.,.145098, 0, 50)
-	// 	);
-	// color c2 = color(
-	// 	map(0.101961, 0.,.145098, 0, 255),
-	// 	map(0.145098, 0.,.145098, 0, 255),
-	// 	map(0.117647, 0.,.145098, 0, 255)
-	// 	);
-	// return lerpColor(c1, c2, energy);
 }
 
 float colorAmp(float min, float max, float value){
@@ -1217,36 +1095,6 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 				float cgpx = cpx >> 8 & 0xFF;
 				float cbpx = cpx & 0xFF;
 				
-				// if(abse <= .4){
-				// 	rpx -= (xmission / crpx);
-				// 	gpx -= (xmission / cgpx);
-				// 	bpx -= (xmission / cbpx);
-				// } else {
-				// 	rpx += (xmission / crpx);
-				// 	gpx += (xmission / cgpx);
-				// 	bpx += (xmission / cbpx);
-				// }
-				
-				// if(abse <= .1){
-				// 	rpx -= (xmission + crpx);
-				// 	gpx -= (xmission + cgpx);
-				// 	bpx -= (xmission + cbpx);
-				// } else {
-				// 	rpx += (xmission - crpx);
-				// 	gpx += (xmission - cgpx);
-				// 	bpx += (xmission - cbpx);
-				// }
-				
-				// if(abse <= .1){
-				// 	rpx -= (xmission - crpx);
-				// 	gpx -= (xmission - cgpx);
-				// 	bpx -= (xmission - cbpx);
-				// } else {
-				// 	rpx += (xmission - crpx);
-				// 	gpx += (xmission - cgpx);
-				// 	bpx += (xmission - cbpx);
-				// }
-				
 				if(abse <= .1){
 					rpx -= (xmission);
 					gpx -= (xmission);
@@ -1256,8 +1104,6 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 					gpx += (xmission);
 					bpx += (xmission);
 				}
-				// setting the pixel per iteration slows things down quite a bit
-				// img.pixels[sloc] = color(rpx,gpx,bpx);
 			}
 		}
 		img.pixels[sloc] = color(rpx,gpx,bpx);
@@ -1293,46 +1139,82 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 					loc = constrain(loc,0,img.pixels.length-1);
 					color npx = img.pixels[loc];
 					float xmsn = (ximg[loc][i][j] / xsmnfactor);
-					
-					// float xmsn = computeGS(cpx) / xsmnfactor;
-					// float xmsn = computeGS(npx) / xsmnfactor;
-					
+
 					float nrpx = npx >> 16 & 0xFF;
 					float ngpx = npx >> 8 & 0xFF;
 					float nbpx = npx & 0xFF;
-					
-					// if(xloc != x && yloc != y){
-					// 	// rpx += nrpx;
-					// 	// gpx += ngpx;
-					// 	// bpx += nbpx;
-					//
-					// 	rpx += xmsn;
-					// 	gpx += xmsn;
-					// 	bpx += xmsn;
-					// }
-					
-					// rpx += xmsn;
-					// gpx += xmsn;
-					// bpx += xmsn;
 					
 					rpx += (nrpx * xmsn);
 					gpx += (ngpx * xmsn);
 					bpx += (nbpx * xmsn);
 				}
 			}
-			
-			// rpx /= (kwidthsq - 1);
-			// gpx /= (kwidthsq - 1);
-			// bpx /= (kwidthsq - 1);
-			
-			// rpx;
-			// gpx;
-			// bpx;
-			
 			img.pixels[cloc] = color(rpx,gpx,bpx);
 		}
 
+	void cellularAutomaton(PImage img, float[][][] ximage)
+		{
+			img.loadPixels();
+			for (int i = 0; i < img.pixelWidth; i++){
+				for (int j = 0; j < img.pixelHeight; j++){
+					cellularAutomatize(i,j, kwidth, img, ximage);
+				}
+			}
+			img.updatePixels();
+		}
 
+	void cellularAutomatize(int x, int y, int kwidth, PImage img, float[][][] ximg)
+		{
+			int cloc = x+y*img.pixelWidth;
+			color cpx = img.pixels[cloc];
+			
+			float rpx = cpx >> 16 & 0xFF;
+			float gpx = cpx >> 8 & 0xFF;
+			float bpx = cpx & 0xFF;
+			
+			int offset = kwidth / 2;
+			for (int i = 0; i < kwidth; i++){
+				for (int j= 0; j < kwidth; j++){
+					
+					int xloc = x+i-offset;
+					int yloc = y+j-offset;
+					int loc = xloc + img.pixelWidth*yloc;
+					loc = constrain(loc,0,img.pixels.length-1);
+					color npx = img.pixels[loc];
+					float xmsn = (ximg[loc][i][j] / xsmnfactor);
+
+					float nrpx = npx >> 16 & 0xFF;
+					float ngpx = npx >> 8 & 0xFF;
+					float nbpx = npx & 0xFF;
+					
+					// rpx += (nrpx * xmsn);
+					// gpx += (ngpx * xmsn);
+					// bpx += (nbpx * xmsn);
+					
+					rpx += nrpx;
+					gpx += ngpx;
+					bpx += nbpx;
+				}
+			}
+			
+			color caColor = getCAColor(rpx,gpx,bpx);
+			img.pixels[cloc] = caColor;
+		}
+
+color getCAColor(float rp, float bp, float gp){
+	color caC;
+	float avg = (rp+bp+gp)/3.0;
+	// Rule 30 approximation
+	if(avg == 255.0 || avg == 0.0){
+		caC = color(255,255,255);
+	} else if(avg < 127.5){
+		caC = color(255,255,255);
+	} else {
+		caC = color(0,0,0);
+	}
+	
+	return caC;
+}
 // IMAGE GENERATORS
 PImage randomImage(int w, int h){
 		PImage rimg = createImage(w,h, ARGB);
