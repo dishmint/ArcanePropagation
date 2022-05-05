@@ -1,5 +1,10 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
+import com.wolfram.jlink.*;
+
+KernelLink ml = null;
+Expr imgclusters;
+
 
 PShader blueline;
 PGraphics pg;
@@ -11,10 +16,18 @@ int kwidth = 3;
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
-boolean dispersed, hav;
+boolean dispersed, hav, klinkQ;
+
+// CellularAutomaton variables
+int rule, k, r1, r2;
 
 void setup(){
-	size(1422,800, P3D);
+	// size(25,25, P3D);
+	// size(100,100, P3D);
+	// size(200,200, P3D);
+	size(300,300, P3D);
+	// size(500,500, P3D);
+	// size(1422,800, P3D);
 	// size(1600,900, P3D);
 	// size(2560,1440, P3D);
 	surface.setTitle("Arcane Propagations");
@@ -44,8 +57,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
-	simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -193,14 +206,63 @@ void setup(){
 	// frameRate(6.);
 	// noLoop();
 	background(0);
+	
+	klinkQ = true;
+	if(klinkQ){
+		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
+		
+		try {
+			ml = MathLinkFactory.createKernelLink(mlargs);
+			ml.discardAnswer();
+			} catch (MathLinkException e) {
+				System.out.println("MathLinkFactory::Fatal error opening link: " + e.getMessage());
+				return;
+			}
+			
+			// Define CellularAutomaton parameters
+			rule = 30;
+			k = 3;
+			r1 = r2 = 1;
+		
+		// Create 2D image array
+		int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
+		
+		simg.loadPixels();
+		int simglen = simg.pixelWidth * simg.pixelHeight;
+		for(int i=0; i<simg.pixelWidth; i++){
+			for(int j=0; j<simg.pixelHeight; j++){
+			int lc = (i*simg.pixelWidth) + j;
+			lc = constrain(lc,0,simglen-1);
+			iarray[i][j] = simg.pixels[lc];
+			}
+		}
+		simg.updatePixels();
+		
+		try {
+			// Evaluate (ClusteringComponents[image, k] - 1)
+			ml.putFunction("Subtract",2);
+				ml.putFunction("ClusteringComponents",2);
+					ml.put(iarray);
+					ml.put(k);
+				ml.put(1);
+			ml.waitForAnswer();
+			imgclusters = ml.getExpr();
+			} catch (MathLinkException e) {
+				System.out.println("LoadingArcaneUtilities::Fatal error opening link: " + e.getMessage());
+				return;
+			}
+	}
 }
 
 void draw(){
-	selectDraw("convolve");
+	// selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
+	selectDraw("CA");
+	// selectDraw("blur");
+	// selectDraw("dilate");
 }
 
 void selectDraw(String selector){
@@ -220,6 +282,15 @@ void selectDraw(String selector){
 		case "transmitMBL":
 			transmitMBL(simg, xmg);
 			break;
+		case "CA":
+			cellularAutomaton(simg);
+			break;
+		case "blur":
+			simg.filter(BLUR);
+			break;
+		// case "dilate":
+		// 	simg.filter(DILATE);
+		// 	break;
 		case "switch":
 			// switchdraw((frameCount % 20)+1, 1);
 			switchdraw((frameCount % 60)+1, 1);
@@ -793,6 +864,73 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 		}
 	}
 
+void cellularAutomaton(PImage img)
+	{
+		img.loadPixels();
+		int[][] newClusters;
+		try{
+			int[][] clusterMatrix = (int[][])imgclusters.asArray(Expr.INTEGER, 2);
+			newClusters = cellularAutomatize(rule,k,r1,r2, clusterMatrix);
+		} catch (ExprFormatException e) {
+			System.out.println("ClusterExpr::ExprFormatException: " + e.getMessage());
+			return;
+		}
+		
+		for (int i = 0; i < img.pixelWidth; i++){
+			for (int j = 0; j < img.pixelHeight; j++){
+				
+				int cloc = i+j*(img.pixelWidth);
+				cloc = constrain(cloc,0,img.pixels.length-1);
+				
+				// Get cluster number and turn it into a color scale.
+				int cl = newClusters[i][j];
+				float clf = (float)cl;
+				float ks = (float)(255 / (k - 1));
+				
+				// image disappears quickly
+				// img.pixels[cloc] *= (newClusters[i][j] / (k - 1));
+				
+				img.pixels[cloc] = color(clf * ks);
+				// img.pixels[cloc] = color(img.pixels[cloc] * (clf * ks));
+			}
+		}
+		img.updatePixels();
+	}
+
+int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][] clusters){
+	try {
+		ml.putFunction("CellularAutomaton",3);
+			ml.putFunction("List",3);
+				ml.put(rule);
+				// ml.put(k); /* Non Totalistic */
+				ml.putFunction("List",2); /* Totalistic */
+					ml.put(k);
+					ml.put(1);
+				ml.putFunction("List",2);
+					ml.put(range1);
+					ml.put(range2);
+			ml.put(clusters);
+			ml.putFunction("List",1);
+				ml.putFunction("List",1);
+					ml.putFunction("List",1);
+						ml.put(frameCount);
+		ml.waitForAnswer();
+		Expr res = ml.getExpr();
+		
+		try {
+			int[][] nc = (int[][]) res.asArray(Expr.INTEGER, 2);
+			return nc;
+		} catch (ExprFormatException e){
+			System.out.println("CellularAutomatatize::ExprFormatException: " + e.getMessage());
+			return clusters;
+		}
+		
+		} catch (MathLinkException e) {
+			System.out.println("CellularAutomatatize::Fatal error opening link: " + e.getMessage());
+			return clusters;
+		}
+}
+
 PImage randomImage(int w, int h){
 		PImage rimg = createImage(w,h, ARGB);
 		rimg.loadPixels();
@@ -867,4 +1005,8 @@ void mazeImage(PImage source){
 				}
 			}
 		source.updatePixels();
+	}
+
+void stop() {
+		ml.close();
 	}
