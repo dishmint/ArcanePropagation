@@ -1,0 +1,189 @@
+color energyDegree(float energy) {
+	float ne = (energy+1.)/2.;
+	// COLOR BY ANGLE
+	// float ac = energyAngle(energy);
+	// float ac4 = lerp(0., 1., ac / 360.) * 215.;
+	
+	// float ac4 = lerp(0., 1., ac / radians(360.)) * 215.;
+	// float rpx = ac4;
+	//
+	// float gpx = 255. - (abs(energy) * 255.);
+	// float bpx = 255. - (abs(energy) * 200.);
+	
+	// float gpx = 255. - (ne * 255.);
+	// float bpx = 255. - (ne * 200.);
+	
+	// return color(rpx, gpx, bpx, lerp(0., 255., (ac/radians(360.))));
+	// return color(rpx, gpx, bpx, lerp(0., 255., energy*(ac/radians(360.))));
+	// return color(rpx, gpx, bpx, lerp(0., 255., energy));
+	// return color(rpx, gpx, bpx, lerp(0., 255., ne));
+	// return color(rpx, gpx, bpx);
+	// return color(rpx, gpx, bpx, 255. - (255*energy));
+	
+	// COLOR BY ENERGY
+	return lerpColor(color(0, 255, 255, 255), color(215, 0, 55, 255), ne);
+	
+	// return lerpColor(color(0, 255, 255), color(215, 0, 55) , ne);
+	// return lerpColor(color(0, 0, 0), color(255, 255, 255)  , ne);
+	// return lerpColor(color(0, 0, 255), color(255, 255, 255), ne);
+	// return lerpColor(color(255, 255, 255), color(0, 0, 255), ne);
+	
+	// DRAGON
+	// float bezr = bezierPoint(255, 63.75, 15.7, 0., ne);
+	// float bezg = bezierPoint(0, 191.25, 50,  67.5, ne);
+	// float bezb = bezierPoint(0, 102, 19.50,  76. , ne);
+	// return color(bezr, bezg, bezb);
+	
+	// FLIR
+	// float bezr = bezierPoint(255, 255,   0,   0, ne);
+	// float bezg = bezierPoint(  0, 255, 255,   0, ne);
+	// float bezb = bezierPoint(  0,   0,   0, 255, ne);
+	// return color(bezr, bezg, bezb);
+	
+	// BEACH
+	// float bezr = bezierPoint(  0, 63.75,   220, 255, abs(energy));
+	// float bezg = bezierPoint(  0, 53.75,   167, 255, abs(energy));
+	// float bezb = bezierPoint(  0,  0.00,   49,  255, abs(energy));
+	// return color(bezr, bezg, bezb);
+	
+	// BEACH2
+	// float bezr = bezierPoint(  0, 63.75,   220, 255, ne);
+	// float bezg = bezierPoint(  0, 53.75,   167, 255, ne);
+	// float bezb = bezierPoint(  0,  0.00,   49,  255, ne);
+	// return color(bezr, bezg, bezb);
+
+	// GOLD SHEEN3
+	// float bezr = bezierPoint(  0, 63.75,   220, 255, ne);
+	// float bezg = bezierPoint(  0, 53.75,   167, 255, ne);
+	// float bezb = bezierPoint(  0,  0.00,   49,  255, ne);
+	// float balpha = lerp(0.,255., ne);
+	// float balpha = 255*.125;
+	// return color(bezr, bezg, bezb, balpha);
+	
+	// return lerpColor(color(0, 0, 0), color(255, 255, 255), energy);
+	// return lerpColor(color(0, 0, 0), color(255, 255, 255), radians(ac)/radians(360.));
+	/* since ac is already between 0 and 360, there's no reason to convert 360 to radians... and ac is just energy sclaed to 360, so I can just scale energy between 0 and 1 instead. */
+	// return lerpColor(color(0, 0, 0), color(255, 255, 255), ac/360.);
+	// return lerpColor(color(87,114,118,0), color(255, 158, 61,255), ac/360.);
+	// return lerpColor(color(0,0,0), color(255, 158, 61), (energy+1.)/2.);
+	// return lerpColor(color(0,0,0), color(255, 158, 61), ac/radians(360.));
+	
+	// return lerpColor(color(255, 255, 255, energy*255), color(215, 0, 55, energy*255), energy);
+	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), energy);
+	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), lerp(0.,1.,energy));
+	
+	// return lerpColor(color(255, 255, 255), color(215, 0, 55), lerp(0.,1.,energy));
+	//
+	// return lerpColor(color(0, 0, 0), color(215, 0, 55), lerp(-1.,1.,energy));
+	
+	// return lerpColor(color(255, 255, 255), color(215, 0, 55), (energy+1.)/2.);
+	// return lerpColor(color(255, 255, 255), color(215, 0, 55), energy);
+	
+	// return lerpColor(color(255, 255, 255,0), color(215, 0, 55, 255), energy);
+	
+	// return lerpColor(color(255, 255, 255,150), color(215, 0, 55, 255), energy);
+	// return lerpColor(color(255, 255, 255,200), color(215, 0, 55, 255), energy);
+	
+	// return lerpColor(color(255, 255, 255, 255), color(215, 0, 55, 255), energy);
+	
+	// return lerpColor(color(0, 0, 0), color(215, 0, 55), (energy+1.)/2.);
+	
+	// return lerpColor(color(0, 0, 0), color(215, 0, 55), (energy+1.)/2.);
+	
+	// return lerpColor(color(215, 0, 55), color(20,20,20), (energy+1.)/2.);
+	
+	// return lerpColor(color(215, 0, 55), color(20,20,20), ac/radians(360.));
+	
+	// return lerpColor(color(0,0,0), color(215, 0, 55), ac/radians(360.));
+	
+	// return lerpColor(color(255,255,255), color(215, 0, 55), ac/radians(360.));
+	
+	// return lerpColor(color(0,0,0), color(215, 0, 55), (energy+1.)/2.);
+	
+	// return lerpColor(color(255, 255, 255), color(215, 0, 55), energy);
+	// return lerpColor(color(0, 0, 128), color(255, 255, 255), energy);
+	// return lerpColor(color(255, 215, 0), color(55, 15, 05), energy);
+	// return lerpColor(color(255, 215, 0), color(0, 0, 0), energy);
+	// return lerpColor(color(255, 215, 0), color(255, 0, 55), energy);
+	// return lerpColor(color(0, 0, 0), color(255, 0, 0), energy);
+	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
+	// return lerpColor(color(50, 0, 0), color(255, 0, 0), energy);
+	
+	// color c1 = color(
+	// 	map(0.101961, 0.,.145098, 0, 50),
+	// 	map(0.145098, 0.,.145098, 0, 50),
+	// 	map(0.117647, 0.,.145098, 0, 50)
+	// 	);
+	// color c2 = color(
+	// 	map(0.101961, 0.,.145098, 0, 255),
+	// 	map(0.145098, 0.,.145098, 0, 255),
+	// 	map(0.117647, 0.,.145098, 0, 255)
+	// 	);
+	// return lerpColor(c1, c2, energy);
+}
+
+
+// for (int i = 0; i < kwidth; i++){
+// 	for (int j= 0; j < kwidth; j++){
+//
+// 		int xloc = x+i-offset;
+// 		int yloc = y+j-offset;
+// 		int loc = xloc + img.pixelWidth*yloc;
+// 		loc = constrain(loc,0,img.pixels.length-1);
+// 		color npx = img.pixels[loc];
+// 		float xmsn = (ximg[loc][i][j] / xsmnfactor);
+//
+// 		float nrpx = npx >> 16 & 0xFF;
+// 		float ngpx = npx >> 8 & 0xFF;
+// 		float nbpx = npx & 0xFF;
+//
+// 		// rpx += (nrpx * xmsn);
+// 		// gpx += (ngpx * xmsn);
+// 		// bpx += (nbpx * xmsn);
+//
+// 		rpx += nrpx;
+// 		gpx += ngpx;
+// 		bpx += nbpx;
+// 	}
+// }
+/*
+
+In[53]:=ResourceFunction["ComputationalSystemRules"][CellularAutomaton[{30, 2, {1, 1}}]]
+Out[53]= {{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {1, 1, 0}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {1, 0, 1}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {1, 0, 0}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {0, 1, 1}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {0, 1, 0}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {0, 0, 1}} -> 0,
+{{1, 1, 1}, {1, 1, 1}, {0, 0, 0}} -> 0,
+{{0, 0, 0}, {0, 0, 0}, {1, 1, 1}} -> 0,
+{{0, 0, 0}, {0, 0, 0}, {1, 1, 0}} -> 0,
+{{0, 0, 0}, {0, 0, 0}, {1, 0, 1}} -> 0,
+{{0, 0, 0}, {0, 0, 0}, {1, 0, 0}} -> 1,
+{{0, 0, 0}, {0, 0, 0}, {0, 1, 1}} -> 1,
+{{0, 0, 0}, {0, 0, 0}, {0, 1, 0}} -> 1,
+{{0, 0, 0}, {0, 0, 0}, {0, 0, 1}} -> 1,
+{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}} -> 0}
+
+For the above I just need to know how to transform the replacement rules into a java switch or some other conditional statement. This way I can have a function that takes the CA parameters and produces the check function. Then this check function can be used below to check the kernel then change the current pixel.
+*/
+
+
+color getCAColor(float rp, float bp, float gp){
+	color caC;
+	float avg = (rp+bp+gp)/3.0;
+	// Rule 30 approximation
+	if(avg == 255.0 || avg == 0.0){
+		caC = color(255,255,255);
+		} else if(avg < 127.5){
+			caC = color(255,255,255);
+			} else {
+				caC = color(0,0,0);
+			}
+			return caC;
+		}
+
+
+		// color caColor = getCAColor(rpx,gpx,bpx);
+		// img.pixels[cloc] = caColor;
