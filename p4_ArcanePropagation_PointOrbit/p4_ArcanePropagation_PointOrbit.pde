@@ -3,6 +3,10 @@
 import com.wolfram.jlink.*;
 
 KernelLink ml = null;
+Expr imgclusters;
+
+// CellularAutomaton variables
+int rule, k, r1, r2;
 
 PGraphics pg;
 
@@ -17,7 +21,8 @@ float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 boolean dispersed, hav, klinkQ;
 
 void setup(){
-	size(1422, 800, P3D);
+	size(300, 300, P3D);
+	// size(1422, 800, P3D);
 	// size(1600, 900, P3D);
 	// size(2880, 1620, P3D);
 	// size(3840, 2160, P3D);
@@ -31,7 +36,7 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
-	// simg = loadImage("./imgs/p5sketch1.jpg");
+	simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fzn_dishmint.JPG");
@@ -46,7 +51,7 @@ void setup(){
 	// simg = loadImage("./imgs/universe.jpg");
 	
 	// simg = loadImage("./imgs/buildings.jpg");
-	simg = loadImage("./imgs/clouds.jpg");
+	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
@@ -69,7 +74,7 @@ void setup(){
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
 	
-	downsampleFloat = 2.00;
+	downsampleFloat = 2.25;
 	modfac = 3;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -150,38 +155,49 @@ void setup(){
 	background(0);
 	noCursor();
 	
-	klinkQ = false;
+	klinkQ = true;
 	if(klinkQ){
 		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
 		
 		try {
 			ml = MathLinkFactory.createKernelLink(mlargs);
+			ml.discardAnswer();
 			} catch (MathLinkException e) {
-				System.out.println("Fatal error opening link: " + e.getMessage());
+				System.out.println("MathLinkFactory::Fatal error opening link: " + e.getMessage());
 				return;
 			}
-		
-		// Test to see if JLink will evaluate | works!
-		try {
-			// Get rid of the initial InputNamePacket the kernel will send when it is launched.
-			ml.discardAnswer();
-			// Get 2D CA rules.
-			ml.evaluate("2+2");
-			ml.waitForAnswer();
-
-			int result = ml.getInteger();
-			println("2 + 2 = " + result);
-
-			// If you want the result back as a string, use evaluateToInputForm
-			// or evaluateToOutputForm. The second arg for either is the
-			// requested page width for formatting the string. Pass 0 for
-			// PageWidth->Infinity. These methods get the result in one
-			// step--no need to call waitForAnswer.
 			
-			// String strResult = ml.evaluateToOutputForm("4+4", 0);
-			// System.out.println("4 + 4 = " + strResult);
+			// Define CellularAutomaton parameters
+			rule = 30;
+			k = 2;
+			r1 = r2 = 1;
+		
+		// Create 2D image array
+		int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
+		
+		simg.loadPixels();
+		int simglen = simg.pixelWidth * simg.pixelHeight;
+		for(int i=0; i<simg.pixelWidth; i++){
+			for(int j=0; j<simg.pixelHeight; j++){
+			int lc = (i*simg.pixelWidth) + j;
+			lc = constrain(lc,0,simglen-1);
+			iarray[i][j] = simg.pixels[lc];
+			}
+		}
+		simg.updatePixels();
+		
+		try {
+			// Evaluate (ClusteringComponents[image, k] - 1)
+			ml.putFunction("Subtract",2);
+				ml.putFunction("ClusteringComponents",2);
+					ml.put(iarray);
+					ml.put(k);
+				ml.put(1);
+			ml.waitForAnswer();
+			imgclusters = ml.getExpr();
 			} catch (MathLinkException e) {
-				println("MathLinkException occurred: " + e.getMessage());
+				System.out.println("LoadingArcaneUtilities::Fatal error opening link: " + e.getMessage());
+				return;
 			}
 	}
 }
@@ -238,7 +254,7 @@ void selectDraw(String selector, String style){
 			weightedblur(simg, xmg);
 			break;
 		case "CA":
-			cellularAutomaton(simg, xmg);
+			cellularAutomaton(simg);
 			break;
 		default:
 			break;
@@ -1152,69 +1168,75 @@ void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
 			img.pixels[cloc] = color(rpx,gpx,bpx);
 		}
 
-	void cellularAutomaton(PImage img, float[][][] ximage)
+	void cellularAutomaton(PImage img)
 		{
-			img.loadPixels();
-			for (int i = 0; i < img.pixelWidth; i++){
-				for (int j = 0; j < img.pixelHeight; j++){
-					cellularAutomatize(i,j, kwidth, img, ximage);
-				}
+		img.loadPixels();
+		int[][] newClusters;
+		try{
+			int[][] clusterMatrix = (int[][])imgclusters.asArray(Expr.INTEGER, 2);
+			newClusters = cellularAutomatize(rule,k,r1,r2, clusterMatrix);
+		} catch (ExprFormatException e) {
+			System.out.println("ClusterExpr::ExprFormatException: " + e.getMessage());
+			return;
+		}
+		
+		for (int i = 0; i < img.pixelWidth; i++){
+			for (int j = 0; j < img.pixelHeight; j++){
+				
+				int cloc = i+j*(img.pixelWidth);
+				cloc = constrain(cloc,0,img.pixels.length-1);
+				
+				// Get cluster number and turn it into a color scale.
+				int cl = newClusters[i][j];
+				float clf = (float)cl;
+				float ks = (float)(255 / (k - 1));
+				
+				// image disappears quickly
+				// img.pixels[cloc] *= (newClusters[i][j] / (k - 1));
+				
+				img.pixels[cloc] = color(clf * ks);
+				// img.pixels[cloc] = color(img.pixels[cloc] * (clf * ks));
 			}
-			img.updatePixels();
+		}
+		img.updatePixels();
 		}
 
-	void cellularAutomatize(int x, int y, int kwidth, PImage img, float[][][] ximg)
-		{
-			int cloc = x+y*img.pixelWidth;
-			color cpx = img.pixels[cloc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			int offset = kwidth / 2;
-			for (int i = 0; i < kwidth; i++){
-				for (int j= 0; j < kwidth; j++){
-					
-					int xloc = x+i-offset;
-					int yloc = y+j-offset;
-					int loc = xloc + img.pixelWidth*yloc;
-					loc = constrain(loc,0,img.pixels.length-1);
-					color npx = img.pixels[loc];
-					float xmsn = (ximg[loc][i][j] / xsmnfactor);
-
-					float nrpx = npx >> 16 & 0xFF;
-					float ngpx = npx >> 8 & 0xFF;
-					float nbpx = npx & 0xFF;
-					
-					// rpx += (nrpx * xmsn);
-					// gpx += (ngpx * xmsn);
-					// bpx += (nbpx * xmsn);
-					
-					rpx += nrpx;
-					gpx += ngpx;
-					bpx += nbpx;
-				}
-			}
-			
-			color caColor = getCAColor(rpx,gpx,bpx);
-			img.pixels[cloc] = caColor;
+int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][] clusters)
+	{
+	try {
+		ml.putFunction("CellularAutomaton",3);
+			ml.putFunction("List",3);
+				ml.put(rule);
+				// ml.put(k); /* Non Totalistic */
+				ml.putFunction("List",2); /* Totalistic */
+					ml.put(k);
+					ml.put(1);
+				ml.putFunction("List",2);
+					ml.put(range1);
+					ml.put(range2);
+			ml.put(clusters);
+			ml.putFunction("List",1);
+				ml.putFunction("List",1);
+					ml.putFunction("List",1);
+						ml.put(frameCount);
+		ml.waitForAnswer();
+		Expr res = ml.getExpr();
+		
+		try {
+			int[][] nc = (int[][]) res.asArray(Expr.INTEGER, 2);
+			return nc;
+		} catch (ExprFormatException e){
+			System.out.println("CellularAutomatatize::ExprFormatException: " + e.getMessage());
+			return clusters;
 		}
-
-color getCAColor(float rp, float bp, float gp){
-	color caC;
-	float avg = (rp+bp+gp)/3.0;
-	// Rule 30 approximation
-	if(avg == 255.0 || avg == 0.0){
-		caC = color(255,255,255);
-	} else if(avg < 127.5){
-		caC = color(255,255,255);
-	} else {
-		caC = color(0,0,0);
+		
+		} catch (MathLinkException e) {
+			System.out.println("CellularAutomatatize::Fatal error opening link: " + e.getMessage());
+			return clusters;
+		}
 	}
-	
-	return caC;
-}
+
+
 // IMAGE GENERATORS
 PImage randomImage(int w, int h){
 		PImage rimg = createImage(w,h, ARGB);
