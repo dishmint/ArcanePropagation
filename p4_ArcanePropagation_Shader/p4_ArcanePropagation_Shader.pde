@@ -25,7 +25,9 @@ void setup(){
 	// size(25,25, P3D);
 	// size(100,100, P3D);
 	// size(200,200, P3D);
-	size(300,300, P3D);
+	// size(300,300, P3D);
+	size(355,200, P3D);
+	// size(711,400, P3D);
 	// size(500,500, P3D);
 	// size(1422,800, P3D);
 	// size(1600,900, P3D);
@@ -37,7 +39,7 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
-	// simg = loadImage("./imgs/p5sketch1.jpg");
+	simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
 	// simg = loadImage("./imgs/fruit.jpg");
@@ -58,7 +60,7 @@ void setup(){
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -220,18 +222,19 @@ void setup(){
 			}
 			
 			// Define CellularAutomaton parameters
-			rule = 30;
-			k = 3;
+			rule = 30; /* 30 */
+			k = 2;
 			r1 = r2 = 1;
 		
 		// Create 2D image array
-		int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
+		// int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
+		int[][] iarray = new int[simg.width][simg.height];
 		
 		simg.loadPixels();
-		int simglen = simg.pixelWidth * simg.pixelHeight;
-		for(int i=0; i<simg.pixelWidth; i++){
-			for(int j=0; j<simg.pixelHeight; j++){
-			int lc = (i*simg.pixelWidth) + j;
+		int simglen = simg.width * simg.height;
+		for(int i=0; i<simg.width; i++){
+			for(int j=0; j<simg.height; j++){
+			int lc = (i*simg.width) + j;
 			lc = constrain(lc,0,simglen-1);
 			iarray[i][j] = simg.pixels[lc];
 			}
@@ -902,10 +905,10 @@ int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][]
 		ml.putFunction("CellularAutomaton",3);
 			ml.putFunction("List",3);
 				ml.put(rule);
-				// ml.put(k); /* Non Totalistic */
-				ml.putFunction("List",2); /* Totalistic */
-					ml.put(k);
-					ml.put(1);
+				ml.put(k); /* Non Totalistic */
+				// ml.putFunction("List",2); /* Totalistic */
+					// ml.put(k);
+					// ml.put(1);
 				ml.putFunction("List",2);
 					ml.put(range1);
 					ml.put(range2);

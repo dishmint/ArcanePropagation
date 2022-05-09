@@ -21,7 +21,8 @@ float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 boolean dispersed, hav, klinkQ;
 
 void setup(){
-	size(300, 300, P3D);
+	// size(300, 300, P3D);
+	size(711, 400, P3D);
 	// size(1422, 800, P3D);
 	// size(1600, 900, P3D);
 	// size(2880, 1620, P3D);
@@ -36,8 +37,8 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
-	simg = loadImage("./imgs/p5sketch1.jpg");
-	// simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/p5sketch1.jpg");
+	simg = loadImage("./imgs/fruit.jpg");
 	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
 	// simg = loadImage("./imgs/fzn_dishmint.JPG");
 	// simg = loadImage("./imgs/fezHassan.JPG");
