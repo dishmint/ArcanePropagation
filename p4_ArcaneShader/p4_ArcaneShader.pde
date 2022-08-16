@@ -721,10 +721,15 @@ void gols(int x, int y, int kwidth, PImage img, float[][][] ximg)
 		if((count < 2) || (count > 3)){
 			// img.pixels[x+y*img.width] = color(rpx * .5, gpx * .5, bpx * .5);	
 			// img.pixels[x+y*img.width] = color(0,0,0);
+			/* 
+			rpx -= xmn;
+			gpx -= xmn;
+			bpx -= xmn;
+			 */
 			rpx -= (xmn / (count + 1));
 			gpx -= (xmn / (count + 1));
 			bpx -= (xmn / (count + 1));
-			
+			// ^^ could also add to those neighboring pixels
 			img.pixels[x+y*img.width] = color(rpx, gpx, bpx);
 		} 
 		else if (count == 2 || count == 3){
