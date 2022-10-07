@@ -109,6 +109,10 @@ void setup(){
 	// frameRate(6.);
 	// noLoop();
 	background(0);
+	/* 
+		https://www.baeldung.com/java-8-lambda-expressions-tips
+		^^ will help with functionalizing selectDraw so I can set the draw function in setup instead of in draw.
+	 */
 }
 
 void draw(){
@@ -119,7 +123,8 @@ void draw(){
 	// selectDraw("switchTotal");
 	// selectDraw("blur");
 	// selectDraw("dilate");
-	selectDraw("gol");
+	// selectDraw("gol");
+	selectDraw("chladni"); /* This should be set in Setup. Therein lies the utility of objects */
 }
 
 void selectDraw(String selector){
@@ -144,6 +149,9 @@ void selectDraw(String selector){
 			break;
 		case "gol":
 			gol(simg, xmg);
+			break;
+		case "chladni":
+			chladni(simg, xmg);
 			break;
 		// case "dilate":
 		// 	simg.filter(DILATE);
@@ -436,6 +444,86 @@ color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
 					gtotal += (gpx * xmsn);
 					btotal += (bpx * xmsn);
 				}
+			}
+		}
+		
+		return color(rtotal, gtotal, btotal);
+	}
+
+float chladnifunction(int x, int y, float n, float m){
+	float fx = float(x);
+	float fy = float(y);
+	float fn = n / 255.0;
+	float c1 = sin(fn * PI * fx) * sin(m * PI * fy);
+	float c2 = sin(m * PI * fx) * sin(fn * PI * fy);
+	return c1 - c2;
+}
+
+float chladnifunction(int x, int y){
+	return (sin(10.0 * PI * x) * sin( 5.0 * PI * y)) - (sin( 5.0 * PI * x) * sin(10.0 * PI * y));
+}
+
+void chladni(PImage img, float[][][] ximage) {
+	img.loadPixels();
+	for (int i = 0; i < img.width; i++){
+		for (int j = 0; j < img.height; j++){
+			color c =  chladnitize(i,j, kwidth, img, ximage);
+			int index = (i + j * img.width);
+			img.pixels[index] = c;
+		}
+	}
+	img.updatePixels();
+}
+
+// https://processing.org/examples/convolution.html
+// Adjusted slightly for the purposes of this sketch
+// chladnitize is also quite slow. I think using a shader might make more sense.
+color chladnitize(int x, int y, int kwidth, PImage img, float[][][] ximg)
+	{
+		float rtotal = 0.0;
+		float gtotal = 0.0;
+		float btotal = 0.0;
+
+		int offset = kwidth / 2;
+		for (int i = 0; i < kwidth; i++){
+			for (int j= 0; j < kwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = (ximg[loc][i][j] / xsmnfactor);
+				
+				color cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+				// rtotal += chladnifunction(xloc, yloc, rpx, xmsn);
+				// gtotal += chladnifunction(xloc, yloc, gpx, xmsn);
+				// btotal += chladnifunction(xloc, yloc, bpx, xmsn);
+
+				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+
+				rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+
+				
+				// if(xloc == x && yloc == y){
+				// 	rtotal -= ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	gtotal -= ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	btotal -= ((bpx * xmsn) + chladnifunction(xloc, yloc));
+				// } else {
+				// 	rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+				// }
+				
 			}
 		}
 		
