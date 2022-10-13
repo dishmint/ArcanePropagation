@@ -95,12 +95,12 @@ void pgDraw(){
 	// the thickness used to determine a points position is determined by thickness/tfac
 	blueline.set("tfac", 1.0);
 	
-	/*
-	- The radius of a point orbit is determined by rfac * thickness
-	- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
-	- rfac >= 1.5 == black screen
-	- rfac == 0.0 == 1:1
-	*/
+	
+	// - The radius of a point orbit is determined by rfac * thickness
+	// - when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
+	// - rfac >= 1.5 == black screen
+	// - rfac == 0.0 == 1:1
+	
 	
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
