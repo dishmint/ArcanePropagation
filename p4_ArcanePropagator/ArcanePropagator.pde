@@ -80,7 +80,7 @@ class ArcanePropagator{
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
-		ar = new ArcaneRender(rendermode);
+		ar = new ArcaneRender(rendermode, 1.0);
 	}
 
 	void setKernelWidth(int nkw){
