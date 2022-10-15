@@ -6,13 +6,14 @@
 // public static PImage arcprocess(Function<PImage, PImage> function, PImage simg, float[][][] xmg) {
 //     return function.apply(simg, xmg);
 //     }
-
+import java.util.function.*;
 class ArcaneFilter {
-    BiFunction<float, float, float> arcfilter;
+	String filtermode;
+    BiFunction<Float, Float, Float> arcfilter = (a,b) -> a + b;
     int pfilter;
     int kernelwidth;
-    // int modfactor;
-    // int downsample;
+    int modfactor;
+    int downsample;
     float transmissionfactor;
 
 
@@ -25,28 +26,32 @@ class ArcaneFilter {
     /* convolve */
 
 
-    ArcaneFilter(String filtermode, float kw, float xsmnfac){
+    ArcaneFilter(String fmode, int kw, float xsmnfac){
+		filtermode = fmode;
         kernelwidth = kw;
-        // modfactor = 1;
-        // downsample = 1;
+        modfactor = 1;
+        downsample = 1;
         transmissionfactor = xsmnfac;
 
         switch(filtermode){
 		    case "transmit":
-		    	arcfilter = ArcaneFilter::transmit;
+		    	arcfilter = (a,b) -> a + b;
 		    	break;
 		    case "convolve":
-		    	arcfilter = ArcaneFilter::convolve;
+		    	// arcfilter = ArcaneFilter::convolve;
+		    	arcfilter = (a,b) -> a * b;
 		    	break;
 		    case "transmitMBL":
-		    	arcfilter = ArcaneFilter::transmitMBL;
+		    	// arcfilter = ArcaneFilter::transmitMBL;
+		    	arcfilter = (a,b) -> a * b;
 		    	break;
 		    case "blur":
 		    	break;
 		    case "dilate":
 		    	break;
 		    default:
-		    	arcfilter = ArcaneFilter::transmit;
+		    	// arcfilter = ArcaneFilter::transmit;
+				arcfilter = (a,b) -> a + b;
 		    	break;
 	    }
     }
@@ -55,7 +60,7 @@ class ArcaneFilter {
         filtermode = newfiltermode;
     }
 
-    void setFilter(BiFunction<float,float,float> newfilter){
+    void setFilter(BiFunction<Float,Float,Float> newfilter){
         arcfilter = newfilter;
     }
 
@@ -89,7 +94,11 @@ class ArcaneFilter {
 
         
     }
-
+	/*
+		TODO: Need to improve generaliation of customfilter
+		Another option is to implement these algorithms in a separate file. Maybe use an interface.
+		A custom filter takes an image and a transmission matrix.
+	*/
     void customfilter(PImage img, float[][][] ximg){
         img.loadPixels();
         for (int i = 0; i < img.width; i++){
@@ -110,13 +119,13 @@ class ArcaneFilter {
                         float xmsn = (ximg[loc][k][l] / transmissionfactor);
 
                         if(xloc == i && yloc == j){
-                            rpx = arcfilter(rpx, -xmsn)
-                            gpx = arcfilter(gpx, -xmsn)
-                            bpx = arcfilter(bpx, -xmsn)
+                            rpx = arcfilter.apply(rpx, -xmsn);
+                            gpx = arcfilter.apply(gpx, -xmsn);
+                            bpx = arcfilter.apply(bpx, -xmsn);
                             } else {
-                            rpx = arcfilter(rpx,  xmsn)
-                            gpx = arcfilter(gpx,  xmsn)
-                            bpx = arcfilter(bpx,  xmsn)
+                            rpx = arcfilter.apply(rpx,  xmsn);
+                            gpx = arcfilter.apply(gpx,  xmsn);
+                            bpx = arcfilter.apply(bpx,  xmsn);
                         }
                     }
                 }
