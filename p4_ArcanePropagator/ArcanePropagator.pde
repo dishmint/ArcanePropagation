@@ -3,10 +3,10 @@ class ArcanePropagator{
 	int kernelwidth;
 	float scalefactor;
 	float xfactor;
-	float displayScale;
 	/* IMAGE */
 	PImage source;
 	float[][][] ximage;
+	float displayScale;
 	ArcaneFilter af;
 	/* RENDER */
 	ArcaneRender ar;

@@ -51,7 +51,10 @@ class ArcaneFilter {
     /* transmitMBL */
 	
 	ArcaneProcess transmitMBL = (x, y, img, xmg) -> {
-					color cpx = img.pixels[x+y*img.width];
+					int sloc = x+y*img.width;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
         
         			float rpx = cpx >> 16 & 0xFF;
         			float gpx = cpx >> 8 & 0xFF;
@@ -75,11 +78,13 @@ class ArcaneFilter {
         			        	}
         			    	}
         				}
-        				img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
+        				img.pixels[sloc] = color(rpx,gpx,bpx);
 					};
  	
     /* convolve */
 	ArcaneProcess convolve = (x, y, img, xmg) -> {
+					int sloc = x+y*img.width;
+					sloc = constrain(sloc,0,img.pixels.length-1);
 					float rtotal = 0.0;
 					float gtotal = 0.0;
 					float btotal = 0.0;
@@ -112,7 +117,7 @@ class ArcaneFilter {
 							}
 						}
 					}
-					img.pixels[x+y*img.width] = color(rtotal, gtotal, btotal);
+					img.pixels[sloc] = color(rtotal/9.0, gtotal/9.0, btotal/9.0);
 				};
 
 

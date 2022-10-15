@@ -18,11 +18,13 @@ void setup(){
 	hint(ENABLE_STROKE_PURE);
 	
 	// simg = loadImage("./imgs/p5sketch1.jpg");
+	// simg = loadImage("./imgs/buff_skate.JPG");
 	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 	
 	// sf ~~ rate of decay
-	// float sf = 0025.00;   /* 010.20 */
-	float sf = 0756.00;   /* 010.20 */
+	float sf = 0025.00;   /* 010.20 */
+	// float sf = 0125.00;   /* 010.20 */
+	// float sf = 0756.00;   /* 000.33 */
 	scalefac = 255./sf;
 	kernelWidth = 3;
 	// Determine the leak-rate (transmission factor) of each pixel
@@ -32,15 +34,17 @@ void setup(){
 	displayscale = 1.0;
 	
 	// parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	parc = new ArcanePropagator(simg, "convolve", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	// parc = new ArcanePropagator(simg, "convolve", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 	// parc = new ArcanePropagator(simg, "transmitMBL", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 	// parc = new ArcanePropagator(simg, "blur", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 	// parc = new ArcanePropagator(simg, "dilate", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	
+	parc = new ArcanePropagator(simg, "transmit", "geo", kernelWidth, scalefac, xsmnfactor, displayscale);
 
 	background(0);
 }
 
 void draw(){
-	parc.update();
 	parc.show();
+	parc.update();
 }
