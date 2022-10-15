@@ -2,13 +2,16 @@
 // AUTHOR: Faizon Zaman
 
 PImage simg;
+int kernelWidth;
 ArcanePropagator parc;
 float scalefac,xsmnfactor,displayscale;
 
 boolean dispersed;
 
 void setup(){
-	size(1422, 800, P3D);
+	// size(100, 100, P3D);
+	size(700, 350, P3D);
+	// size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(1);
@@ -18,14 +21,15 @@ void setup(){
 	
 	// sf ~~ rate of decay
 	float sf = 0025.00;   /* 010.20 */
-	scalefac = 255./sf;	
+	scalefac = 255./sf;
+	kernelWidth = 3;
 	// Determine the leak-rate (transmission factor) of each pixel
-	xsmnfactor = pow(kwidth, 2.); /* default */
+	xsmnfactor = pow(kernelWidth, 2.); /* default */
 	
 	dispersed = true;
 	displayscale = 1.0;
 		
-	parc = new ArcanePropagator(simg, "transmit", "shader", 3, scalefac, xsmnfactor);
+	parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, scalefac, xsmnfactor);
 
 	background(0);
 }

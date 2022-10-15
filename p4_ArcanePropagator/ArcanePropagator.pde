@@ -10,7 +10,7 @@ class ArcanePropagator{
 	/* RENDER */
 	ArcaneRender ar;
 
-	private static PImage resize(PImage img){
+	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 		float sw = (float)img.width;
 		float sh = (float)img.height;
@@ -22,7 +22,7 @@ class ArcanePropagator{
 		return img; /* might not need to return this if img.resize is changing the original image */
 	}
 
-	private static float computeGS(color px){
+	float computeGS(color px){
 		float rpx = px >> 16 & 0xFF;
 		float gpx = px >> 8 & 0xFF;
 		float bpx = px & 0xFF;
@@ -34,18 +34,18 @@ class ArcanePropagator{
 				) / 255.0;
 	}
 	
-	private static float[][][] loadxm(PImage img, int kwidth, float scalefac) {
+	float[][][] loadxm(PImage img, int kwidth, float scalefac) {
 		float[][][] xms = new float[int(img.width * img.height)][kwidth][kwidth];
 		float[][] kernel = new float[kwidth][kwidth];
 		int offset = kwidth / 2;
 		img.loadPixels();
 		for (int i = 0; i < img.width; i++){
 			for (int j = 0; j < img.height; j++){
-				for (int k = 0; k < dim; k++){
-					for (int l= 0; l < dim; l++){
+				for (int k = 0; k < kwidth; k++){
+					for (int l= 0; l < kwidth; l++){
 
-						int xloc = x+k-offset;
-						int yloc = y+l-offset;
+						int xloc = i+k-offset;
+						int yloc = j+l-offset;
 						int loc = xloc + img.width*yloc;
 
 						loc = constrain(loc,0,img.pixels.length-1);
@@ -53,10 +53,10 @@ class ArcanePropagator{
 
 						color cpx = img.pixels[loc];
 
-						float gs = ArcanePropagator::computeGS(cpx);
+						float gs = computeGS(cpx);
 
 						// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
-						kern[k][l] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+						kernel[k][l] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
 						}
 					}
 				int index = (i + j * img.width);
@@ -74,30 +74,24 @@ class ArcanePropagator{
 		scalefactor = sf;
 		xfactor = xf;
 		/* SETUP IMAGE */
-		source = ArcanePropagator::resize(img);
+		source = resize(img);
 		
-		ximage = ArcanePropagator::loadxm(source, kernelwidth, scalefactor);
+		ximage = loadxm(source, kernelwidth, scalefactor);
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
-		ar = new ArcaneRender(rendermode, 1.0);
+		ar = new ArcaneRender(source, rendermode, "blueline.glsl", 1.0);
 	}
 
 	void setKernelWidth(int nkw){
         kernelwidth = nkw;
     }
 
-	/* MTHD */
-	initialize(){
-		// af.setup();
-		ar.setup();
-	}
-	
-	update(){
+	void update(){
 		af.kernelmap(this);
 	}
 	
-	show(){
+	void show(){
 		ar.show(this); /* should just display an image (what about point orbit though w/ geo?)*/
 	}
 }
