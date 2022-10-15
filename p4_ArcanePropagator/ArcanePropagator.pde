@@ -3,6 +3,7 @@ class ArcanePropagator{
 	int kernelwidth;
 	float scalefactor;
 	float xfactor;
+	float displayScale;
 	/* IMAGE */
 	PImage source;
 	float[][][] ximage;
@@ -68,11 +69,12 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
 		/* SETUP VARS */
 		kernelwidth = kw;
 		scalefactor = sf;
 		xfactor = xf;
+		displayScale = ds;
 		/* SETUP IMAGE */
 		source = resize(img);
 		
@@ -80,7 +82,7 @@ class ArcanePropagator{
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
-		ar = new ArcaneRender(source, rendermode, "blueline.glsl", 1.0);
+		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
 	}
 
 	void setKernelWidth(int nkw){
