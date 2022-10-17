@@ -26,10 +26,10 @@ void setup(){
 	// size(100,100, P3D);
 	// size(200,200, P3D);
 	// size(300,300, P3D);
-	size(355,200, P3D);
+	// size(355,200, P3D);
 	// size(711,400, P3D);
 	// size(500,500, P3D);
-	// size(1422,800, P3D);
+	size(1422,800, P3D);
 	// size(1600,900, P3D);
 	// size(2560,1440, P3D);
 	surface.setTitle("Arcane Propagations");
@@ -39,7 +39,7 @@ void setup(){
 	
 	// simg = loadImage("./imgs/buff_skate.JPG");
 	// simg = loadImage("./imgs/face.png");
-	simg = loadImage("./imgs/p5sketch1.jpg");
+	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/abstract_1.PNG");
 	// simg = loadImage("./imgs/abstract_2.PNG");
 	// simg = loadImage("./imgs/fruit.jpg");
@@ -60,7 +60,9 @@ void setup(){
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/clouds.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/binarized_moon.png");
+	// simg = loadImage("./imgs/binarized_moon_inverted.png");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/mountains_1.jpg");
 	// simg = randomImage(width, height);
@@ -209,7 +211,7 @@ void setup(){
 	// noLoop();
 	background(0);
 	
-	klinkQ = true;
+	klinkQ = false;
 	if(klinkQ){
 		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
 		
@@ -258,12 +260,12 @@ void setup(){
 }
 
 void draw(){
-	// selectDraw("convolve");
+	selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
-	selectDraw("CA");
+	// selectDraw("CA");
 	// selectDraw("blur");
 	// selectDraw("dilate");
 }
