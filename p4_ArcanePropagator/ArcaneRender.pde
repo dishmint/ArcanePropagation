@@ -27,9 +27,11 @@ class ArcaneRender {
 			*/
 			// blueline.set("rfac", 0.0);
 			// blueline.set("rfac", 1.00000);
-			blueline.set("rfac", 1.0625); /* default */
+			blueline.set("rfac", 1.03125); /* default */
+			// blueline.set("rfac", 1.0625); /* default */
 			// blueline.set("rfac", 1.25);
 			// blueline.set("rfac", 1.300000);
+			// blueline.set("rfac", 2.00);
 
 			renderer = (simg, ds) -> {
 				blueline.set("tex0", simg);
