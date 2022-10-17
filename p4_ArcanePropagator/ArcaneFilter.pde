@@ -20,7 +20,10 @@ class ArcaneFilter {
 
     /* transmit */
 	ArcaneProcess transmit = (x, y, img, xmg) -> {
-					color cpx = img.pixels[x+y*img.width];
+					int sloc = x+y*img.width;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
         
         			float rpx = cpx >> 16 & 0xFF;
         			float gpx = cpx >> 8 & 0xFF;
@@ -70,7 +73,10 @@ class ArcaneFilter {
         			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
 
         			        if(xloc == x && yloc == y){
-        			    		continue;
+        			    		// rpx -= (rpx * xmsn);
+        			            // gpx -= (gpx * xmsn);
+        			            // bpx -= (bpx * xmsn);
+								continue;
         			            } else {
         			            rpx += xmsn;
         			            gpx += xmsn;
@@ -85,9 +91,21 @@ class ArcaneFilter {
 	ArcaneProcess convolve = (x, y, img, xmg) -> {
 					int sloc = x+y*img.width;
 					sloc = constrain(sloc,0,img.pixels.length-1);
-					float rtotal = 0.0;
-					float gtotal = 0.0;
-					float btotal = 0.0;
+					/* 
+						// Instead of starting from 0, I'm starting from the current pixel (line:105)
+						float rtotal = 0.0;
+						float gtotal = 0.0;
+						float btotal = 0.0;
+					*/
+
+					color spx = img.pixels[sloc];
+					float rspx = spx >> 16 & 0xFF;
+					float gspx = spx >> 8 & 0xFF;
+					float bspx = spx & 0xFF;
+
+					float rtotal = rspx;
+					float gtotal = gspx;
+					float btotal = bspx;
 
 					int offset = kernelwidth / 2;
 					for (int i = 0; i < kernelwidth; i++){
@@ -117,7 +135,7 @@ class ArcaneFilter {
 							}
 						}
 					}
-					img.pixels[sloc] = color(rtotal/9.0, gtotal/9.0, btotal/9.0);
+					img.pixels[sloc] = color(rtotal, gtotal, btotal);
 				};
 
 
@@ -190,7 +208,10 @@ class ArcaneFilter {
         img.loadPixels();
         for (int i = 0; i < img.width; i++){
             for (int j = 0; j < img.height; j++){
+				img.loadPixels();
+				
 				arcfilter.filter(i,j,img,ximg);
+				img.updatePixels();
             }
         }
         img.updatePixels();
