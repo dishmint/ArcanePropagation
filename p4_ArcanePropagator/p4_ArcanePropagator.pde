@@ -1,6 +1,9 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
 
+import processing.video.*;
+Movie arcfilm;
+
 PImage simg;
 int kernelWidth;
 ArcanePropagator parc;
@@ -18,7 +21,9 @@ void setup(){
 	pixelDensity(1);
 	hint(ENABLE_STROKE_PURE);
 
-	simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
+	arcfilm = new Movie(this, "./videos/20220808-200543.mov");
+	arcfilm.loop();
 
 	// simg.filter(GRAY);
 	/*
@@ -46,7 +51,8 @@ void setup(){
 	displayscale = 1.0; /* float value to scale the displayed results (1.0 -> fits screen; 0.5 -> half-size) */
 
 	String afilter = "convolve"; /* transmit|transmitMBL|convolve|test|blur|dilate */
-	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	// parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	parc = new ArcanePropagator(arcfilm, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 
 	background(0);
 }
@@ -54,4 +60,8 @@ void setup(){
 void draw(){
 	parc.show();
 	parc.update();
+}
+
+void movieEvent(Movie m) {
+  m.read();
 }
