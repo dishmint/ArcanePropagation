@@ -18,48 +18,35 @@ void setup(){
 	pixelDensity(1);
 	hint(ENABLE_STROKE_PURE);
 
-	// simg = loadImage("./imgs/p5sketch1.jpg");
-	// simg = loadImage("./imgs/buff_skate.JPG");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze_copy.png");
-	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
-	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/nestedsquare.png");
-	simg = loadImage("./imgs/universe.jpg");
+	simg = loadImage("./imgs/nasa.jpg");
 
-	// sf ~~ rate of decay
-	// float sf = 0005.00;   /* 010.20 */
-	// float sf = 0025.00;   /* 010.20 */
-	// float sf = 0125.00;   /* 002.04 */
-	float sf = 0756.00;   /* 000.33 */
+	// simg.filter(GRAY);
+	/*
+		sf: Divisor which determines the pixel's x-strength
+
+		To slow down transmission of transmit* functions increase sf
+		To slow down transmission of convolve* functions decrease sf
+
+	*/
+	float sf = 0000.25;   /* 010.20 */
+	// float sf = 0756.00;   /* 000.33 */
 	scalefac = 255./sf;
 	kernelWidth = 3;
 	// Determine the leak-rate (transmission factor) of each pixel
-	xsmnfactor = pow(kernelWidth, 2.); /* default */
 	// xsmnfactor = pow(kernelWidth, 3.);
+	// xsmnfactor = pow(kernelWidth, 2.); /* default */
+	// xsmnfactor = kernelWidth;
 	// xsmnfactor = pow(kernelWidth, 0.5);
+	// xsmnfactor = pow(kernelWidth, 0.25);
+	// xsmnfactor = pow(kernelWidth, 0.125);
 	// xsmnfactor = 255.; 
-	// xsmnfactor = scalefac;
+	xsmnfactor = scalefac;
 	
 	// dispersed = true;
-	displayscale = 1.0;
-	// displayscale = 0.5;
-	
-	// parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	// parc = new ArcanePropagator(simg, "transmitMBL", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	parc = new ArcanePropagator(simg, "convolve", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	/* 
-		NOTE:
-		Something makes me think that the values for convolve are somehow to big.. that's why everything goes to zero in the second frame.
-	 */
-	/* 
-		NOTE: NO values are zero-ed out here, why does the screen go black? Is it the shader theme?
+	displayscale = 1.0; /* float value to scale the displayed results (1.0 -> fits screen; 0.5 -> half-size) */
 
-	 */
-	// parc = new ArcanePropagator(simg, "blur", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	// parc = new ArcanePropagator(simg, "dilate", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	
-	// parc = new ArcanePropagator(simg, "transmit", "geo", kernelWidth, scalefac, xsmnfactor, displayscale);
+	String afilter = "convolve"; /* transmit|transmitMBL|convolve|test|blur|dilate */
+	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 
 	background(0);
 }
