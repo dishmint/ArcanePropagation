@@ -235,6 +235,8 @@ void main( void ) {
 	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, TAU)  |
 	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,TAU, E)          |
 	pushEnergyAngle(C4Z);
+	// pushEnergyAngle(C3M);
+	// pushEnergyAngle(C3Z);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
@@ -255,5 +257,5 @@ void main( void ) {
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(GEO, GRADE, position);
+	gl_FragColor = pushfrag(NOGEO, GRADE, position);
 	}

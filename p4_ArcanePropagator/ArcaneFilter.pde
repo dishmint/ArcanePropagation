@@ -38,21 +38,31 @@ class ArcaneFilter {
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
 
+        			        // if(xloc == x && yloc == y){
+							// 		rpx -= xmsn;
+							// 		gpx -= xmsn;
+							// 		bpx -= xmsn;
+        			        //     } else {
+							// 		rpx += xmsn;
+							// 		gpx += xmsn;
+							// 		bpx += xmsn;
+        			        // 	}
+
         			        if(xloc == x && yloc == y){
-        			            rpx -= xmsn;
-        			            gpx -= xmsn;
-        			            bpx -= xmsn;
+									rpx -= (xmsn * l);
+									gpx -= (xmsn * l);
+									bpx -= (xmsn * l);
         			            } else {
-        			            rpx += xmsn;
-        			            gpx += xmsn;
-        			            bpx += xmsn;
+									rpx += (xmsn * l);
+									gpx += (xmsn * l);
+									bpx += (xmsn * l);
         			        	}
         			    	}
         				}
         				img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
 					};
+
     /* transmitMBL */
-	
 	ArcaneProcess transmitMBL = (x, y, img, xmg) -> {
 					int sloc = x+y*img.width;
 					sloc = constrain(sloc,0,img.pixels.length-1);
@@ -73,15 +83,34 @@ class ArcaneFilter {
         			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
 
         			        if(xloc == x && yloc == y){
-        			    		// rpx -= (rpx * xmsn);
-        			            // gpx -= (gpx * xmsn);
-        			            // bpx -= (bpx * xmsn);
-								continue;
+									rpx -= (rpx * xmsn);
+									gpx -= (gpx * xmsn);
+									bpx -= (bpx * xmsn);
         			            } else {
-        			            rpx += xmsn;
-        			            gpx += xmsn;
-        			            bpx += xmsn;
+									rpx += xmsn;
+									gpx += xmsn;
+									bpx += xmsn;
         			        	}
+
+        			        // if(xloc == x && yloc == y){
+							// 		rpx -= (rpx * xmsn) * l;
+							// 		gpx -= (gpx * xmsn) * l;
+							// 		bpx -= (bpx * xmsn) * l;
+        			        //     } else {
+							// 		rpx += (xmsn * l);
+							// 		gpx += (xmsn * l);
+							// 		bpx += (xmsn * l);
+        			        // 	}
+
+        			        // if(xloc == x && yloc == y){
+							// 		rpx -= (rpx * xmsn) * (kernelwidth - l);
+							// 		gpx -= (gpx * xmsn) * (kernelwidth - l);
+							// 		bpx -= (bpx * xmsn) * (kernelwidth - l);
+        			        //     } else {
+							// 		rpx += (xmsn * (kernelwidth - l));
+							// 		gpx += (xmsn * (kernelwidth - l));
+							// 		bpx += (xmsn * (kernelwidth - l));
+        			        // 	}
         			    	}
         				}
         				img.pixels[sloc] = color(rpx,gpx,bpx);
@@ -124,14 +153,102 @@ class ArcaneFilter {
 							float gpx = cpx >> 8 & 0xFF;
 							float bpx = cpx & 0xFF;
 							
+							// if(xloc == x && yloc == y){
+							// 	rtotal -= (rpx * xmsn);
+							// 	gtotal -= (gpx * xmsn);
+							// 	btotal -= (bpx * xmsn);
+							// } else {
+							// 	rtotal += (rpx * xmsn);
+							// 	gtotal += (gpx * xmsn);
+							// 	btotal += (bpx * xmsn);
+							// }
+							
 							if(xloc == x && yloc == y){
-								rtotal -= (rpx * xmsn);
-								gtotal -= (gpx * xmsn);
-								btotal -= (bpx * xmsn);
+								rtotal -= (rpx * xmsn) * j;
+								gtotal -= (gpx * xmsn) * j;
+								btotal -= (bpx * xmsn) * j;
 							} else {
-								rtotal += (rpx * xmsn);
-								gtotal += (gpx * xmsn);
-								btotal += (bpx * xmsn);
+								rtotal += (rpx * xmsn) * j;
+								gtotal += (gpx * xmsn) * j;
+								btotal += (bpx * xmsn) * j;
+							}
+						}
+					}
+					img.pixels[sloc] = color(rtotal, gtotal, btotal);
+				};
+ 	
+    /* test */
+	ArcaneProcess test = (x, y, img, xmg) -> {
+					// CURRENT PIXEL POSITION
+					int sloc = x+y*img.width;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+					color spx = img.pixels[sloc];
+					float rspx = spx >> 16 & 0xFF;
+					float gspx = spx >> 8 & 0xFF;
+					float bspx = spx & 0xFF;
+
+					float rtotal = rspx;
+					float gtotal = gspx;
+					float btotal = bspx;
+
+					int offset = kernelwidth / 2;
+					for (int i = 0; i < kernelwidth; i++){
+						for (int j= 0; j < kernelwidth; j++){
+							
+							int xloc = x+i-offset;
+							int yloc = y+j-offset;
+							int loc = xloc + img.width*yloc;
+							loc = constrain(loc,0,img.pixels.length-1);
+							
+							float xmsn = (xmg[loc][i][j] / transmissionfactor);
+							
+							color cpx = img.pixels[loc];
+							
+							float rpx = cpx >> 16 & 0xFF;
+							float gpx = cpx >> 8 & 0xFF;
+							float bpx = cpx & 0xFF;
+
+							// float sval = ((rpx+gpx+bpx) * xmsn)/3.0;
+							// float sval = ((rpx+gpx+bpx)/3.0 * xmsn);
+							
+							// if(xloc == x && yloc == y){
+							// 	rtotal -= (sval);
+							// 	gtotal -= (sval);
+							// 	btotal -= (sval);
+							// } else {
+							// 	rtotal += (sval);
+							// 	gtotal += (sval);
+							// 	btotal += (sval);
+							// }
+							
+							// if(xloc == x && yloc == y){
+							// 	rtotal -= (rpx/255.0);
+							// 	gtotal -= (gpx/255.0);
+							// 	btotal -= (bpx/255.0);
+							// } else {
+							// 	rtotal += (rpx/255.0);
+							// 	gtotal += (gpx/255.0);
+							// 	btotal += (bpx/255.0);
+							// }
+							
+							// if(xloc == x && yloc == y){
+							// 	rtotal -= ((rpx/255.0) * xmsn);
+							// 	gtotal -= ((gpx/255.0) * xmsn);
+							// 	btotal -= ((bpx/255.0) * xmsn);
+							// } else {
+							// 	rtotal += ((rpx/255.0) * xmsn);
+							// 	gtotal += ((gpx/255.0) * xmsn);
+							// 	btotal += ((bpx/255.0) * xmsn);
+							// }
+							
+							if(xloc == x && yloc == y){
+								rtotal -= xmsn;
+								gtotal -= xmsn;
+								btotal -= xmsn;
+							} else {
+								rtotal += xmsn;
+								gtotal += xmsn;
+								btotal += xmsn;
 							}
 						}
 					}
@@ -155,6 +272,9 @@ class ArcaneFilter {
 		    	break;
 		    case "transmitMBL":
 		    	arcfilter = transmitMBL;
+		    	break;
+		    case "test":
+		    	arcfilter = test;
 		    	break;
 		    case "blur":
 		    	break;
