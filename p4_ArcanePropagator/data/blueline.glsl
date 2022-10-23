@@ -253,9 +253,16 @@ void main( void ) {
 	//| alpha1   | alpha => 1.0                                    |
 	//| alphaC   | alpha => color.a                                |
 	//| alphaY   | alpha => energy                                 |
+	/*
+		TODO: use variables here for clarity, ex:
+		int state = normal;
+		int theme = rblue;
+		int alpha = alphaY;
+		pushgrade(state, theme, alpha);
+	 */
 	pushgrade(normal, rblue, alphaY);
 	
 	//| GEO   / NOGEO            | shape or 1.0           |
 	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(NOGEO, GRADE, position);
+	gl_FragColor = pushfrag(GEO, GRADE, position);
 	}
