@@ -51,7 +51,7 @@ void setup(){
 	/* TODO: ^^ dispersion needs to be setup  */
 	displayscale = 1.0 /* * 0.5 */;
 
-	String afilter = "collatz"; /* transmit|transmitMBL|convolve|collatz|test|blur|dilate */
+	String afilter = "convolve"; /* transmit|transmitMBL|convolve|collatz|test|blur|dilate */
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 }
 
