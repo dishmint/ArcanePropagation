@@ -268,6 +268,26 @@ class ArcaneFilter {
 					}
 					img.pixels[sloc] = color(rtotal, gtotal, btotal);
 				};
+ 	
+    /* collatz */
+	ArcaneProcess collatz = (x, y, img, xmg) -> {
+					// CURRENT PIXEL POSITION
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+					color spx = img.pixels[sloc];
+					float rspx = spx >> 16 & 0xFF;
+					float gspx = spx >> 8 & 0xFF;
+					float bspx = spx & 0xFF;
+					/*  
+						& is more efficient than using mod
+						https://stackoverflow.com/a/2229966
+					*/
+					rspx = (int(rspx) & 1) == 0 ? (rspx*0.5) : (3.0 * rspx) + 1.0;
+					gspx = (int(gspx) & 1) == 0 ? (gspx*0.5) : (3.0 * gspx) + 1.0;
+					bspx = (int(bspx) & 1) == 0 ? (bspx*0.5) : (3.0 * bspx) + 1.0;
+
+					img.pixels[sloc] = color(rspx, gspx, bspx);
+				};
 
 
     ArcaneFilter(String fmode, int kw, float xsmnfac){
@@ -286,6 +306,9 @@ class ArcaneFilter {
 		    	break;
 		    case "transmitMBL":
 		    	arcfilter = transmitMBL;
+		    	break;
+		    case "collatz":
+		    	arcfilter = collatz;
 		    	break;
 		    case "test":
 		    	arcfilter = test;
