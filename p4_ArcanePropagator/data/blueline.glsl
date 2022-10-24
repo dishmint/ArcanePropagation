@@ -244,6 +244,19 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	return c;
 }
 
+/* SETTINGS  */
+/* — energy angle map — */
+/* — C4Z|C4B|C3M|C3Z — */
+int emap  = C4B;
+/* — grade — */
+/* — normal|inverse, red|green|blue|yellow|yellowbrick|rblue|gred, alpha1|alphaC|alphaY — */
+int state = normal, theme = rblue, alpha = alphaY;
+/* — frag — */
+/* — GEO|NOGEO, GRADE|NOGRADE|SOURCE — */
+int shape = GEO, grader = GRADE;
+
+/* TODO: make some structs for these settings ^^ */
+
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy );
@@ -254,39 +267,13 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	
-	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,TAU, E)          |
-	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, TAU)  |
-	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,TAU, E)          |
-	// pushEnergyAngle(C4Z);
-	pushEnergyAngle(C4B);
-	// pushEnergyAngle(C3M);
-	// pushEnergyAngle(C3Z);
+	pushEnergyAngle(emap);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
 	
-	//| points   | _pointorbit       |
 	pushgeo(points, position);
+	pushgrade(state, theme, alpha);
 	
-	//|                       ARG1                                 |
-	//| normal   | grade                                           |
-	//| inverse  | 1 - grade                                       |
-	//|                       ARG2                                 |
-	//| red | green | blue | yellow | yellowbrick |  rblue | gred  |
-	//|                       ARG3                                 |
-	//| alpha1   | alpha => 1.0                                    |
-	//| alphaC   | alpha => color.a                                |
-	//| alphaY   | alpha => energy                                 |
-	/*
-		TODO: use variables here for clarity, ex:
-		int state = normal;
-		int theme = rblue;
-		int alpha = alphaY;
-		pushgrade(state, theme, alpha);
-	 */
-	pushgrade(normal, rblue, alphaY);
-	
-	//| GEO   / NOGEO            | shape or 1.0           |
-	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(GEO, GRADE, position);
+	gl_FragColor = pushfrag(shape, grader, position);
 	}
