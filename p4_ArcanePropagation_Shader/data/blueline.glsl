@@ -13,6 +13,8 @@ uniform float rfac;
 uniform float tfac;
 uniform float unitsize;
 
+uniform float displayscale;
+
 float energy, angle = 0;
 float pxos,clip,ec;
 
@@ -223,7 +225,7 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 
 void main( void ) {
 	
-	vec2 position = ( gl_FragCoord.xy / resolution.xy );
+	vec2 position = ( gl_FragCoord.xy / resolution.xy ) * displayscale;
 	pixel = unitsize/resolution;
 
 	position.y*=aspect;
