@@ -33,6 +33,11 @@ class ArcanePropagator{
 				0.5870 * gpx +
 				0.1140 * bpx
 				) / 255.0;
+		// return (
+		// 		rpx +
+		// 		gpx +
+		// 		bpx
+		// 		) / 255.0;
 	}
 	
 	float[][][] loadxm(PImage img) {
@@ -62,8 +67,24 @@ class ArcanePropagator{
 						// kernel[k][l] = gs * -2.0;
 						kernel[k][l] = map(gs, 0, 1, -1.,1.);
 						// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
-						// kernel[k][l] = map(gs, 0, 1, -1.*scalefactor,1.*scalefactor);
-						// kernel[k][l] = map(gs, 0, 1, -1.*(1./scalefactor),(1./scalefactor));
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
+						// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
+
+
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
+
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
 						}
 					}
 				xms[index] = kernel;
@@ -95,6 +116,11 @@ class ArcanePropagator{
 	
 	void show(){
 		ar.show(this); /* should just display an image (what about point orbit though w/ geo?)*/
+	}
+
+	void draw(){
+		af.kernelmap(this);
+		ar.show(this);
 	}
 }
 /* 

@@ -8,6 +8,8 @@ p4_ArcanePropagation_Shader/build
 
 p4_ArcanePropagator/data/imgs
 
+p4_ArcanePropagator/data/videos
+
 p4_ArcanePropagator/build
 
 p5_ArcanePropagator/assets/images
@@ -19,3 +21,5 @@ canvas_ArcanePropagator/node_modules
 p4_ArcaneShader/data/imgs
 
 p4_ArcaneShader/build
+
+max8_ArcaneViewer/videos

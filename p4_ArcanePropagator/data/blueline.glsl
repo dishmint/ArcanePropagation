@@ -21,6 +21,7 @@ vec2 radius, thickness, pixel;
 vec4 color,grade;
 
 #define TAU 6.2831853071
+#define QTAU TAU*.25
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -30,19 +31,41 @@ float map(float value, float min1, float max1, float min2, float max2) {
 // ———————
 
 #define C4Z 1
-#define C3M 2
-#define C3Z 3
+#define C4B 2
+#define C3M 3
+#define C3Z 4
 
 void pushEnergyAngle(int selector){
 	switch(selector)
 	{
 		case C4Z:
 			energy = (color.r+color.g+color.b+color.a/4.0);
-			angle = mix(0.0, TAU, energy);
+			// angle = mix(0.0, TAU, energy);
+			angle = mix(-TAU, TAU, energy);
+			break;
+		case C4B:
+			energy = (color.r+color.g+color.b+color.a/4.0);
+			// float rangle = mix(-TAU, TAU, color.r);
+			// float gangle = mix(-TAU, TAU, color.g);
+			// float bangle = mix(-TAU, TAU, color.b);
+			// float aangle = mix(-TAU, TAU, color.a);
+
+			// float rangle = mix(-QTAU, QTAU, color.r);
+			// float gangle = mix(-QTAU, QTAU, color.g);
+			// float bangle = mix(-QTAU, QTAU, color.b);
+			// float aangle = mix(-QTAU, QTAU, color.a);
+
+			float rangle = mix(0.0, QTAU, color.r);
+			float gangle = mix(0.0, QTAU, color.g);
+			float bangle = mix(0.0, QTAU, color.b);
+			float aangle = mix(0.0, QTAU, color.a);
+			
+			angle = rangle+gangle+bangle+aangle;
 			break;
 		case C3M:
 			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
 			angle = map(energy, -1., 1., 0., TAU);
+			// angle = ((energy + 1.0)/2.0) * TAU;
 			break;
 		case C3Z:
 			energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
@@ -221,6 +244,19 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	return c;
 }
 
+/* SETTINGS  */
+/* — energy angle map — */
+/* — C4Z|C4B|C3M|C3Z — */
+int emap  = C4B;
+/* — grade — */
+/* — normal|inverse, red|green|blue|yellow|yellowbrick|rblue|gred, alpha1|alphaC|alphaY — */
+int state = normal, theme = rblue, alpha = alphaY;
+/* — frag — */
+/* — GEO|NOGEO, GRADE|NOGRADE|SOURCE — */
+int shape = GEO, grader = GRADE;
+
+/* TODO: make some structs for these settings ^^ */
+
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy );
@@ -231,31 +267,13 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	
-	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,TAU, E)          |
-	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, TAU)  |
-	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,TAU, E)          |
-	pushEnergyAngle(C4Z);
-	// pushEnergyAngle(C3M);
-	// pushEnergyAngle(C3Z);
+	pushEnergyAngle(emap);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
 	
-	//| points   | _pointorbit       |
 	pushgeo(points, position);
+	pushgrade(state, theme, alpha);
 	
-	//|                       ARG1                                 |
-	//| normal   | grade                                           |
-	//| inverse  | 1 - grade                                       |
-	//|                       ARG2                                 |
-	//| red | green | blue | yellow | yellowbrick |  rblue | gred  |
-	//|                       ARG3                                 |
-	//| alpha1   | alpha => 1.0                                    |
-	//| alphaC   | alpha => color.a                                |
-	//| alphaY   | alpha => energy                                 |
-	pushgrade(normal, rblue, alphaY);
-	
-	//| GEO   / NOGEO            | shape or 1.0           |
-	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(NOGEO, GRADE, position);
+	gl_FragColor = pushfrag(shape, grader, position);
 	}
