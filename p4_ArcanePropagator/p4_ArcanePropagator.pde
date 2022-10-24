@@ -21,7 +21,7 @@ void setup(){
 	background(0);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/universe.jpg");
 
 	// simg.filter(GRAY);
 	/*

@@ -46,21 +46,20 @@
 
 			/* CONSTANTS */
 			#define TAU 6.2831853071
-			#define rfac 1.015625
-			// #define rfac 0.00
-			// #define rfac 1.00
+			#define QTAU TAU * 0.25
+			// #define rfac 0.000000
+			#define rfac 1.000000
+			// #define rfac 1.015625
 			#define tfac 1.00
 
 			/* SETTINGS */
-			vec2 resolution = vec2(1400.,900.); /* screen resolution */
+			uniform vec2 texdim0;
 			float energy, angle = 0;
 			float pxos, clip, ec;
 
-			vec2 radius, thickness;
-			vec4 color,grade;
+			vec2 radius,thickness,pixel;
+			vec4 color,grade,theta;
 			
-			
-
 			// https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 			float map(float value, float min1, float max1, float min2, float max2) {
 				return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -69,8 +68,52 @@
 			// ———————
 
 			#define C4Z 1
-			#define C3M 2
-			#define C3Z 3
+			#define C4B 2
+			#define C4C 4
+			#define C3M 5
+			#define C3Z 6
+
+			void pushEnergyAngle(int selector){
+				switch(selector)
+				{
+					case C4Z:
+						energy = (color.r+color.g+color.b+color.a/4.0);
+						// angle = mix(0.0, TAU, energy);
+						angle = mix(-TAU, TAU, energy);
+						break;
+					case C4B:
+						energy = (color.r+color.g+color.b+color.a/4.0);
+						// energy = mix(-1.,1.,(color.r+color.g+color.b+color.a));
+						theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
+						// vec4 theta = mix(vec4(-TAU), vec4(TAU), energy);
+						
+						angle = theta.x+theta.y+theta.z+theta.w;
+						break;
+					case C4C:
+						// vec4 plasma = mix(vec4(0.0), vec4(0.25), color);
+						// vec4 plasma = mix(vec4(-0.25), vec4(0.25), color);
+						vec4 plasma = mix(vec4(0.0), vec4(0.25), vec4(color.rgb, 1.0));
+						energy = (plasma.x+plasma.y+plasma.z+plasma.w);
+
+						theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
+						
+						angle = theta.x+theta.y+theta.z+theta.w;
+						break;
+					case C3M:
+						energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
+						angle = map(energy, -1., 1., 0., TAU);
+						// angle = ((energy + 1.0)/2.0) * TAU;
+						break;
+					case C3Z:
+						energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
+						angle = mix(0., TAU, energy);
+						break;
+					default:
+						energy = map(color.r+color.g+color.b+color.a/4.0, 0.,1., .5,1.);
+						angle = mix(0.5, TAU, energy);
+						break;
+				}
+			}
 
 			float _point(in vec2 uv, vec2 o){
 				float s1 = step(o.x - (thickness.x/tfac), uv.x) - step(o.x + (thickness.x/tfac), uv.x);
@@ -154,22 +197,43 @@
 				return mgrade;
 			}
 
+			/* SETTINGS  */
+			/* — emap   : C4Z|C4B|C3M|C3Z                               — */
+			/* — state  : normal|inverse                                — */
+			/* — theme  : red|green|blue|yellow|yellowbrick|rblue|gred  — */
+			/* — alpha  : alpha1|alphaC|alphaY                          — */
+			/* — shape  : GEO|NOGEO                                     — */
+			/* — grader : GRADE|NOGRADE|SOURCE                          — */
+
+			struct settings
+			{
+				int emap;  /* Select energy and gangle mapping function */
+				int theme; /* Specify color theme */
+				int alpha; /* Select alpha interpretation */
+			};
+
+			settings setting = settings(C4B, rblue, alphaY);
 
 			void main(void) {
 				color = texture(tex0, jit_in.texcoord) * scale;
+				pixel = 1.0/texdim0;
 
-				energy = (color.r+color.g+color.b+color.a/4.0);
-				angle = mix(0.0, TAU, energy);
 
-				thickness = vec2(0.01);
+				// energy = (color.r+color.g+color.b+color.a/4.0);
+				// angle = mix(0.0, TAU, energy);
+				pushEnergyAngle(setting.emap);
+
+				thickness = pixel;
 				radius    = (rfac*thickness);
 				
 				float pxos = _pointorbit(jit_in.texcoord, jit_in.texcoord);
+				
 
-				outColor = vec4(pxos) * makeGrade(rblue, alphaY);
+				// outColor = vec4(pxos) * makeGrade(rblue, alphaY);
 				// outColor = color * makeGrade(rblue, alphaY);
 				// outColor = energy * makeGrade(rblue, alphaY);
 				// outColor = energy + makeGrade(rblue, alphaY);
+				outColor = pxos * makeGrade(setting.theme, setting.alpha);
 			}
 		]]>
 		</program>
