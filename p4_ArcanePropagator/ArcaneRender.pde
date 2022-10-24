@@ -9,12 +9,13 @@ class ArcaneRender {
 
 	void setShader(PImage source){
 			blueline = loadShader(shaderPath);
-			blueline.set("aspect", float(source.width)/float(source.height));
+			blueline.set("aspect", float(source.pixelWidth)/float(source.pixelHeight));
 			blueline.set("tex0", source);
+			blueline.set("densityscale", 1.0/displayDensity());
 
-			// blueline.set("resolution", float(buffer.width), float(buffer.height));
-			// blueline.set("resolution", 100.*float(buffer.width), 100.*float(buffer.height)); /* default */
-			blueline.set("resolution", 1000.*float(buffer.width), 1000.*float(buffer.height));
+			// blueline.set("resolution", float(buffer.pixelWidth), float(buffer.pixelHeight));
+			// blueline.set("resolution", 100.*float(buffer.pixelWidth), 100.*float(buffer.pixelHeight)); /* default */
+			blueline.set("resolution", 1000.*float(buffer.pixelWidth), 1000.*float(buffer.pixelHeight));
 	
 			/* the unitsize determines the dimensions of pixels for the shader */
 			blueline.set("unitsize", 1.00);
@@ -38,7 +39,7 @@ class ArcaneRender {
 
 			renderer = (simg, ds) -> {
 				blueline.set("tex0", simg);
-				image(buffer, width/2, height/2, simg.width*ds, simg.height*ds);
+				image(buffer, width/2, height/2, simg.pixelWidth*ds, simg.pixelHeight*ds);
 			};
 		};
 
@@ -73,9 +74,9 @@ class ArcaneRender {
 
 	void geoRenderer(PImage simg){
 			simg.loadPixels();
-			for(int x = 0; x < simg.width;x++){
-				for(int y = 0; y < simg.height; y++){
-					int index = (x + (y * simg.width));
+			for(int x = 0; x < simg.pixelWidth;x++){
+				for(int y = 0; y < simg.pixelHeight; y++){
+					int index = (x + (y * simg.pixelWidth));
 					index = constrain(index, 0, simg.pixels.length - 1);
 					color cpx = simg.pixels[index];
 					float gs = computeGS(cpx);
@@ -88,7 +89,7 @@ class ArcaneRender {
 						float py = y + (1./(/* modfac */ 1) * sin(ang));
 						
 						pushMatrix();
-							translate((width/2)-(simg.width/2),(height/2)-(simg.height/2));
+							translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
 							point(
 								(px),
 								(py)
@@ -105,7 +106,7 @@ class ArcaneRender {
 		shaderPath = sPath;
 		displayScale = dscale;
 		
-		buffer = createGraphics(2*source.width,2*source.height, P2D);
+		buffer = createGraphics(2*source.pixelWidth,2*source.pixelHeight, P2D);
 		buffer.noSmooth();
 		
 		switch(rendermode){
@@ -124,7 +125,7 @@ class ArcaneRender {
 		buffer.beginDraw();
 		buffer.background(0);
 		buffer.shader(blueline);
-		buffer.rect(0, 0, buffer.width, buffer.height);
+		buffer.rect(0, 0, buffer.pixelWidth, buffer.pixelHeight);
 		buffer.endDraw();
 	}
 	

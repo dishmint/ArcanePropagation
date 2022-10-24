@@ -20,7 +20,7 @@ class ArcaneFilter {
 
     /* transmit */
 	ArcaneProcess transmit = (x, y, img, xmg) -> {
-					int sloc = x+y*img.width;
+					int sloc = x+y*img.pixelWidth;
 					sloc = constrain(sloc,0,img.pixels.length-1);
 
 					color cpx = img.pixels[sloc];
@@ -34,7 +34,7 @@ class ArcaneFilter {
         			    for (int l= 0; l < kernelwidth; l++){
         			        int xloc = x+k-offset;
         			        int yloc = y+l-offset;
-        			        int loc = xloc + img.width*yloc;
+        			        int loc = xloc + img.pixelWidth*yloc;
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
 
@@ -59,12 +59,12 @@ class ArcaneFilter {
         			        	}
         			    	}
         				}
-        				img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
+        				img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
 					};
 
     /* transmitMBL */
 	ArcaneProcess transmitMBL = (x, y, img, xmg) -> {
-					int sloc = x+y*img.width;
+					int sloc = x+y*img.pixelWidth;
 					sloc = constrain(sloc,0,img.pixels.length-1);
 
 					color cpx = img.pixels[sloc];
@@ -78,7 +78,7 @@ class ArcaneFilter {
         			    for (int l= 0; l < kernelwidth; l++){
         			        int xloc = x+k-offset;
         			        int yloc = y+l-offset;
-        			        int loc = xloc + img.width*yloc;
+        			        int loc = xloc + img.pixelWidth*yloc;
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
 
@@ -118,7 +118,7 @@ class ArcaneFilter {
  	
     /* convolve */
 	ArcaneProcess convolve = (x, y, img, xmg) -> {
-					int sloc = x+y*img.width;
+					int sloc = x+y*img.pixelWidth;
 					sloc = constrain(sloc,0,img.pixels.length-1);
 					/* 
 						// Instead of starting from 0, I'm starting from the current pixel (line:105)
@@ -142,7 +142,7 @@ class ArcaneFilter {
 							
 							int xloc = x+i-offset;
 							int yloc = y+j-offset;
-							int loc = xloc + img.width*yloc;
+							int loc = xloc + img.pixelWidth*yloc;
 							loc = constrain(loc,0,img.pixels.length-1);
 							
 							float xmsn = (xmg[loc][i][j] / transmissionfactor);
@@ -194,7 +194,7 @@ class ArcaneFilter {
     /* test */
 	ArcaneProcess test = (x, y, img, xmg) -> {
 					// CURRENT PIXEL POSITION
-					int sloc = x+y*img.width;
+					int sloc = x+y*img.pixelWidth;
 					sloc = constrain(sloc,0,img.pixels.length-1);
 					color spx = img.pixels[sloc];
 					float rspx = spx >> 16 & 0xFF;
@@ -211,7 +211,7 @@ class ArcaneFilter {
 							
 							int xloc = x+i-offset;
 							int yloc = y+j-offset;
-							int loc = xloc + img.width*yloc;
+							int loc = xloc + img.pixelWidth*yloc;
 							loc = constrain(loc,0,img.pixels.length-1);
 							
 							float xmsn = (xmg[loc][i][j] / transmissionfactor);
@@ -340,8 +340,8 @@ class ArcaneFilter {
 
     void customfilter(PImage img, float[][][] ximg){
         img.loadPixels();
-        for (int i = 0; i < img.width; i++){
-            for (int j = 0; j < img.height; j++){
+        for (int i = 0; i < img.pixelWidth; i++){
+            for (int j = 0; j < img.pixelHeight; j++){
 				img.loadPixels();
 				
 				arcfilter.filter(i,j,img,ximg);
