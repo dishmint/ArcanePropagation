@@ -13,8 +13,8 @@ class ArcanePropagator{
 
 	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
-		float sw = (float)img.width;
-		float sh = (float)img.height;
+		float sw = (float)img.pixelWidth;
+		float sh = (float)img.pixelHeight;
 		float scale = min(width/sw, height/sh);
 
 		int nw = Math.round(sw*scale);
@@ -41,13 +41,13 @@ class ArcanePropagator{
 	}
 	
 	float[][][] loadxm(PImage img) {
-		float[][][] xms = new float[int(img.width * img.height)][kernelwidth][kernelwidth];
+		float[][][] xms = new float[int(img.pixelWidth * img.pixelHeight)][kernelwidth][kernelwidth];
 		float[][] kernel = new float[kernelwidth][kernelwidth];
 		int offset = kernelwidth / 2;
 		img.loadPixels();
-		for (int i = 0; i < img.width; i++){
-			for (int j = 0; j < img.height; j++){
-				int index = (i + j * img.width);
+		for (int i = 0; i < img.pixelWidth; i++){
+			for (int j = 0; j < img.pixelHeight; j++){
+				int index = (i + j * img.pixelWidth);
 				index = constrain(index,0,img.pixels.length-1);
 
 				for (int k = 0; k < kernelwidth; k++){
@@ -55,7 +55,7 @@ class ArcanePropagator{
 
 						int xloc = i+k-offset;
 						int yloc = j+l-offset;
-						int loc = xloc + img.width*yloc;
+						int loc = xloc + img.pixelWidth*yloc;
 
 						loc = constrain(loc,0,img.pixels.length-1);
 
@@ -123,79 +123,3 @@ class ArcanePropagator{
 		ar.show(this);
 	}
 }
-/* 
-
-// the use functions set the image, so should be run when creating source.
-	if(dispersed){
-		useDispersed(modfac);
-	} else {
-		useOriginal();
-	}
-
-void useDispersed(int factor){
-	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
-	
-	float sw = (float)dimg.width;
-	float sh = (float)dimg.height;
-	float scale = min(width/sw, height/sh);
-	
-	int nw = Math.round(sw*scale);
-	int nh = Math.round(sh*scale);
-	dimg.resize(nw, nh);
-	
-	setDispersedImage(simg, dimg);
-	blueline.set("aspect", float(dimg.width)/float(dimg.height));
-	blueline.set("tex0", dimg);
-}
-
-void useOriginal(){
-	blueline.set("aspect", float(simg.width)/float(simg.height));
-	blueline.set("tex0", simg);
-}
-
-// The draw functions should go in the renderer?
-void drawDispersed(){
-	setDispersedImage(simg,dimg);
-	blueline.set("tex0", dimg);
-}
-
-void drawOriginal(){
-	blueline.set("tex0", simg);
-}
-
-void setDispersedImage(PImage source, PImage di) {
-	source.loadPixels();
-	di.loadPixels();
-	for (int i = 0; i < di.width; i++){
-		for (int j = 0; j < di.height; j++){
-			int dindex = (i + j * di.width);
-			if(i % modfac == 0 && j % modfac == 0){
-				int x = i - 1;
-				int y = j - 1;
-				x = constrain(x, 0, source.width - 1);
-				y = constrain(y, 0, source.height - 1);
-				int sindex = (x + (y *source.width));
-				if (sindex < source.pixels.length){
-					di.pixels[dindex] = source.pixels[sindex];
-				}
-			} else {
-				di.pixels[dindex] = color(0);
-				}
-			}
-		}
-	source.updatePixels();
-	di.updatePixels();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-*/

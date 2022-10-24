@@ -12,6 +12,7 @@ uniform float aspect;
 uniform float rfac;
 uniform float tfac;
 uniform float unitsize;
+uniform float densityscale;
 
 float energy, angle = 0;
 float pxos,clip,ec;
@@ -259,7 +260,7 @@ int shape = GEO, grader = GRADE;
 
 void main( void ) {
 	
-	vec2 position = ( gl_FragCoord.xy / resolution.xy );
+	vec2 position = ( gl_FragCoord.xy / resolution.xy ) * densityscale;
 	pixel = unitsize/resolution;
 
 	position.y*=aspect;
