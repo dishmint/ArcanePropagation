@@ -33,6 +33,11 @@ class ArcanePropagator{
 				0.5870 * gpx +
 				0.1140 * bpx
 				) / 255.0;
+		// return (
+		// 		rpx +
+		// 		gpx +
+		// 		bpx
+		// 		) / 255.0;
 	}
 	
 	float[][][] loadxm(PImage img) {
@@ -60,12 +65,13 @@ class ArcanePropagator{
 
 						// kernel[k][l] = gs;
 						// kernel[k][l] = gs * -2.0;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.);
+						kernel[k][l] = map(gs, 0, 1, -1.,1.);
 						// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
 						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
 						// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
 						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
-						kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
+						// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
 
 
 						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;

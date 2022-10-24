@@ -20,13 +20,13 @@ void setup(){
 	background(0);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/buildings.jpg");
+	simg = loadImage("./imgs/fruit.jpg");
 
 	// simg.filter(GRAY);
 	/*
 		sf: Divisor which affects the pixel's x-strength
 
-		It's not clear yet when this value has more effect, as transmission can also be affected by kernelWidth and xsmnfactor
+		It's not clear yet when this value has more effect, as transmission can also be affected by kernelWidth and xsmnfactor, or the image size it looks like.
 
 	*/
 	float sf = 0000.0625;   /* 010.20 */
