@@ -21,7 +21,7 @@ void setup(){
 	background(0);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/fruit.jpg");
+	simg = loadImage("./imgs/nasa.jpg");
 
 	// simg.filter(GRAY);
 	/*
@@ -51,7 +51,7 @@ void setup(){
 	/* TODO: ^^ dispersion needs to be setup  */
 	displayscale = 1.0 /* * 0.5 */;
 
-	String afilter = "convolve"; /* transmit|transmitMBL|convolve|test|blur|dilate */
+	String afilter = "collatz"; /* transmit|transmitMBL|convolve|collatz|test|blur|dilate */
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 }
 
