@@ -22,7 +22,7 @@ vec2 radius, thickness, pixel;
 
 vec4 color,grade;
 
-#define PI 3.1415926538
+#define TAU 6.2831853071
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -40,19 +40,20 @@ void pushEnergyAngle(int selector){
 	{
 		case C4Z:
 			energy = (color.r+color.g+color.b+color.a/4.0);
-			angle = mix(0.0, 2.*PI, energy);
+			// angle = mix(0.0, TAU, energy);
+			angle = mix(-TAU, TAU, energy);
 			break;
 		case C3M:
 			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
-			angle = map(energy, -1., 1., 0., 2.*PI);
+			angle = map(energy, -1., 1., 0., TAU);
 			break;
 		case C3Z:
 			energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
-			angle = mix(0., 2.*PI, energy);
+			angle = mix(0., TAU, energy);
 			break;
 		default:
 			energy = map(color.r+color.g+color.b+color.a/4.0, 0.,1., .5,1.);
-			angle = mix(0.5, 2.*PI, energy);
+			angle = mix(0.5, TAU, energy);
 			break;
 	}
 }
@@ -101,30 +102,30 @@ vec3 makebase(int selector){
 	switch(selector)
 	{
 		case red:
-			b = vec3(1.0,0.0,0.0)*(angle/(2.*PI));
+			b = vec3(1.0,0.0,0.0)*(angle/(TAU));
 			break;
 		case blue:
-			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(2.*PI));
+			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(TAU));
 			break;
 		case green:
-			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(2.*PI));
+			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(TAU));
 			break;
 		case yellow:
-			b = vec3(1., 1., 0.0)*(angle/(2.*PI));
+			b = vec3(1., 1., 0.0)*(angle/(TAU));
 			break;
 		case yellowbrick:
-		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(2.*PI)));
-			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(2.*PI)));
+		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(TAU)));
+			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(TAU)));
 			break;
 		case rblue:
-			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 		case gred:
-		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(2.*PI)));
-			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(2.*PI)));
+		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
+			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
 			break;
 		default:
-			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 	}
 	return b;

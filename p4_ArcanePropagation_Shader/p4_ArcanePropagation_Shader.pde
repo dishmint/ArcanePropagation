@@ -168,8 +168,9 @@ void setup(){
 	xmg = loadxm(simg, kwidth);
 	
 	dispersed = true;
-	displayscale = 1.0;
-	// displayscale = 0.5;
+
+	displayscale = 1.0 /* * 0.5 */;
+
 	
 	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	// pg = createGraphics(5000,5000, P2D);
@@ -197,7 +198,8 @@ void setup(){
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 1.00000);
-	blueline.set("rfac", 1.0625);
+	blueline.set("rfac", 1.015625); 
+	// blueline.set("rfac", 1.0625);
 	// blueline.set("rfac", 1.25);
 	// blueline.set("rfac", 1.300000);
 	
@@ -261,14 +263,14 @@ void setup(){
 }
 
 void draw(){
-	selectDraw("convolve");
+	// selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
 	// selectDraw("CA");
 	// selectDraw("blur");
-	// selectDraw("dilate");
+	selectDraw("dilate");
 }
 
 void selectDraw(String selector){
@@ -294,9 +296,9 @@ void selectDraw(String selector){
 		case "blur":
 			simg.filter(BLUR);
 			break;
-		// case "dilate":
-		// 	simg.filter(DILATE);
-		// 	break;
+		case "dilate":
+			simg.filter(DILATE);
+			break;
 		case "switch":
 			// switchdraw((frameCount % 20)+1, 1);
 			switchdraw((frameCount % 60)+1, 1);
