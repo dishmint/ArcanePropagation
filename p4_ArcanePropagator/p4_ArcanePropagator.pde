@@ -15,7 +15,8 @@ void setup(){
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
-	pixelDensity(1);
+	// pixelDensity(1);
+	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	background(0);
 	
