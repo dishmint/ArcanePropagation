@@ -49,7 +49,7 @@ void setup(){
 	
 	// dispersed = true;
 	/* TODO: ^^ dispersion needs to be setup  */
-	displayscale = 0.75; /* float value to scale the displayed results (1.0 -> fits screen; 0.5 -> half-size) */
+	displayscale = 1.0 /* * 0.5 */;
 
 	String afilter = "convolve"; /* transmit|transmitMBL|convolve|test|blur|dilate */
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
