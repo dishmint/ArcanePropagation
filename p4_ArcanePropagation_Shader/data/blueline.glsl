@@ -23,6 +23,7 @@ vec2 radius, thickness, pixel;
 vec4 color,grade;
 
 #define TAU 6.2831853071
+#define QTAU TAU * 0.25
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -32,8 +33,9 @@ float map(float value, float min1, float max1, float min2, float max2) {
 // ———————
 
 #define C4Z 1
-#define C3M 2
-#define C3Z 3
+#define C4B 2
+#define C3M 3
+#define C3Z 4
 
 void pushEnergyAngle(int selector){
 	switch(selector)
@@ -42,6 +44,12 @@ void pushEnergyAngle(int selector){
 			energy = (color.r+color.g+color.b+color.a/4.0);
 			// angle = mix(0.0, TAU, energy);
 			angle = mix(-TAU, TAU, energy);
+			break;
+		case C4B:
+			energy = (color.r+color.g+color.b+color.a/4.0);
+			vec4 theta = mix(vec4(-QTAU), vec4(QTAU), energy);
+			
+			angle = theta.x+theta.y+theta.z+theta.w;
 			break;
 		case C3M:
 			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);

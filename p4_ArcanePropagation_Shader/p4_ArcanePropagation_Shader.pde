@@ -196,9 +196,9 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	// blueline.set("rfac", 0.0);
+	blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 1.00000);
-	blueline.set("rfac", 1.015625); 
+	// blueline.set("rfac", 1.015625); /* default */
 	// blueline.set("rfac", 1.0625);
 	// blueline.set("rfac", 1.25);
 	// blueline.set("rfac", 1.300000);
@@ -263,14 +263,14 @@ void setup(){
 }
 
 void draw(){
-	// selectDraw("convolve");
+	selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
 	// selectDraw("CA");
 	// selectDraw("blur");
-	selectDraw("dilate");
+	// selectDraw("dilate");
 }
 
 void selectDraw(String selector){

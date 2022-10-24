@@ -46,22 +46,19 @@ void pushEnergyAngle(int selector){
 			break;
 		case C4B:
 			energy = (color.r+color.g+color.b+color.a/4.0);
-			// float rangle = mix(-TAU, TAU, color.r);
-			// float gangle = mix(-TAU, TAU, color.g);
-			// float bangle = mix(-TAU, TAU, color.b);
-			// float aangle = mix(-TAU, TAU, color.a);
 
-			// float rangle = mix(-QTAU, QTAU, color.r);
-			// float gangle = mix(-QTAU, QTAU, color.g);
-			// float bangle = mix(-QTAU, QTAU, color.b);
-			// float aangle = mix(-QTAU, QTAU, color.a);
+			// vec4 plasma = mix(vec4(0.0), vec4(0.25), color);
+			// vec4 plasma = mix(vec4(-0.25), vec4(0.25), color);
+			// energy = (plasma.x+plasma.y+plasma.z+plasma.w);
 
-			float rangle = mix(0.0, QTAU, color.r);
-			float gangle = mix(0.0, QTAU, color.g);
-			float bangle = mix(0.0, QTAU, color.b);
-			float aangle = mix(0.0, QTAU, color.a);
+
+			// vec4 theta = mix(vec4(-TAU), vec4(TAU), color);
+			// vec4 theta = mix(vec4(-QTAU), vec4(QTAU), color);
+			// vec4 theta = mix(vec4(0.0), vec4(QTAU), color);
+			// vec4 theta = mix(vec4(0.0), vec4(QTAU), energy);
+			vec4 theta = mix(vec4(-QTAU), vec4(QTAU), energy);
 			
-			angle = rangle+gangle+bangle+aangle;
+			angle = theta.x+theta.y+theta.z+theta.w;
 			break;
 		case C3M:
 			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
