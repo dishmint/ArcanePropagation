@@ -60,10 +60,23 @@ class ArcanePropagator{
 
 						// kernel[k][l] = gs;
 						// kernel[k][l] = gs * -2.0;
-						kernel[k][l] = map(gs, 0, 1, -1.,1.);
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.);
 						// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
-						// kernel[k][l] = map(gs, 0, 1, -1.*scalefactor,1.*scalefactor);
-						// kernel[k][l] = map(gs, 0, 1, -1.*(1./scalefactor),(1./scalefactor));
+						kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
+
+
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
+
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
 						}
 					}
 				xms[index] = kernel;

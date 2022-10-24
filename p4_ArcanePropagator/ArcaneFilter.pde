@@ -146,6 +146,20 @@ class ArcaneFilter {
 							loc = constrain(loc,0,img.pixels.length-1);
 							
 							float xmsn = (xmg[loc][i][j] / transmissionfactor);
+
+							/* some xmsn variants */
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * i;
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * j;
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - (i * j);
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - (i + j);
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (i + j);
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * ((i-offset) + (j-offset));
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (offset - i);
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (offset - j);
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - ((i*j)/(kernelwidth*2.0));
+							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * ((abs(i-offset) * abs(j-offset))/kernelwidth);
+							
+							/* since I'm trying to affect the xmg, I could do these ^^ in loadxm. xmg values never change anyway (and maybe that's something I can add later) */
 							
 							color cpx = img.pixels[loc];
 							
@@ -153,25 +167,25 @@ class ArcaneFilter {
 							float gpx = cpx >> 8 & 0xFF;
 							float bpx = cpx & 0xFF;
 							
-							// if(xloc == x && yloc == y){
-							// 	rtotal -= (rpx * xmsn);
-							// 	gtotal -= (gpx * xmsn);
-							// 	btotal -= (bpx * xmsn);
-							// } else {
-							// 	rtotal += (rpx * xmsn);
-							// 	gtotal += (gpx * xmsn);
-							// 	btotal += (bpx * xmsn);
-							// }
-							
 							if(xloc == x && yloc == y){
-								rtotal -= (rpx * xmsn) * j;
-								gtotal -= (gpx * xmsn) * j;
-								btotal -= (bpx * xmsn) * j;
+								rtotal -= (rpx * xmsn);
+								gtotal -= (gpx * xmsn);
+								btotal -= (bpx * xmsn);
 							} else {
-								rtotal += (rpx * xmsn) * j;
-								gtotal += (gpx * xmsn) * j;
-								btotal += (bpx * xmsn) * j;
+								rtotal += (rpx * xmsn);
+								gtotal += (gpx * xmsn);
+								btotal += (bpx * xmsn);
 							}
+							
+							// if(xloc == x && yloc == y){
+							// 	rtotal -= (rpx * xmsn) * j;
+							// 	gtotal -= (gpx * xmsn) * j;
+							// 	btotal -= (bpx * xmsn) * j;
+							// } else {
+							// 	rtotal += (rpx * xmsn) * j;
+							// 	gtotal += (gpx * xmsn) * j;
+							// 	btotal += (bpx * xmsn) * j;
+							// }
 						}
 					}
 					img.pixels[sloc] = color(rtotal, gtotal, btotal);
