@@ -19,7 +19,7 @@ float pxos,clip,ec;
 
 vec2 radius, thickness, pixel;
 
-vec4 color,grade;
+vec4 color,grade,theta;
 
 #define TAU 6.2831853071
 #define QTAU TAU*.25
@@ -33,8 +33,9 @@ float map(float value, float min1, float max1, float min2, float max2) {
 
 #define C4Z 1
 #define C4B 2
-#define C3M 3
-#define C3Z 4
+#define C4C 4
+#define C3M 5
+#define C3Z 6
 
 void pushEnergyAngle(int selector){
 	switch(selector)
@@ -46,17 +47,19 @@ void pushEnergyAngle(int selector){
 			break;
 		case C4B:
 			energy = (color.r+color.g+color.b+color.a/4.0);
-
+			// energy = mix(-1.,1.,(color.r+color.g+color.b+color.a));
+			theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
+			// vec4 theta = mix(vec4(-TAU), vec4(TAU), energy);
+			
+			angle = theta.x+theta.y+theta.z+theta.w;
+			break;
+		case C4C:
 			// vec4 plasma = mix(vec4(0.0), vec4(0.25), color);
 			// vec4 plasma = mix(vec4(-0.25), vec4(0.25), color);
-			// energy = (plasma.x+plasma.y+plasma.z+plasma.w);
+			vec4 plasma = mix(vec4(0.0), vec4(0.25), vec4(color.rgb, 1.0));
+			energy = (plasma.x+plasma.y+plasma.z+plasma.w);
 
-
-			// vec4 theta = mix(vec4(-TAU), vec4(TAU), color);
-			// vec4 theta = mix(vec4(-QTAU), vec4(QTAU), color);
-			// vec4 theta = mix(vec4(0.0), vec4(QTAU), color);
-			// vec4 theta = mix(vec4(0.0), vec4(QTAU), energy);
-			vec4 theta = mix(vec4(-QTAU), vec4(QTAU), energy);
+			theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
 			
 			angle = theta.x+theta.y+theta.z+theta.w;
 			break;
