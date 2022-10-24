@@ -1,0 +1,177 @@
+<jittershader name="default">
+	<description>Default Slab </description>
+	<param name="scale" type="float" default="1.0" />
+	<param name="tex0" type="int" default="0" />
+	<param name="modelViewProjectionMatrix" type="mat4" state="MODELVIEW_PROJECTION_MATRIX" />
+	<param name="textureMatrix0" type="mat4" state="TEXTURE0_MATRIX" />
+	<param name="position" type="vec3" state="POSITION" />
+	<param name="texcoord" type="vec2" state="TEXCOORD" />
+	<language name="glsl" version="1.5">
+		<bind param="scale" program="fp" />
+		<bind param="tex0" program="fp" />
+		<bind param="modelViewProjectionMatrix" program="vp" />
+		<bind param="textureMatrix0" program="vp" />
+		<bind param="position" program="vp" />
+		<bind param="texcoord" program="vp" />
+		<program name="vp" type="vertex"  >
+		<![CDATA[
+			#version 330 core
+			
+			in vec3 position;
+			in vec2 texcoord;
+			out jit_PerVertex {
+				vec2 texcoord;
+			} jit_out;
+			uniform mat4 modelViewProjectionMatrix;
+			uniform mat4 textureMatrix0;
+			
+			void main(void) {
+				gl_Position = modelViewProjectionMatrix*vec4(position, 1.);
+				jit_out.texcoord = vec2(textureMatrix0*vec4(texcoord, 0., 1.));
+			}
+		]]>
+		</program>
+		
+		<program name="fp" type="fragment"  >
+		<![CDATA[
+			#version 330 core
+			
+			in jit_PerVertex {
+				vec2 texcoord;
+			} jit_in;
+			layout (location = 0) out vec4 outColor;
+			
+			uniform sampler2DRect tex0;
+			uniform float scale;
+
+			/* CONSTANTS */
+			#define TAU 6.2831853071
+			#define rfac 1.015625
+			// #define rfac 0.00
+			// #define rfac 1.00
+			#define tfac 1.00
+
+			/* SETTINGS */
+			vec2 resolution = vec2(1400.,900.); /* screen resolution */
+			float energy, angle = 0;
+			float pxos, clip, ec;
+
+			vec2 radius, thickness;
+			vec4 color,grade;
+			
+			
+
+			// https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
+			float map(float value, float min1, float max1, float min2, float max2) {
+				return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+			}
+
+			// ———————
+
+			#define C4Z 1
+			#define C3M 2
+			#define C3Z 3
+
+			float _point(in vec2 uv, vec2 o){
+				float s1 = step(o.x - (thickness.x/tfac), uv.x) - step(o.x + (thickness.x/tfac), uv.x);
+				float s2 = step(o.y - (thickness.y/tfac), uv.y) - step(o.y + (thickness.y/tfac), uv.y);
+				return s1*s2;
+			}
+
+			float _pointorbit(in vec2 uv, vec2 center){
+				vec2 trig = vec2(cos(angle),sin(angle));
+				vec2 o = center + (radius * trig);
+				return _point(uv, o);
+			}
+
+			#define alpha1 1
+			#define alphaC 2
+			#define alphaY 3
+
+			#define red    1
+			#define blue   2
+			#define green  3
+			#define yellow 4
+			#define rblue  5
+			#define yellowbrick 6
+			#define gred 7
+
+			vec3 makebase(int selector){
+				vec3 b;
+				switch(selector)
+				{
+					case red:
+						b = vec3(1.0,0.0,0.0)*(angle/(TAU));
+						break;
+					case blue:
+						b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(TAU));
+						break;
+					case green:
+						b = vec3(0.101961, 0.145098, 0.117647)*(angle/(TAU));
+						break;
+					case yellow:
+						b = vec3(1., 1., 0.0)*(angle/(TAU));
+						break;
+					case yellowbrick:
+					// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(TAU)));
+						b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(TAU)));
+						break;
+					case rblue:
+						b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+						break;
+					case gred:
+					// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
+						b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
+						break;
+					default:
+						b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+						break;
+				}
+				return b;
+			}
+
+			vec4 makeGrade(int selector, int selector2){
+				// vec3 base = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+				vec3 base = makebase(selector);
+				
+				vec4 mgrade;
+				
+				switch(selector2)
+				{
+					case alpha1:
+						mgrade = vec4(base,1.0);
+						break;
+					case alphaC:
+						mgrade = vec4(base,color.a);
+						break;
+					case alphaY:
+						mgrade = vec4(base,energy);
+						break;
+					default:
+						mgrade = vec4(base,1.0);
+						break;
+				}
+				return mgrade;
+			}
+
+
+			void main(void) {
+				color = texture(tex0, jit_in.texcoord) * scale;
+
+				energy = (color.r+color.g+color.b+color.a/4.0);
+				angle = mix(0.0, TAU, energy);
+
+				thickness = vec2(0.01);
+				radius    = (rfac*thickness);
+				
+				float pxos = _pointorbit(jit_in.texcoord, jit_in.texcoord);
+
+				outColor = vec4(pxos) * makeGrade(rblue, alphaY);
+				// outColor = color * makeGrade(rblue, alphaY);
+				// outColor = energy * makeGrade(rblue, alphaY);
+				// outColor = energy + makeGrade(rblue, alphaY);
+			}
+		]]>
+		</program>
+	</language>
+</jittershader>

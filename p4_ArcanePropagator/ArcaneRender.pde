@@ -12,7 +12,9 @@ class ArcaneRender {
 			blueline.set("aspect", float(source.width)/float(source.height));
 			blueline.set("tex0", source);
 
-			blueline.set("resolution", 100.*float(buffer.width), 100.*float(buffer.height));
+			// blueline.set("resolution", float(buffer.width), float(buffer.height));
+			// blueline.set("resolution", 100.*float(buffer.width), 100.*float(buffer.height)); /* default */
+			blueline.set("resolution", 1000.*float(buffer.width), 1000.*float(buffer.height));
 	
 			/* the unitsize determines the dimensions of pixels for the shader */
 			blueline.set("unitsize", 1.00);
