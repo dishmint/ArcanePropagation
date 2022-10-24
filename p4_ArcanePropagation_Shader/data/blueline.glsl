@@ -232,6 +232,26 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	return c;
 }
 
+/* SETTINGS  */
+/* — emap   : C4Z|C4B|C3M|C3Z                               — */
+/* — state  : normal|inverse                                — */
+/* — theme  : red|green|blue|yellow|yellowbrick|rblue|gred  — */
+/* — alpha  : alpha1|alphaC|alphaY                          — */
+/* — shape  : GEO|NOGEO                                     — */
+/* — grader : GRADE|NOGRADE|SOURCE                          — */
+
+struct settings
+{
+	int emap;  /* Select energy and gangle mapping function */
+	int state; /* Use original image or color negated image */
+	int theme; /* Specify color theme */
+	int alpha; /* Select alpha interpretation */
+	int shape; /* Specify wheter to rotate pixel or not */
+	int grader; /* Specify whether to use the theme or not */
+};
+
+settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
+
 void main( void ) {
 	
 	vec2 position = ( gl_FragCoord.xy / resolution.xy ) * displayscale;
@@ -242,29 +262,13 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	
-	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
-	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
-	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,2 PI, E)          |
-	pushEnergyAngle(C4Z);
+	pushEnergyAngle(setting.emap);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
 	
-	//| points   | _pointorbit       |
 	pushgeo(points, position);
-	
-	//|                       ARG1                                 |
-	//| normal   | grade                                           |
-	//| inverse  | 1 - grade                                       |
-	//|                       ARG2                                 |
-	//| red | green | blue | yellow | yellowbrick |  rblue | gred  |
-	//|                       ARG3                                 |
-	//| alpha1   | alpha => 1.0                                    |
-	//| alphaC   | alpha => color.a                                |
-	//| alphaY   | alpha => energy                                 |
-	pushgrade(normal, rblue, alpha1);
-	
-	//| GEO   / NOGEO            | shape or 1.0           |
-	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(GEO, GRADE, position);
+	pushgrade(setting.state, setting.theme, setting.alpha);
+
+	gl_FragColor = pushfrag(setting.shape, setting.grader, position);
 	}

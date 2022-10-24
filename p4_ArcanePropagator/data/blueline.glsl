@@ -243,17 +243,24 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 }
 
 /* SETTINGS  */
-/* — energy angle map — */
-/* — C4Z|C4B|C3M|C3Z — */
-int emap  = C4B;
-/* — grade — */
-/* — normal|inverse, red|green|blue|yellow|yellowbrick|rblue|gred, alpha1|alphaC|alphaY — */
-int state = normal, theme = rblue, alpha = alphaY;
-/* — frag — */
-/* — GEO|NOGEO, GRADE|NOGRADE|SOURCE — */
-int shape = GEO, grader = GRADE;
+/* — emap   : C4Z|C4B|C3M|C3Z                               — */
+/* — state  : normal|inverse                                — */
+/* — theme  : red|green|blue|yellow|yellowbrick|rblue|gred  — */
+/* — alpha  : alpha1|alphaC|alphaY                          — */
+/* — shape  : GEO|NOGEO                                     — */
+/* — grader : GRADE|NOGRADE|SOURCE                          — */
 
-/* TODO: make some structs for these settings ^^ */
+struct settings
+{
+	int emap;  /* Select energy and gangle mapping function */
+	int state; /* Use original image or color negated image */
+	int theme; /* Specify color theme */
+	int alpha; /* Select alpha interpretation */
+	int shape; /* Specify wheter to rotate pixel or not */
+	int grader; /* Specify whether to use the theme or not */
+};
+
+settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
 
 void main( void ) {
 	
@@ -265,13 +272,13 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	
-	pushEnergyAngle(emap);
+	pushEnergyAngle(setting.emap);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
 	
 	pushgeo(points, position);
-	pushgrade(state, theme, alpha);
+	pushgrade(setting.state, setting.theme, setting.alpha);
 	
-	gl_FragColor = pushfrag(shape, grader, position);
+	gl_FragColor = pushfrag(setting.shape, setting.grader, position);
 	}
