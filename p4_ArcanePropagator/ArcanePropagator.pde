@@ -96,6 +96,11 @@ class ArcanePropagator{
 	void show(){
 		ar.show(this); /* should just display an image (what about point orbit though w/ geo?)*/
 	}
+
+	void draw(){
+		af.kernelmap(this);
+		ar.show(this);
+	}
 }
 /* 
 
