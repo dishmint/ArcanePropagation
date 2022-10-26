@@ -43,11 +43,11 @@ class ArcaneRender {
 			};
 		};
 
-	void setGeo(PImage source){	
-			renderer = (simg, ds) -> {
-				geoRenderer(simg);
-			};
-		};
+	//void setGeo(PImage source){
+	//		renderer = (simg, ds) -> {
+	//			geoRenderer(simg);
+	//		};
+	//	};
 	
 	float computeGS(color px){
 		float rpx = px >> 16 & 0xFF;
@@ -114,7 +114,7 @@ class ArcaneRender {
 				setShader(source);
 				break;
 			case "geo":
-				setGeo(source);
+				//setGeo(source); /* TODO: implement setGeo */
 				break;
 			default:
 				setShader(source);
