@@ -1,5 +1,6 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
+import processing.video.*;
 PImage simg;
 int kernelWidth;
 ArcanePropagator parc;
@@ -22,16 +23,16 @@ void setup(){
 	// frameRate(1);
 	
 	/* IMAGE SETUP */
-	// simg = loadImage("./imgs/universe.jpg");
+	simg = loadImage("./imgs/universe.jpg");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	int dimw = int(width * 0.5), dimh = int(height * 0.95);
+	// int dimw = int(width * 0.5), dimh = int(height * 0.95);
 	// simg = randomImage(dimw, dimh);
 	// simg = noiseImage(dimw, dimh, 3, 0.6);
-	simg = kuficImage(dimw, dimh);
+	// simg = kuficImage(dimw, dimh);
 
 	// simg.filter(GRAY);
 	// simg.filter(THRESHOLD);

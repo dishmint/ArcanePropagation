@@ -1,4 +1,5 @@
 class ArcanePropagator{
+	Consumer<ArcanePropagator> updater;
 	/* VARS */
 	int kernelwidth;
 	float scalefactor;
@@ -108,6 +109,33 @@ class ArcanePropagator{
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
 		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
+
+		updater = (ap) -> {
+			ap.update();
+		};
+	}
+
+	ArcanePropagator(Movie m, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
+		/* SETUP VARS */
+		kernelwidth = kw;
+		scalefactor = sf;
+		xfactor = xf;
+		displayScale = ds;
+		/* SETUP IMAGE */
+		m.read();
+		PImage img = m;
+		source = resize(m);		
+		ximage = loadxm(source);
+		/* SETUP FILTER */
+		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
+		/* SETUP RENDERER */
+		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
+
+		updater = (ap) -> {
+			m.read();
+			ap.source = m;
+			ap.update();
+		};
 	}
 
 	void update(){
@@ -119,7 +147,7 @@ class ArcanePropagator{
 	}
 
 	void draw(){
-		af.kernelmap(this);
+		updater.accept(this);
 		ar.show(this);
 	}
 }
