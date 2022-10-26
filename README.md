@@ -1,6 +1,6 @@
 # Arcane Propagation
 
-* Transmit pixel values across images
+* Transmit (diffuse) pixel values across images
 * Draw a point rotating around a pixel's origin by an `ANGLE` determined by the pixel's value.
 
 The most complete version of the exploration would be this p4 implementation: // [p4_ArcanePropagator](./p4_ArcanePropagator/) //
