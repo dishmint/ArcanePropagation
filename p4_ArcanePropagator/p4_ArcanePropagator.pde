@@ -2,6 +2,7 @@
 // AUTHOR: Faizon Zaman
 import processing.video.*;
 PImage simg;
+Movie mv;
 int kernelWidth;
 ArcanePropagator parc;
 float scalefac,xsmnfactor,displayscale;
@@ -76,6 +77,10 @@ void setup(){
 	/* afilter = transmit|transmitMBL|convolve|collatz|rdf|rdft|rdfx|blur|dilate */
 	String afilter = "rdf"; 
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	
+	// mv = new Movie(this, "./videos/20220808-200543.mov");
+	// mv.loop();
+	// parc = new ArcanePropagator(mv, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 }
 
 void draw(){

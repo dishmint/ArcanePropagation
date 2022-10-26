@@ -11,6 +11,7 @@ class ArcanePropagator{
 	ArcaneFilter af;
 	/* RENDER */
 	ArcaneRender ar;
+	Movie arcfilm;
 
 	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -121,10 +122,10 @@ class ArcanePropagator{
 		scalefactor = sf;
 		xfactor = xf;
 		displayScale = ds;
-		/* SETUP IMAGE */
-		m.read();
-		PImage img = m;
-		source = resize(m);		
+		/* SETUP MOVIE */
+		arcfilm = m;
+		arcfilm.read();
+		source = resize(arcfilm);
 		ximage = loadxm(source);
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
@@ -132,8 +133,10 @@ class ArcanePropagator{
 		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
 
 		updater = (ap) -> {
-			m.read();
-			ap.source = m;
+			if(arcfilm.available()){
+				arcfilm.read();
+			}
+			ap.source = resize(arcfilm);
 			ap.update();
 		};
 	}

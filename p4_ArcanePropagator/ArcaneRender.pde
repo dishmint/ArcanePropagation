@@ -121,6 +121,7 @@ class ArcaneRender {
 				break;
 		}
 	}
+
 	void bufferDraw(){
 		buffer.beginDraw();
 		buffer.background(0);
