@@ -244,8 +244,8 @@ class ArcaneFilter {
 
 			https://editor.p5js.org/codingtrain/sketches/govdEW5aE
 		*/
-		a += (dA * la) - (a * pow(b,2.0)) + (fr * (1. - a));
-		b += (dB * lb) + (a * pow(b,2.0)) - ((kr + fr) * b);
+		a += (dA * la) - (a * b * b) + (fr * (1 - a));
+		b += (dB * lb) + (a * b * b) - ((kr + fr) * b);
 		result[0] = a; 
 		result[1] = b; 
 		return result;
