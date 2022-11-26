@@ -11,15 +11,17 @@ class ArcanePropagator {
 
         this.offset = (this.kw/2)
         /* IMAGE */
-        this.source = this.resize(img)
-        this.ximage = this.loadxm(source)
+        img.loadPixels()
+        this.source = this.imagefit(img)
+        img.updatePixels()
+        this.ximage = this.loadxm(this.source)
         /* GUTS */
         this.af = new ArcaneFilter(this)
         this.ar = new ArcaneRender(img, this.rm, "blueline.glsl", this.ds)
 
-        this.updater = () => {
-            this.update()
-        }
+        // this.updater = (ap) => {
+        //     ap.update()
+        // }
     }
 
     update(){
@@ -31,13 +33,13 @@ class ArcanePropagator {
     }
 
     draw(){
-        this.updater(this)
+        this.update()
         this.ar.show()
     }
 
-    resize(imageToResize){
-        let sw = imageToResize.pixelWidth
-        let sh = imageToResize.pixelHeight
+    imagefit(imageToResize){
+        let sw = imageToResize.width /* pw etc were not valid properties */
+        let sh = imageToResize.height
         let sc = min(width/sw, height/sh)
         
         let nw = round(sw*sc)
@@ -60,19 +62,19 @@ class ArcanePropagator {
     }
 
     loadxm(img){
-        let xms = new Array(img.pixelWidth*img.pixelHeight)
+        let xms = new Array(img.width*img.height)
         let knl = new Array(this.kw)
         img.loadPixels()
         xms.forEach((column, i) => {
             column.forEach((row, j) => {
-                const index = constrain(i+j*img.pixelWidth, 0, img.pixels.length-1)
+                const index = constrain(i+j*img.width, 0, img.pixels.length-1)
                 for (let k = 0; k < this.kw; k++) {
                     knl.push([])
                     for (let l = 0; l < this.kw; l++) {
                         knl[k].push([])
                         const xloc = i+k-this.offset
                         const yloc = j+l-this.offset
-                        const loc = constrain(xloc+imgpixelWidth*yloc, 0, img.pixels.length-1)
+                        const loc = constrain(xloc+img.width*yloc, 0, img.pixels.length-1)
 
                         cpx = img.pixels[loc]
                         gs  = this.computeGS(cpx)

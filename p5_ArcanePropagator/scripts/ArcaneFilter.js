@@ -1,6 +1,6 @@
 class ArcaneFilter {
     constructor(arcprop) {
-        this.propagator = acrprop
+        this.propagator = arcprop
         switch (this.propagator.fm) {
             case "transmit":
                 this.arcfilter = this.transmit
