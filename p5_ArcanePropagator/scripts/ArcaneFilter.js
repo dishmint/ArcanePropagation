@@ -99,9 +99,9 @@ class ArcaneFilter {
             for (let l= 0; l < this.propagator.kw; l++){
                 let xloc = x+k-this.propagator.offset;
                 let yloc = y+l-this.propagator.offset;
-                const loc = constrain((xloc + img.pixelWidth*yloc),0,img.pixels.length-1);
-
-                xmsn = (xmg[loc][k][l] / this.propagator.xf);
+                const loc = parseInt(constrain((xloc + img.width*yloc),0,img.pixels.length-1));
+                console.log(k,l)
+                let xmsn = (xmg[loc][k][l] / this.propagator.xf);
 
                 if(xloc == x && yloc == y){
                         rpx -= (rpx * xmsn)
@@ -121,11 +121,11 @@ class ArcaneFilter {
 
     customfilter(img, ximg){
         img.loadPixels()
-        img.forEach((column, i) => {
-            column.forEach((row, j) => {
+        for (let i = 0; i < img.width; i++){
+            for(let j = 0; j < img.height; j++){
                 this.arcfilter(i,j,img,ximg)
-            });
-        });
+            }
+        }
         img.updatePixels()
     }
 

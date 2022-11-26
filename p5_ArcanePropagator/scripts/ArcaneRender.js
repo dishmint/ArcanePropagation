@@ -23,14 +23,14 @@ class ArcaneRender {
 
     setShader(){
         this.blueline = loadShader(this.shaderPath)
-        this.blueline.set("ascpet", this.source.width/this.source.height)
-        this.blueline.set("tex0", this.source)
-        this.blueline.set("displayscale", 1.0/displayDensity())
+        this.blueline.setUniform("ascpet", this.source.width/this.source.height)
+        this.blueline.setUniform("tex0", this.source)
+        this.blueline.setUniform("displayscale", 1.0/displayDensity())
         
-        this.blueline.set("resolution", 1000.0 * this.buffer.width, 1000.0 * this.buffer.height)
-        this.blueline.set("unitsize", 1.00)
-        this.blueline.set("tfac", 1.00)
-        this.blueline.set("rfac", 1.00)
+        this.blueline.setUniform("resolution", 1000.0 * this.buffer.width, 1000.0 * this.buffer.height)
+        this.blueline.setUniform("unitsize", 1.00)
+        this.blueline.setUniform("tfac", 1.00)
+        this.blueline.setUniform("rfac", 1.00)
 
         this.renderer = (simg, ds) => {
             this.blueline.set("tex0", simg)

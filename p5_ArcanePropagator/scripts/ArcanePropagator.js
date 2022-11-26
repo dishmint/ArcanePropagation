@@ -50,9 +50,9 @@ class ArcanePropagator {
     }
 
     computeGS(pixel){
-        rpx = pixel >> 16 & 0xFF
-		gpx = pixel >> 8 & 0xFF
-		bpx = pixel & 0xFF
+        let rpx = pixel >> 16 & 0xFF
+		let gpx = pixel >> 8 & 0xFF
+		let bpx = pixel & 0xFF
 
         return (
             0.2989 * rpx +
@@ -63,28 +63,26 @@ class ArcanePropagator {
 
     loadxm(img){
         let xms = new Array(img.width*img.height)
-        let knl = new Array(this.kw)
+        let knl = [...Array(this.kw)].map(e => Array(this.kw))
         img.loadPixels()
-        xms.forEach((column, i) => {
-            column.forEach((row, j) => {
+        for(let i = 0; i < img.width; i++) {
+            for(let j = 0; j < img.height; j++){
                 const index = constrain(i+j*img.width, 0, img.pixels.length-1)
                 for (let k = 0; k < this.kw; k++) {
-                    knl.push([])
                     for (let l = 0; l < this.kw; l++) {
-                        knl[k].push([])
                         const xloc = i+k-this.offset
                         const yloc = j+l-this.offset
                         const loc = constrain(xloc+img.width*yloc, 0, img.pixels.length-1)
 
-                        cpx = img.pixels[loc]
-                        gs  = this.computeGS(cpx)
+                        let cpx = img.pixels[loc]
+                        let gs  = this.computeGS(cpx)
                         knl[k][l] = map(gs, 0, 1, -1, 1) 
                         // knl[k][l] = map(gs, 0, 1, -1*this.sf, 1*this.sf) 
                     }
                 }
-                xms.push(knl)
-            });
-        });
+                xms[index] = knl
+            };
+        };
         img.updatePixels()
         return xms
     }
