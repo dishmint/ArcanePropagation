@@ -2,7 +2,6 @@
     Making use of this article to implement functional interfaces
     https://dzone.com/articles/functional-programming-in-java-8-part-1-functions-as-objects
 */
-
 import java.util.function.*;
 import java.util.Arrays;
 @FunctionalInterface
@@ -616,7 +615,11 @@ class ArcaneFilter {
                 arcprop.source.filter(INVERT);
                 break;
             default:
-                customfilter(arcprop.source, arcprop.ximage);
+				if(arcprop.soundOff){
+                	customfilter(arcprop.source, arcprop.ximage, arcprop.sine);
+				} else {
+					customfilter(arcprop.source, arcprop.ximage);
+				}
                 break;
         }
 
@@ -627,12 +630,36 @@ class ArcaneFilter {
         img.loadPixels();
         for (int i = 0; i < img.pixelWidth; i++){
             for (int j = 0; j < img.pixelHeight; j++){
-				// img.loadPixels(); /* not sure if these load/updates are necessary here */
-				
 				arcfilter.filter(i,j,img,ximg);
-				// img.updatePixels();
             }
         }
         img.updatePixels();
+    }
+
+    void customfilter(PImage img, float[][][] ximg, SinOsc sine){
+		float savg = 0.0;
+		
+        img.loadPixels();
+        for (int i = 0; i < img.pixelWidth; i++){
+            for (int j = 0; j < img.pixelHeight; j++){
+				arcfilter.filter(i,j,img,ximg);
+
+				int sloc = i+j*img.pixelWidth;
+				sloc = constrain(sloc,0,img.pixels.length-1);
+				color spx = img.pixels[sloc];
+						
+				float srpx = sin(map(spx >> 16 & 0xFF, 0, 255, 0, 2.0 * PI));
+				float sgpx = sin(map(spx >> 8 & 0xFF , 0, 255, 0, 2.0 * PI));
+				float sbpx = sin(map(spx & 0xFF      , 0, 255, 0, 2.0 * PI));
+				savg += (srpx+sgpx+sbpx) / 3.0;
+            }
+        }
+        img.updatePixels();
+		/*
+			The values of savg are between 0 and 255
+			I don't understand why atm, but I'm getting the behavior I expect when I assume that's the case.
+		*/
+		savg = map(savg, 0.0, 255.0, 110.0, 220.0);
+		sine.freq(savg);
     }
 }
