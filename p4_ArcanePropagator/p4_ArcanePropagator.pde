@@ -26,8 +26,8 @@ void setup(){
 	// frameRate(1);
 	
 	/* IMAGE SETUP */
-	// simg = loadImage("./imgs/universe.jpg");
-	simg = loadImage("./imgs/nestedsquare.png");
+	simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
@@ -79,7 +79,7 @@ void setup(){
 	aud = new SinOsc(this);
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdfr|rdft|rdfx|blur|dilate */
-	String afilter = "rdfr"; 
+	String afilter = "rdf"; 
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale, aud);
 	parc.soundoff(true);
 	// mv = new Movie(this, "./videos/20220808-200543.mov");
