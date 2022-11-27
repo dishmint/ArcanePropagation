@@ -13,6 +13,10 @@ class ArcanePropagator{
 	ArcaneRender ar;
 	Movie arcfilm;
 
+	/* Aurate */
+	SinOsc sine;
+	boolean soundOff;
+
 	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 		float sw = (float)img.pixelWidth;
@@ -97,7 +101,7 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds, SinOsc siner){
 		/* SETUP VARS */
 		kernelwidth = kw;
 		scalefactor = sf;
@@ -110,6 +114,10 @@ class ArcanePropagator{
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
 		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
+		/* SETUP AURATOR */
+		sine = siner;
+		sine.amp(0.0);
+		soundOff = false;
 
 		updater = (ap) -> {
 			ap.update();
@@ -139,6 +147,15 @@ class ArcanePropagator{
 			ap.source = resize(arcfilm);
 			ap.update();
 		};
+	}
+
+	void soundoff(boolean yesno){
+		soundOff = yesno;
+		if(soundOff){
+			sine.freq(0);
+			sine.amp(0.5);
+			sine.play();
+		}
 	}
 
 	void update(){
