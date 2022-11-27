@@ -1,8 +1,10 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
 import processing.video.*;
+import processing.sound.*;
 PImage simg;
 Movie mv;
+SinOsc aud;
 int kernelWidth;
 ArcanePropagator parc;
 float scalefac,xsmnfactor,displayscale;
@@ -74,10 +76,12 @@ void setup(){
 	/* TODO: ^^ dispersion needs to be setup  */
 	displayscale = 1.0 /* * 0.5 */;
 
+	aud = new SinOsc(this);
+
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdfr|rdft|rdfx|blur|dilate */
 	String afilter = "rdfr"; 
-	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
-	
+	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale, aud);
+	parc.soundoff(true);
 	// mv = new Movie(this, "./videos/20220808-200543.mov");
 	// mv.loop();
 	// parc = new ArcanePropagator(mv, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
