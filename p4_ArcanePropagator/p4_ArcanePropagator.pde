@@ -26,12 +26,13 @@ void setup(){
 	// frameRate(1);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("./imgs/universe.jpg");
 	// simg = loadImage("./imgs/nestedsquare.png");
 	// simg = loadImage("./imgs/enter.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
 	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+
 	// int dimw = int(width * 0.5), dimh = int(height * 0.95);
 	// simg = randomImage(dimw, dimh);
 	// simg = noiseImage(dimw, dimh, 12, 0.06);
@@ -57,9 +58,9 @@ void setup(){
 	 */
 	// kernelWidth = 1;
 	// kernelWidth = 2;
-	// kernelWidth = 3;
+	kernelWidth = 3;
 	// kernelWidth = 4;
-	kernelWidth = 5; /* seems to be special for rdf */
+	// kernelWidth = 5; /* seems to be special for rdf */
 	// kernelWidth = 9; 
 
 	/* Determine the leak-rate (transmission factor) of each pixel */
@@ -79,9 +80,9 @@ void setup(){
 	aud = new SinOsc(this);
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdfr|rdft|rdfx|blur|dilate */
-	String afilter = "rdf"; 
+	String afilter = "convolve"; 
 	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale, aud);
-	parc.soundoff(true);
+	parc.soundoff(false);
 	// mv = new Movie(this, "./videos/20220808-200543.mov");
 	// mv.loop();
 	// parc = new ArcanePropagator(mv, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);

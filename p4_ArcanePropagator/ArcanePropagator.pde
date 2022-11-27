@@ -34,16 +34,17 @@ class ArcanePropagator{
 		float gpx = px >> 8 & 0xFF;
 		float bpx = px & 0xFF;
 		
-		return (
+		return map((
 				0.2989 * rpx +
 				0.5870 * gpx +
 				0.1140 * bpx
-				) / 255.0;
-		// return (
+				) / 3.0, 0.0, 255.0, 0.0, 1.0);
+		
+		// return map((
 		// 		rpx +
 		// 		gpx +
 		// 		bpx
-		// 		) / 255.0;
+		// 		) / 3.0, 0.0, 255.0, 0.0, 1.0);
 	}
 	
 	float[][][] loadxm(PImage img) {
