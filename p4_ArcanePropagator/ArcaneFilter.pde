@@ -122,6 +122,54 @@ class ArcaneFilter {
         				}
         				img.pixels[sloc] = color(rpx,gpx,bpx);
 					};
+
+    /* amble */
+	ArcaneProcess amble = (x, y, img, xmg) -> {
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
+        
+        			float rpx = cpx >> 16 & 0xFF;
+        			float gpx = cpx >> 8 & 0xFF;
+        			float bpx = cpx & 0xFF;
+
+					float avg = map((rpx+gpx+bpx)/3.0, 0, 255, 0, 1);
+
+        			int offset = kernelwidth / 2;
+					if(avg < 0.5){
+						for (int k = 0; k < kernelwidth; k++){
+							for (int l= 0; l < kernelwidth; l++){
+								if(avg < ((k * l) / Math.pow(kernelwidth, 2.))){
+									int xloc = x+k-offset;
+									int yloc = y+l-offset;
+									int loc = xloc + img.pixelWidth*yloc;
+									loc = constrain(loc,0,img.pixels.length-1);
+									float xmsn = (xmg[loc][k][l] / transmissionfactor);
+
+									color icpx = img.pixels[loc];
+
+									float irpx = icpx >> 16 & 0xFF;
+									float igpx = icpx >> 8 & 0xFF;
+									float ibpx = icpx & 0xFF;
+
+									if(xloc == x && yloc == y){
+											rpx -= (rpx * xmsn) * l;
+											gpx -= (gpx * xmsn) * l;
+											bpx -= (bpx * xmsn) * l;
+										} else {
+											rpx += (irpx * xmsn) * l;
+											gpx += (igpx * xmsn) * l;
+											bpx += (ibpx * xmsn) * l;
+										}
+									}
+								}
+							}
+							img.pixels[sloc] = color(rpx,gpx,bpx);
+						} else {
+							img.pixels[sloc] = color(255,255,255);
+						}
+					};
  	
     /* convolve */
 	ArcaneProcess convolve = (x, y, img, xmg) -> {
@@ -489,6 +537,9 @@ class ArcaneFilter {
 		    case "transmitMBL":
 		    	arcfilter = transmitMBL;
 		    	break;
+		    case "amble":
+		    	arcfilter = amble;
+		    	break;
 		    case "collatz":
 		    	arcfilter = collatz;
 		    	break;
@@ -499,6 +550,14 @@ class ArcaneFilter {
 				dB = 0.50;
 				fr = 0.055;
 				kr = 0.062;
+		    	break;
+		    case "rdfr":
+		    	arcfilter = rdf;
+				rdfkernel = createrdfkernel();
+				dA = random(1.00);
+				dB = random(1.00);
+				fr = random(1.00);
+				kr = random(1.00);
 		    	break;
 		    case "rdft":
 		    	arcfilter = rdft;
