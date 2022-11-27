@@ -651,11 +651,15 @@ class ArcaneFilter {
 				float srpx = sin(map(spx >> 16 & 0xFF, 0, 255, 0, 2.0 * PI));
 				float sgpx = sin(map(spx >> 8 & 0xFF , 0, 255, 0, 2.0 * PI));
 				float sbpx = sin(map(spx & 0xFF      , 0, 255, 0, 2.0 * PI));
-				savg += (srpx+sgpx+sbpx)/img.pixels.length;
-				
+				savg += (srpx+sgpx+sbpx) / 3.0;
             }
         }
         img.updatePixels();
+		/*
+			The values of savg are between 0 and 255
+			I don't understand why atm, but I'm getting the behavior I expect when I assume that's the case.
+		*/
+		savg = map(savg, 0.0, 255.0, 110.0, 220.0);
 		sine.freq(savg);
     }
 }

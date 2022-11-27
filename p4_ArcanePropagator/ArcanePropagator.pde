@@ -116,7 +116,7 @@ class ArcanePropagator{
 		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
 		/* SETUP AURATOR */
 		sine = siner;
-		sine.amp(0.5);
+		sine.amp(0.0);
 		soundOff = false;
 
 		updater = (ap) -> {
@@ -152,6 +152,8 @@ class ArcanePropagator{
 	void soundoff(boolean yesno){
 		soundOff = yesno;
 		if(soundOff){
+			sine.freq(0);
+			sine.amp(0.5);
 			sine.play();
 		}
 	}
