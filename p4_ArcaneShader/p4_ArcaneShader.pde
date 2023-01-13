@@ -16,11 +16,12 @@ void setup(){
 	size(1422,800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
-	// pixelDensity(displayDensity());
-	pixelDensity(1);
+	pixelDensity(displayDensity());
+	// pixelDensity(1);
 	hint(ENABLE_STROKE_PURE);
 
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/buildings.jpg");
 		
 	// simg.filter(GRAY);
 	// simg.filter(POSTERIZE, 4);
@@ -66,7 +67,7 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = true;
+	dispersed = false;
 	displayscale = 1.0;
 	// displayscale = 0.5;
 	
@@ -82,6 +83,7 @@ void setup(){
 	
 	// the unitsize determines the dimensions of a pixels for the shader
 	blueline.set("unitsize", 1.00);
+	blueline.set("densityscale", 1.00/displayDensity());
 	// the thickness used to determine a points position is determined by thickness/tfac
 	blueline.set("tfac", 1.0);
 	
@@ -94,8 +96,8 @@ void setup(){
 	
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
-	// blueline.set("rfac", 1.00000);
-	blueline.set("rfac", 1.0625);
+	blueline.set("rfac", 1.0);
+	// blueline.set("rfac", 1.0625);
 	// blueline.set("rfac", 1.25);
 	// blueline.set("rfac", 1.300000);
 	
@@ -116,7 +118,7 @@ void setup(){
 }
 
 void draw(){
-	// selectDraw("convolve");
+	selectDraw("convolve");
 	// selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
@@ -124,7 +126,7 @@ void draw(){
 	// selectDraw("blur");
 	// selectDraw("dilate");
 	// selectDraw("gol");
-	selectDraw("chladni"); /* This should be set in Setup. Therein lies the utility of objects */
+	// selectDraw("chladni"); /* This should be set in Setup. Therein lies the utility of objects */
 }
 
 void selectDraw(String selector){
@@ -291,7 +293,6 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			int loc = xloc + img.width*yloc;
 			
 			loc = constrain(loc,0,img.pixels.length-1);
-			// TODO: should gs be computed with a different divisor. 3? or should I just take the natural mean values instead of the graded grayscale?
 			
 			color cpx = img.pixels[loc];
 			

@@ -28,8 +28,8 @@ class ArcaneRender {
 			- rfac >= 1.5 == black screen
 			- rfac == 0.0 == 1:1
 			*/
-			// blueline.set("rfac", 0.0); 
-			blueline.set("rfac", 1.00000); /* default */
+			blueline.set("rfac", 0.0); 
+			// blueline.set("rfac", 1.00000); /* default */
 			// blueline.set("rfac", 1.015625); 
 			// blueline.set("rfac", 1.03125); 
 			// blueline.set("rfac", 1.0625); 
