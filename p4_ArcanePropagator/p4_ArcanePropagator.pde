@@ -1,10 +1,8 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
-import processing.video.*;
-import processing.sound.*;
 PImage simg;
-Movie mv;
-SinOsc aud;
+ArcaneGenerator arcgen;
+
 int kernelWidth;
 ArcanePropagator parc;
 float scalefac,xsmnfactor,displayscale;
@@ -13,133 +11,40 @@ boolean dispersed;
 
 void setup(){
 	/* WINDOW SETUP */
-	// size(100, 100, P3D);
-	// size(700, 350, P3D);
-	// size(900, 900, P3D);
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
-	// pixelDensity(1);
+
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	background(0);
-	// frameRate(1);
+	// TODO: GUI: Set Framerate : frameRate(1);
 	
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
-	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = loadImage("./imgs/enter.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// arcgen = new ArcaneGenerator("random", width, height);
+	// simg = arcgen.getImage();
 
-	// int dimw = int(width * 0.5), dimh = int(height * 0.95);
-	// simg = randomImage(dimw, dimh);
-	// simg = noiseImage(dimw, dimh, 12, 0.06);
-	// simg = kuficImage(dimw, dimh);
-
-	// simg.filter(GRAY);
-	// simg.filter(THRESHOLD);
-	/*
-		sf: Divisor which affects the pixel's x-strength
-
-		It's not clear yet when this value has more effect, as transmission can also be affected by kernelWidth and xsmnfactor, or the image size it looks like.
-
-	*/
-	float sf = 0000.0625;   /* 010.20 */
-	// float sf = 0000.125;   /* 010.20 */
-	// float sf = 0000.25;   /* 010.20 */
-	// float sf = 0756.00;   /* 000.33 */
-	scalefac = 255./sf;
+	float sfdivisor = 1.0f / 16;
+	scalefac = 255.0f * sfdivisor;
 	/* 
-		kw specifies the kernel area.
+		kernelWidth is the kernelsize
 
-		on rdf, any kw above 9 appears static, kw of 5 is the most interesting.
+		as kw ⬆️ more pixels involved in convolution
+		as kw ⬇️ less pixels involved in convolution
 	 */
-	// kernelWidth = 1;
-	// kernelWidth = 2;
-	kernelWidth = 3;
-	// kernelWidth = 4;
-	// kernelWidth = 5; /* seems to be special for rdf */
-	// kernelWidth = 9; 
+	// kernelWidth = 1~n; 5 is best for rdf
+	kernelWidth = 5; /* 3 - default */
 
-	/* Determine the leak-rate (transmission factor) of each pixel */
-	// xsmnfactor = pow(kernelWidth, 0.125);
-	// xsmnfactor = pow(kernelWidth, 0.250);
-	// xsmnfactor = pow(kernelWidth, 0.500);
-	// xsmnfactor = kernelWidth;
+	/* Divisor: kernelsum / xsmnfactor */
 	xsmnfactor = pow(kernelWidth, 2.); /* default */
-	// xsmnfactor = pow(kernelWidth, 3.);
-	// xsmnfactor = 255.; 
-	// xsmnfactor = scalefac;
-	
-	// dispersed = true;
-	/* TODO: ^^ dispersion needs to be setup  */
-	displayscale = 1.0 /* * 0.5 */;
 
-	aud = new SinOsc(this);
+	displayscale = 1.0;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdfr|rdft|rdfx|blur|dilate */
-	String afilter = "convolve"; 
-	parc = new ArcanePropagator(simg, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale, aud);
-	parc.soundoff(false);
-	// mv = new Movie(this, "./videos/20220808-200543.mov");
-	// mv.loop();
-	// parc = new ArcanePropagator(mv, afilter, "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	parc = new ArcanePropagator(simg, "rdf", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
 }
 
 void draw(){
 	parc.draw();
 }
-
-PImage randomImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				color c = color(random(255.));
-				int index = (i + j * rimg.width);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage noiseImage(int w, int h, int lod, float falloff){
-	  noiseDetail(lod, falloff);
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
-				int index = (i + j * rimg.width);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage kuficImage(int w, int h){
-		float chance;
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				chance = ((i % 2) + (j % 2));
-				
-				float wallornot = random(2.);
-				int index = (i + j * rimg.width);
-				if(wallornot <= chance){
-						color c = color(0);
-						rimg.pixels[index] = c;
-					} else {
-						color c = color(255-(255*(wallornot/2.)));
-						rimg.pixels[index] = c;
-					}
-				}
-			}
-		rimg.updatePixels();
-		return rimg;
-	}
