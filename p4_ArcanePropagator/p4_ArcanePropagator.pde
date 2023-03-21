@@ -7,8 +7,6 @@ int kernelWidth;
 ArcanePropagator parc;
 float scalefac,xsmnfactor,displayscale;
 
-boolean dispersed;
-
 void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
@@ -18,7 +16,6 @@ void setup(){
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	background(0);
-	// TODO: GUI: Set Framerate : frameRate(1);
 	
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
