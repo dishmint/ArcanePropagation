@@ -23,7 +23,9 @@ void setup(){
 	// simg = arcgen.getImage();
 
 	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	kernelScale = 1.0f / 255.0f;
+	// kernelScale = 1.0f / 255.0f;
+	kernelScale = 1.0f / 1.0f;
+	// kernelScale = 1.0f / 0.098f;
 	
 	/* 
 		kernelWidth is the kernelsize
@@ -38,11 +40,12 @@ void setup(){
 	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
 	// xsmnfactor = 1.0f / kernelWidth;
 	// xsmnfactor = kernelWidth;
+	// xsmnfactor = kernelScale;
 
 	displayscale = 1.0;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "convolve", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale);;
+	parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale);;
 }
 
 void draw(){
