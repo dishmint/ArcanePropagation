@@ -2,7 +2,7 @@ class ArcanePropagator{
 	Consumer<ArcanePropagator> updater;
 	/* VARS */
 	int kernelwidth;
-	float scalefactor;
+	float kernelScale;
 	float xfactor;
 	/* IMAGE */
 	PImage source;
@@ -65,7 +65,8 @@ class ArcanePropagator{
 
 						float gs = computeGS(cpx);
 
-						kernel[k][l] = map(gs, 0, 1, -1.,1.) /* * scalefactor */;
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) /* * kernelScale */;
+						kernel[k][l] = map(gs, 0, 1, -1.,1.) * kernelScale;
 
 						}
 					}
@@ -77,10 +78,10 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float ks, float xf, float ds){
 		/* SETUP VARS */
 		kernelwidth = kw;
-		scalefactor = sf;
+		kernelScale = ks;
 		xfactor = xf;
 		displayScale = ds;
 		/* SETUP IMAGE */

@@ -42,7 +42,7 @@ class ArcaneFilter {
         			        int yloc = y+l-offset;
         			        int loc = xloc + img.pixelWidth*yloc;
         			        loc = constrain(loc,0,img.pixels.length-1);
-        			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
+        			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
         			        // if(xloc == x && yloc == y){
 							// 		rpx -= xmsn;
@@ -86,7 +86,7 @@ class ArcaneFilter {
         			        int yloc = y+l-offset;
         			        int loc = xloc + img.pixelWidth*yloc;
         			        loc = constrain(loc,0,img.pixels.length-1);
-        			        float xmsn = (xmg[loc][k][l] / transmissionfactor);
+        			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
         			        if(xloc == x && yloc == y){
 									rpx -= (rpx * xmsn);
@@ -97,26 +97,6 @@ class ArcaneFilter {
 									gpx += xmsn;
 									bpx += xmsn;
         			        	}
-
-        			        // if(xloc == x && yloc == y){
-							// 		rpx -= (rpx * xmsn) * l;
-							// 		gpx -= (gpx * xmsn) * l;
-							// 		bpx -= (bpx * xmsn) * l;
-        			        //     } else {
-							// 		rpx += (xmsn * l);
-							// 		gpx += (xmsn * l);
-							// 		bpx += (xmsn * l);
-        			        // 	}
-
-        			        // if(xloc == x && yloc == y){
-							// 		rpx -= (rpx * xmsn) * (kernelwidth - l);
-							// 		gpx -= (gpx * xmsn) * (kernelwidth - l);
-							// 		bpx -= (bpx * xmsn) * (kernelwidth - l);
-        			        //     } else {
-							// 		rpx += (xmsn * (kernelwidth - l));
-							// 		gpx += (xmsn * (kernelwidth - l));
-							// 		bpx += (xmsn * (kernelwidth - l));
-        			        // 	}
         			    	}
         				}
         				img.pixels[sloc] = color(rpx,gpx,bpx);
@@ -144,7 +124,7 @@ class ArcaneFilter {
 									int yloc = y+l-offset;
 									int loc = xloc + img.pixelWidth*yloc;
 									loc = constrain(loc,0,img.pixels.length-1);
-									float xmsn = (xmg[loc][k][l] / transmissionfactor);
+									float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
 									color icpx = img.pixels[loc];
 
@@ -174,13 +154,7 @@ class ArcaneFilter {
 	ArcaneProcess convolve = (x, y, img, xmg) -> {
 					int sloc = x+y*img.pixelWidth;
 					sloc = constrain(sloc,0,img.pixels.length-1);
-					/* 
-						// Instead of starting from 0, I'm starting from the current pixel (line:105)
-						float rtotal = 0.0;
-						float gtotal = 0.0;
-						float btotal = 0.0;
-					*/
-
+					
 					color spx = img.pixels[sloc];
 					float rspx = spx >> 16 & 0xFF;
 					float gspx = spx >> 8 & 0xFF;
@@ -199,22 +173,8 @@ class ArcaneFilter {
 							int loc = xloc + img.pixelWidth*yloc;
 							loc = constrain(loc,0,img.pixels.length-1);
 							
-							float xmsn = (xmg[loc][i][j] / transmissionfactor);
+							float xmsn = (xmg[loc][i][j] * transmissionfactor);
 
-							/* some xmsn variants */
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * i;
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * j;
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - (i * j);
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - (i + j);
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (i + j);
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * ((i-offset) + (j-offset));
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (offset - i);
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * (offset - j);
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) - ((i*j)/(kernelwidth*2.0));
-							// float xmsn = (xmg[loc][i][j] / transmissionfactor) * ((abs(i-offset) * abs(j-offset))/kernelwidth);
-							
-							/* since I'm trying to affect the xmg, I could do these ^^ in loadxm. xmg values never change anyway (and maybe that's something I can add later) */
-							
 							color cpx = img.pixels[loc];
 							
 							float rpx = cpx >> 16 & 0xFF;
@@ -230,16 +190,6 @@ class ArcaneFilter {
 								gtotal += (gpx * xmsn);
 								btotal += (bpx * xmsn);
 							}
-							
-							// if(xloc == x && yloc == y){
-							// 	rtotal -= (rpx * xmsn) * j;
-							// 	gtotal -= (gpx * xmsn) * j;
-							// 	btotal -= (bpx * xmsn) * j;
-							// } else {
-							// 	rtotal += (rpx * xmsn) * j;
-							// 	gtotal += (gpx * xmsn) * j;
-							// 	btotal += (bpx * xmsn) * j;
-							// }
 						}
 					}
 					img.pixels[sloc] = color(rtotal, gtotal, btotal);
@@ -339,9 +289,10 @@ class ArcaneFilter {
 						}
 					}
 
-					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
-					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal);
-					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal);
+					/* ------------------------- reaction diffusion one ------------------------- */
+					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal); /* default */
+					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal); /* default */
+					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal); /* default */
 
 					// float[] sr = reactdiffuse(srpx,  sgpx, rtotal, gtotal);
 					// float[] sg = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
@@ -351,7 +302,25 @@ class ArcaneFilter {
 					float newr = sb[1];
 					float newg = sg[0];
 					float newb = sb[0];
+					
+					/* ------------------------- reaction diffusion two ------------------------- */
+				
+					// float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
+					// float[] sr2 = reactdiffuse(sr1[0] ,  sbpx, rtotal, btotal);
 
+
+					// float[] sg1 = reactdiffuse(sr1[1],  sr2[1], gtotal, btotal);
+					// float[] sg2 = reactdiffuse(sg1[0],  sr2[0], gtotal, rtotal);
+
+
+					// float[] sb1 = reactdiffuse(sg1[1], sg2[1], btotal, rtotal);
+					// float[] sb2 = reactdiffuse(sb1[0], sg2[0], btotal, gtotal);
+
+
+					// float newr = (sr1[0] + sr2[0] + sg2[1] + sb1[1]) * 0.5;
+					// float newg = (sr1[1] + sg1[0] + sg2[0] + sb2[1]) * 0.5;
+					// float newb = (sr2[1] + sg1[1] + sb1[0] + sb2[0]) * 0.5;
+					
 					img.pixels[sloc] = color(newr, newg, newb);
 				};
 
@@ -382,7 +351,7 @@ class ArcaneFilter {
 							int loc = xloc + img.pixelWidth*yloc;
 							loc = constrain(loc,0,img.pixels.length-1);
 							
-							float xmsn = rdfkernel[i][j];
+							float xmsn = rdfkernel[i][j] * transmissionfactor;
 							
 							color cpx = img.pixels[loc];
 							
@@ -396,37 +365,20 @@ class ArcaneFilter {
 						}
 					}
 
-					// float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
-					// float[] sr2 = reactdiffuse(srpx ,  sbpx, rtotal, btotal);
+					/* ------------------------- reaction diffusion one ------------------------- */
+					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal); /* default */
+					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal); /* default */
+					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal); /* default */
 
+					// float[] sr = reactdiffuse(srpx,  sgpx, rtotal, gtotal);
+					// float[] sg = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
+					// float[] sb = reactdiffuse(sbpx,  srpx, btotal, rtotal);
 
-					// float[] sg1 = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
-					// float[] sg2 = reactdiffuse(sgpx,  srpx, gtotal, rtotal);
-
-
-					// float[] sb1 = reactdiffuse(sbpx, srpx, btotal, rtotal);
-					// float[] sb2 = reactdiffuse(sbpx, sgpx, btotal, gtotal);
-
-					float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
-					float[] sr2 = reactdiffuse(sr1[0] ,  sbpx, rtotal, btotal);
-
-
-					float[] sg1 = reactdiffuse(sr1[1],  sr2[1], gtotal, btotal);
-					float[] sg2 = reactdiffuse(sg1[0],  sr2[0], gtotal, rtotal);
-
-
-					float[] sb1 = reactdiffuse(sg1[1], sg2[1], btotal, rtotal);
-					float[] sb2 = reactdiffuse(sb1[0], sg2[0], btotal, gtotal);
-
-
-					float newr = (sr1[0] + sr2[0] + sg2[1] + sb1[1]) * 0.5;
-					float newg = (sr1[1] + sg1[0] + sg2[0] + sb2[1]) * 0.5;
-					float newb = (sr2[1] + sg1[1] + sb1[0] + sb2[0]) * 0.5;
+					/* take the latest diffused channel value to be the new channel color */
+					float newr = sb[1];
+					float newg = sg[0];
+					float newb = sb[0];
 					
-					// float newr = sb1[1];
-					// float newg = sb2[1];
-					// float newb = sb2[0];
-
 					img.pixels[sloc] = color(newr, newg, newb);
 				};
  	
@@ -458,9 +410,14 @@ class ArcaneFilter {
 							int loc = xloc + img.pixelWidth*yloc;
 							loc = constrain(loc,0,img.pixels.length-1);
 							
-							// float xmsn = ((xmg[loc][i][j]) * rdfkernel[i][j]) / transmissionfactor;
-							float xmsn = ((xmg[loc][i][j]) * rdfkernel[i][j]);
-							// float xmsn = ((xmg[loc][i][j]) + rdfkernel[i][j]);
+							/* --------------------------- xmg <op> rdfkernel --------------------------- */
+							// float xmsn = xmg[loc][i][j] + rdfkernel[i][j]; /* Makes a triangle w/ nw hypotenuse */
+							
+							/* ------------------------ (xmg <op> rdfkernel) * tf ----------------------- */
+							float xmsn = ((xmg[loc][i][j]) + rdfkernel[i][j]) * transmissionfactor; /* Noise buckets */
+							
+							/* ------------------------ (xmg <op> tf) + rdfkernel ----------------------- */
+							// float xmsn = ((xmg[loc][i][j]) * transmissionfactor) + rdfkernel[i][j]; /* Makes a triangle w/ nw hypotenuse */
 							
 							color cpx = img.pixels[loc];
 							
@@ -468,18 +425,18 @@ class ArcaneFilter {
 							float gpx = cpx >> 8 & 0xFF;
 							float bpx = cpx & 0xFF;
 
+							/* TRY: different ops between _px and xmsn */
+							/* ------------------------------- _px * xmsn ------------------------------- */
 							rtotal += (rpx * xmsn);
 							gtotal += (gpx * xmsn);
 							btotal += (bpx * xmsn);
 
-							// rtotal += (rpx + xmsn);
-							// gtotal += (gpx + xmsn);
-							// btotal += (bpx + xmsn);
-
+							/* ------------------------------- _px - xmsn ------------------------------- */
 							// rtotal += (rpx - xmsn);
 							// gtotal += (gpx - xmsn);
 							// btotal += (bpx - xmsn);
 
+							/* ------------------------------- _px / xmsn ------------------------------- */
 							// rtotal += (rpx / xmsn);
 							// gtotal += (gpx / xmsn);
 							// btotal += (bpx / xmsn);
@@ -550,6 +507,14 @@ class ArcaneFilter {
 				fr = 0.055;
 				kr = 0.062;
 		    	break;
+		    case "rdft":
+		    	arcfilter = rdft;
+				rdfkernel = createrdfkernel();
+				dA = 1.00;
+				dB = 0.50;
+				fr = 0.055;
+				kr = 0.062;
+		    	break;
 		    case "rdfr":
 		    	arcfilter = rdf;
 				rdfkernel = createrdfkernel();
@@ -558,13 +523,13 @@ class ArcaneFilter {
 				fr = random(1.00);
 				kr = random(1.00);
 		    	break;
-		    case "rdft":
-		    	arcfilter = rdft;
+		    case "rdfm":
+		    	arcfilter = rdf;
 				rdfkernel = createrdfkernel();
-				dA = 1.00;
-				dB = 0.50;
-				fr = 0.055;
-				kr = 0.062;
+				dA = random(-1.00, 1.00);
+				dB = random(-1.00, 1.00);
+				fr = random(-1.00, 1.00);
+				kr = random(-1.00, 1.00);
 		    	break;
 		    case "rdfx":
 		    	arcfilter = rdfx;

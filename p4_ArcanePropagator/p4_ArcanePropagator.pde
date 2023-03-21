@@ -5,7 +5,7 @@ ArcaneGenerator arcgen;
 
 int kernelWidth;
 ArcanePropagator parc;
-float scalefac,xsmnfactor,displayscale;
+float kernelScale,xsmnfactor,displayscale;
 
 void setup(){
 	/* WINDOW SETUP */
@@ -19,27 +19,30 @@ void setup(){
 	
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
-	// arcgen = new ArcaneGenerator("random", width, height);
+	// arcgen = new ArcaneGenerator("random", int(width * 0.95), height);
 	// simg = arcgen.getImage();
 
-	float sfdivisor = 1.0f / 16;
-	scalefac = 255.0f * sfdivisor;
+	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
+	kernelScale = 1.0f / 255.0f;
+	
 	/* 
 		kernelWidth is the kernelsize
 
 		as kw ⬆️ more pixels involved in convolution
 		as kw ⬇️ less pixels involved in convolution
 	 */
-	// kernelWidth = 1~n; 5 is best for rdf
-	kernelWidth = 5; /* 3 - default */
+	// kernelWidth = 1~n; 5 is best for rdf; 4 is best for rdfx
+	kernelWidth = 3; /* 3 - default */
 
 	/* Divisor: kernelsum / xsmnfactor */
-	xsmnfactor = pow(kernelWidth, 2.); /* default */
+	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
+	// xsmnfactor = 1.0f / kernelWidth;
+	// xsmnfactor = kernelWidth;
 
 	displayscale = 1.0;
 
-	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdfr|rdft|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "rdf", "shader", kernelWidth, scalefac, xsmnfactor, displayscale);
+	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
+	parc = new ArcanePropagator(simg, "convolve", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale);;
 }
 
 void draw(){
