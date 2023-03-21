@@ -11,11 +11,6 @@ class ArcanePropagator{
 	ArcaneFilter af;
 	/* RENDER */
 	ArcaneRender ar;
-	Movie arcfilm;
-
-	/* Aurate */
-	SinOsc sine;
-	boolean soundOff;
 
 	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -70,28 +65,8 @@ class ArcanePropagator{
 
 						float gs = computeGS(cpx);
 
-						// kernel[k][l] = gs;
-						// kernel[k][l] = gs * -2.0;
-						kernel[k][l] = map(gs, 0, 1, -1.,1.);
-						// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
-						// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
+						kernel[k][l] = map(gs, 0, 1, -1.,1.) /* * scalefactor */;
 
-
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
-
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
 						}
 					}
 				xms[index] = kernel;
@@ -102,7 +77,7 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds, SinOsc siner){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
 		/* SETUP VARS */
 		kernelwidth = kw;
 		scalefactor = sf;
@@ -114,49 +89,11 @@ class ArcanePropagator{
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
-		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
-		/* SETUP AURATOR */
-		sine = siner;
-		sine.amp(0.0);
-		soundOff = false;
+		ar = new ArcaneRender(source, "blueline.glsl", displayScale);
 
 		updater = (ap) -> {
 			ap.update();
 		};
-	}
-
-	ArcanePropagator(Movie m, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
-		/* SETUP VARS */
-		kernelwidth = kw;
-		scalefactor = sf;
-		xfactor = xf;
-		displayScale = ds;
-		/* SETUP MOVIE */
-		arcfilm = m;
-		arcfilm.read();
-		source = resize(arcfilm);
-		ximage = loadxm(source);
-		/* SETUP FILTER */
-		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
-		/* SETUP RENDERER */
-		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
-
-		updater = (ap) -> {
-			if(arcfilm.available()){
-				arcfilm.read();
-			}
-			ap.source = resize(arcfilm);
-			ap.update();
-		};
-	}
-
-	void soundoff(boolean yesno){
-		soundOff = yesno;
-		if(soundOff){
-			sine.freq(0);
-			sine.amp(0.5);
-			sine.play();
-		}
 	}
 
 	void update(){
