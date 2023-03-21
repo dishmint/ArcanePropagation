@@ -1,0 +1,60 @@
+Image Setup
+	// simg = loadImage("./imgs/nestedsquare.png");
+	// simg = loadImage("./imgs/enter.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/buildings.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+
+	// int dimw = int(width * 0.5), dimh = int(height * 0.95);
+	// simg = randomImage(dimw, dimh);
+	// simg = noiseImage(dimw, dimh, 12, 0.06);
+	// simg = kuficImage(dimw, dimh);
+
+	// simg.filter(GRAY);
+	// simg.filter(THRESHOLD);
+	/*
+		sf: Divisor which affects the pixel's x-strength
+
+		It's not clear yet when this value has more effect, as transmission can also be affected by kernelWidth and xsmnfactor, or the image size it looks like.
+
+	*/
+Transmission Factor
+	// xsmnfactor = pow(kernelWidth, 0.125);
+	// xsmnfactor = pow(kernelWidth, 0.250);
+	// xsmnfactor = pow(kernelWidth, 0.500);
+	// xsmnfactor = kernelWidth;
+    // xsmnfactor = pow(kernelWidth, 3.);
+    // xsmnfactor = 255.; 
+    // xsmnfactor = scalefac;
+
+ArcanePropagator - loadxm
+	// kernel[k][l] = gs;
+	// kernel[k][l] = gs * -2.0;
+	// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
+	// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
+
+ArcaneRender - blueline
+			// blueline.set("resolution", float(buffer.pixelWidth), float(buffer.pixelHeight));
+			// blueline.set("resolution", 100.*float(buffer.pixelWidth), 100.*float(buffer.pixelHeight)); /* default */
+            
+            // blueline.set("rfac", 1.00000); /* default */
+			// blueline.set("rfac", 1.015625); 
+			// blueline.set("rfac", 1.03125); 
+			// blueline.set("rfac", 1.0625); 
+			// blueline.set("rfac", 1.25);
+			// blueline.set("rfac", 1.300000);
+			// blueline.set("rfac", 2.00);
