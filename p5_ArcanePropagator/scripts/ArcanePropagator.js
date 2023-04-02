@@ -1,5 +1,5 @@
 class ArcanePropagator {
-    constructor(img, filtermode, rendermode, kw, sf, xf, ds) {
+    constructor(img, shader, filtermode, rendermode, kw, sf, xf, ds) {
         /* PARAMS */
         this.fm = filtermode
         this.rm = rendermode
@@ -17,7 +17,7 @@ class ArcanePropagator {
         this.ximage = this.loadxm(this.source)
         /* GUTS */
         this.af = new ArcaneFilter(this)
-        this.ar = new ArcaneRender(img, this.rm, "blueline.glsl", this.ds)
+        this.ar = new ArcaneRender(img, this.rm, shader, this.ds)
 
         // this.updater = (ap) => {
         //     ap.update()

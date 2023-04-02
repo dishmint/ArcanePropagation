@@ -2,10 +2,10 @@ class ArcaneRender {
     /* 
     (img, this.rm, "blueline.glsl", this.ds)
     */
-    constructor(src, mode, shaderpath, displayscale) {
+    constructor(src, mode, shader, displayscale) {
         this.source = src
         this.mode = mode
-        this.shaderpath = shaderpath
+        this.blueline = shader
         this.displayscale = displayscale
 
         this.buffer = createGraphics(2.0*this.source.width, 2.0*this.source.height, P2D)
@@ -22,7 +22,6 @@ class ArcaneRender {
     }
 
     setShader(){
-        this.blueline = loadShader(this.shaderPath)
         this.blueline.setUniform("ascpet", this.source.width/this.source.height)
         this.blueline.setUniform("tex0", this.source)
         this.blueline.setUniform("displayscale", 1.0/displayDensity())
