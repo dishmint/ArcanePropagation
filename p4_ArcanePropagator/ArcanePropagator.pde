@@ -2,7 +2,7 @@ class ArcanePropagator{
 	Consumer<ArcanePropagator> updater;
 	/* VARS */
 	int kernelwidth;
-	float scalefactor;
+	float kernelScale;
 	float xfactor;
 	/* IMAGE */
 	PImage source;
@@ -11,7 +11,6 @@ class ArcanePropagator{
 	ArcaneFilter af;
 	/* RENDER */
 	ArcaneRender ar;
-	Movie arcfilm;
 
 	PImage resize(PImage img){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
@@ -30,16 +29,23 @@ class ArcanePropagator{
 		float gpx = px >> 8 & 0xFF;
 		float bpx = px & 0xFF;
 		
+		// return map((
+		// 		0.2989 * rpx +
+		// 		0.5870 * gpx +
+		// 		0.1140 * bpx
+		// 		) / 3.0, 0.0, 255.0, 0.0, 1.0);
+		
 		return (
 				0.2989 * rpx +
 				0.5870 * gpx +
 				0.1140 * bpx
 				) / 255.0;
-		// return (
+		
+		// return map((
 		// 		rpx +
 		// 		gpx +
 		// 		bpx
-		// 		) / 255.0;
+		// 		) / 3.0, 0.0, 255.0, 0.0, 1.0);
 	}
 	
 	float[][][] loadxm(PImage img) {
@@ -65,28 +71,9 @@ class ArcanePropagator{
 
 						float gs = computeGS(cpx);
 
-						// kernel[k][l] = gs;
-						// kernel[k][l] = gs * -2.0;
-						kernel[k][l] = map(gs, 0, 1, -1.,1.);
-						// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
-						// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
+						// kernel[k][l] = map(gs, 0, 1, -1.,1.) /* * kernelScale */;
+						kernel[k][l] = map(gs, 0, 1, -1.,1.) * kernelScale;
 
-
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
-
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
 						}
 					}
 				xms[index] = kernel;
@@ -97,10 +84,10 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float ks, float xf, float ds){
 		/* SETUP VARS */
 		kernelwidth = kw;
-		scalefactor = sf;
+		kernelScale = ks;
 		xfactor = xf;
 		displayScale = ds;
 		/* SETUP IMAGE */
@@ -109,34 +96,9 @@ class ArcanePropagator{
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
-		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
+		ar = new ArcaneRender(source, "blueline.glsl", displayScale);
 
 		updater = (ap) -> {
-			ap.update();
-		};
-	}
-
-	ArcanePropagator(Movie m, String filtermode, String rendermode, int kw, float sf, float xf, float ds){
-		/* SETUP VARS */
-		kernelwidth = kw;
-		scalefactor = sf;
-		xfactor = xf;
-		displayScale = ds;
-		/* SETUP MOVIE */
-		arcfilm = m;
-		arcfilm.read();
-		source = resize(arcfilm);
-		ximage = loadxm(source);
-		/* SETUP FILTER */
-		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
-		/* SETUP RENDERER */
-		ar = new ArcaneRender(source, rendermode, "blueline.glsl", displayScale);
-
-		updater = (ap) -> {
-			if(arcfilm.available()){
-				arcfilm.read();
-			}
-			ap.source = resize(arcfilm);
 			ap.update();
 		};
 	}

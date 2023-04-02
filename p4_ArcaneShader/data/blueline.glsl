@@ -12,15 +12,17 @@ uniform float aspect;
 uniform float rfac;
 uniform float tfac;
 uniform float unitsize;
+uniform float densityscale;
 
 float energy, angle = 0;
 float pxos,clip,ec;
 
 vec2 radius, thickness, pixel;
 
-vec4 color,grade;
+vec4 color,grade,theta;
 
-#define PI 3.1415926538
+#define TAU 6.2831853071
+#define QTAU TAU*.25
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -30,27 +32,49 @@ float map(float value, float min1, float max1, float min2, float max2) {
 // ———————
 
 #define C4Z 1
-#define C3M 2
-#define C3Z 3
+#define C4B 2
+#define C4C 4
+#define C3M 5
+#define C3Z 6
 
 void pushEnergyAngle(int selector){
 	switch(selector)
 	{
 		case C4Z:
 			energy = (color.r+color.g+color.b+color.a/4.0);
-			angle = mix(0.0, 2.*PI, energy);
+			// angle = mix(0.0, TAU, energy);
+			angle = mix(-TAU, TAU, energy);
+			break;
+		case C4B:
+			energy = (color.r+color.g+color.b+color.a/4.0);
+			// energy = mix(-1.,1.,(color.r+color.g+color.b+color.a));
+			theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
+			// vec4 theta = mix(vec4(-TAU), vec4(TAU), energy);
+			
+			angle = theta.x+theta.y+theta.z+theta.w;
+			break;
+		case C4C:
+			// vec4 plasma = mix(vec4(0.0), vec4(0.25), color);
+			// vec4 plasma = mix(vec4(-0.25), vec4(0.25), color);
+			vec4 plasma = mix(vec4(0.0), vec4(0.25), vec4(color.rgb, 1.0));
+			energy = (plasma.x+plasma.y+plasma.z+plasma.w);
+
+			theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
+			
+			angle = theta.x+theta.y+theta.z+theta.w;
 			break;
 		case C3M:
 			energy = mix(-1.,1.,(color.r+color.g+color.b)/3.0);
-			angle = map(energy, -1., 1., 0., 2.*PI);
+			angle = map(energy, -1., 1., 0., TAU);
+			// angle = ((energy + 1.0)/2.0) * TAU;
 			break;
 		case C3Z:
 			energy = mix(0.,1.,(color.r+color.g+color.b)/3.0);
-			angle = mix(0., 2.*PI, energy);
+			angle = mix(0., TAU, energy);
 			break;
 		default:
 			energy = map(color.r+color.g+color.b+color.a/4.0, 0.,1., .5,1.);
-			angle = mix(0.5, 2.*PI, energy);
+			angle = mix(0.5, TAU, energy);
 			break;
 	}
 }
@@ -99,30 +123,30 @@ vec3 makebase(int selector){
 	switch(selector)
 	{
 		case red:
-			b = vec3(1.0,0.0,0.0)*(angle/(2.*PI));
+			b = vec3(1.0,0.0,0.0)*(angle/(TAU));
 			break;
 		case blue:
-			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(2.*PI));
+			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(TAU));
 			break;
 		case green:
-			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(2.*PI));
+			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(TAU));
 			break;
 		case yellow:
-			b = vec3(1., 1., 0.0)*(angle/(2.*PI));
+			b = vec3(1., 1., 0.0)*(angle/(TAU));
 			break;
 		case yellowbrick:
-		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(2.*PI)));
-			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(2.*PI)));
+		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(TAU)));
+			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(TAU)));
 			break;
 		case rblue:
-			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 		case gred:
-		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(2.*PI)));
-			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(2.*PI)));
+		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
+			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
 			break;
 		default:
-			b = vec3((angle/(2.*PI))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 	}
 	return b;
@@ -221,9 +245,29 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	return c;
 }
 
+/* SETTINGS  */
+/* — emap   : C4Z|C4B|C3M|C3Z                               — */
+/* — state  : normal|inverse                                — */
+/* — theme  : red|green|blue|yellow|yellowbrick|rblue|gred  — */
+/* — alpha  : alpha1|alphaC|alphaY                          — */
+/* — shape  : GEO|NOGEO                                     — */
+/* — grader : GRADE|NOGRADE|SOURCE                          — */
+
+struct settings
+{
+	int emap;  /* Select energy and gangle mapping function */
+	int state; /* Use original image or color negated image */
+	int theme; /* Specify color theme */
+	int alpha; /* Select alpha interpretation */
+	int shape; /* Specify wheter to rotate pixel or not */
+	int grader; /* Specify whether to use the theme or not */
+};
+
+settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
+
 void main( void ) {
 	
-	vec2 position = ( gl_FragCoord.xy / resolution.xy );
+	vec2 position = ( gl_FragCoord.xy / resolution.xy ) * densityscale;
 	pixel = unitsize/resolution;
 
 	position.y*=aspect;
@@ -231,30 +275,13 @@ void main( void ) {
 	
 	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
 	
-	//| C4Z | E =>           Mean[ color.rgba ]  |  A => mix(0,2 PI, E)          |
-	//| C3M | E => mix(-1,1, Mean[ color.rgb  ]) |  A => map(E, -1, 1, 0, 2 PI)  |
-	//| C3Z | E => mix( 0,1, Mean[ color.rgb  ]) |  A => mix(0,2 PI, E)          |
-	pushEnergyAngle(C3M);
+	pushEnergyAngle(setting.emap);
 	
 	thickness = pixel;
 	radius    = (rfac*thickness);
 	
-	//| points   | _pointorbit       |
 	pushgeo(points, position);
+	pushgrade(setting.state, setting.theme, setting.alpha);
 	
-	//|                       ARG1                                 |
-	//| normal   | grade                                           |
-	//| inverse  | 1 - grade                                       |
-	//|                       ARG2                                 |
-	//| red | green | blue | yellow | yellowbrick |  rblue | gred  |
-	//|                       ARG3                                 |
-	//| alpha1   | alpha => 1.0                                    |
-	//| alphaC   | alpha => color.a                                |
-	//| alphaY   | alpha => energy                                 |
-	pushgrade(normal, rblue, alpha1);
-	
-	//| GEO   / NOGEO            | shape or 1.0           |
-	//| GRADE / NOGRADE / SOURCE | grade or 1.0 or source  |
-	gl_FragColor = pushfrag(GEO, GRADE, position);
-	// gl_FragColor = pushfrag(GEO, SOURCE, position);
+	gl_FragColor = pushfrag(setting.shape, setting.grader, position);
 	}
