@@ -1,5 +1,6 @@
 class ArcanePropagator {
     constructor(img, shader, filtermode, rendermode, kw, sf, xf, ds) {
+        console.log("Creating ArcanePropagator")
         /* PARAMS */
         this.fm = filtermode
         this.rm = rendermode
@@ -34,7 +35,7 @@ class ArcanePropagator {
 
     draw(){
         this.update()
-        this.ar.show()
+        this.ar.show(this)
     }
 
     imagefit(imageToResize){

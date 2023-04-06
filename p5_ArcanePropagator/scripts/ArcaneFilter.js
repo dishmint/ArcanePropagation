@@ -1,5 +1,7 @@
 class ArcaneFilter {
     constructor(arcprop) {
+        console.log("Creating ArcaneFilter")
+        // console.log(arcprop)
         this.propagator = arcprop
         switch (this.propagator.fm) {
             case "transmit":
@@ -56,7 +58,7 @@ class ArcaneFilter {
     /* FILTERS */
     /* transmit */
 	transmit = (x, y, img, xmg) => {
-        const sloc = constrain((x+y*img.pixelWidth),0,img.pixels.length-1);
+        const sloc = constrain((x+y*img.width),0,img.pixels.length-1);
 
         const cpx = img.pixels[sloc];
 
@@ -64,13 +66,16 @@ class ArcaneFilter {
         let gpx = cpx >> 8 & 0xFF;
         let bpx = cpx & 0xFF;
 
-        for (let k = 0; k < this.propagator.kw; k++){
-            for (let l= 0; l < this.propagator.kw; l++){
+        for (let k = 0; k < this.propagator.kw - 1; k++){
+            for (let l= 0; l < this.propagator.kw - 1; l++){
                 let xloc = x+k-this.propagator.offset;
                 let yloc = y+l-this.propagator.offset;
-                const loc = constrain((xloc + img.pixelWidth*yloc),0,img.pixels.length-1);
 
-                xmsn = (xmg[loc][k][l] / this.propagator.xf);
+                const loc = int(constrain((xloc + img.width*yloc),0,img.pixels.length-1));
+                // console.log(loc,k,l)
+
+                let xmsn = (xmg[loc][k][l] / this.propagator.xf);
+                // console.log(xmsn)
 
                 if(xloc == x && yloc == y){
                         rpx -= (xmsn * l);
@@ -86,8 +91,8 @@ class ArcaneFilter {
             img.pixels[sloc] = [rpx,gpx,bpx];
         };
     /* transmitMBL */
-	transmit = (x, y, img, xmg) => {
-        const sloc = constrain((x+y*img.pixelWidth),0,img.pixels.length-1);
+	transmitMBL = (x, y, img, xmg) => {
+        const sloc = constrain((x+y*img.width),0,img.pixels.length-1);
 
         const cpx = img.pixels[sloc];
 
@@ -100,7 +105,7 @@ class ArcaneFilter {
                 let xloc = x+k-this.propagator.offset;
                 let yloc = y+l-this.propagator.offset;
                 const loc = parseInt(constrain((xloc + img.width*yloc),0,img.pixels.length-1));
-                console.log(k,l)
+
                 let xmsn = (xmg[loc][k][l] / this.propagator.xf);
 
                 if(xloc == x && yloc == y){

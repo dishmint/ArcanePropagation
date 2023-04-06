@@ -7,7 +7,8 @@ let arcshader
 
 function preload(){
 	// simg = loadImage('assets/imgs/universe.jpg')
-	arcshader = loadShader('assets/blueline.glsl') 
+	arcshader = loadShader("assets/shaders/vs.vert","assets/shaders/blueline.frag")
+	console.log(arcshader)
 	simg = arcgen.getImage()
 }
 
@@ -25,12 +26,14 @@ function setup() {
 	}
 	params.td = params.kw * params.kw,
 	params.sf = 255.0 * params.xf
+	console.log("Setup")
 	parc = new ArcanePropagator(simg, arcshader, params.ft, "shader", params.kw, params.sf, params.td, params.ds)
+	parc.ar.parentDimensions(width,height)
 }
 
 function draw() {
-	// parc.draw()
-	rect(0,0, windowWidth, windowHeight)
+	parc.draw() 
+	// rect(0,0, windowWidth, windowHeight)
 	// image(simg, 0, 0, width, height)
 }
 

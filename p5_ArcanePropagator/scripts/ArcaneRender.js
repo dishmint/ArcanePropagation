@@ -7,8 +7,10 @@ class ArcaneRender {
         this.mode = mode
         this.blueline = shader
         this.displayscale = displayscale
+        this.w = 100.0
+        this.h = 100.0
 
-        this.buffer = createGraphics(2.0*this.source.width, 2.0*this.source.height, P2D)
+        this.buffer = createGraphics(2.0*this.source.width, 2.0*this.source.height, WEBGL)
         this.buffer.noSmooth()
 
         switch(this.mode){
@@ -19,6 +21,11 @@ class ArcaneRender {
                 this.setShader()
                 break
         }
+    }
+
+    parentDimensions(w, h){
+        this.w = w
+        this.h = h
     }
 
     setShader(){
@@ -32,18 +39,20 @@ class ArcaneRender {
         this.blueline.setUniform("rfac", 1.00)
 
         this.renderer = (simg, ds) => {
-            this.blueline.set("tex0", simg)
-            image(buffer, width/2, height/2, simg.width*ds, simg.height*ds)
+            // console.log(simg.source)
+            this.blueline.setUniform("tex0", simg.source)
+            // console.log(simg)
+            image(this.buffer, this.w/2, this.h/2, simg.source.width*ds, simg.source.height*ds)
         }
     }
 
     show(aprop){
         background(0)
-        this.buffer.beginDraw()
+        // this.buffer.beginDraw()
 		this.buffer.background(0)
-		this.buffer.shader(blueline)
-		this.buffer.rect(0, 0, buffer.width, buffer.height)
-		this.buffer.endDraw()
+		this.buffer.shader(this.blueline)
+		this.buffer.rect(0, 0, this.buffer.width, this.buffer.height)
+		// this.buffer.endDraw()
 
         this.renderer(aprop, this.displayscale)
     }
