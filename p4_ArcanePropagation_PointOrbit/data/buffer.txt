@@ -187,3 +187,33 @@ color getCAColor(float rp, float bp, float gp){
 
 		// color caColor = getCAColor(rpx,gpx,bpx);
 		// img.pixels[cloc] = caColor;
+
+
+/* selectDraw */
+	// switch(selector){
+	// 	case "smear":
+	// 		smear(simg, xmg, 1);
+	// 		break;
+	// 	case "smearTotal":
+	// 		smearTotal(simg, xmg, 1);
+	// 		break;
+	// 	case "switch":
+	// 	// switchdraw(int frames, int selector);
+	// 		switchdraw(20, 2);
+	// 		break;
+	// 	case "switchTotal":
+	// 	// switchdrawTotal(int frames, int selector);
+	// 		switchdrawTotal(20, 4);
+	// 		break;
+	// 	case "blur":
+	// 		simg.filter(BLUR, 1);
+	// 		break;
+	// 	case "posterize":
+	// 		simg.filter(POSTERIZE, (frameCount % 253) + 2);
+	// 		break;
+	// 	case "CA":
+	// 		cellularAutomaton(simg);
+	// 		break;
+	// 	default:
+	// 		break;
+	// 	}
