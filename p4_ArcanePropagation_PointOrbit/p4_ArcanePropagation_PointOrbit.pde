@@ -217,10 +217,10 @@ float computeGS(color px, boolean hu){
 			0.2989 * rpx +
 			0.5870 * gpx +
 			0.1140 * bpx
-			) / gsd;
+			) * gsd;
 	} else {
 		// channel average
-		igs = (rpx + gpx + bpx) / gsd;
+		igs = (rpx + gpx + bpx) * gsd;
 	}
 	return igs;
 }
