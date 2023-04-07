@@ -23,25 +23,49 @@ float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat
 boolean dispersed, hav, klinkQ;
 
 ArcaneFilter af;
+ArcaneGenerator ag;
 
 void setup(){
+	/* -------------------------------------------------------------------------- */
+	/*                               Sketch Settings                              */
+	/* -------------------------------------------------------------------------- */
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	
-	// LOAD IMAGE
+	/* -------------------------------------------------------------------------- */
+	/*                                 Load Image                                 */
+	/* -------------------------------------------------------------------------- */
 	
+	/* ------------------------------- image files ------------------------------ */
 	simg = loadImage("./imgs/universe.jpg");
 	
-	// int noisew =  width/32;
-	// int noiseh = height/32;
-	// simg = randomImage(noisew, noiseh);
-	// simg = noiseImage(noisew, noiseh, 3, .6);
-	// simg = kuficImage(noisew, noiseh);
+	/* ---------------------------- image generators ---------------------------- */
+	// int noisew = int(0.0625 *  width);
+	// int noiseh = int(0.0625 * height);
+	// Random Noise
+	// ag = new ArcaneGenerator("random", noisew, noiseh);
 	
-	// mazeImage(simg);
+	// Kufic Noise
+	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
+	
+	// Maze Noise
+	// ag = new ArcaneGenerator("maze", noisew, noiseh);
+	// PImage mimg = loadImage("./imgs/universe.jpg");
+	// ag.setMazeSource(mimg);
+
+	// Noise
+	// ag = new ArcaneGenerator("noise", noisew, noiseh);
+	// ag.setLod(3); ag.setFalloff(0.6f);
+		
+	/* -------------------------------- get image ------------------------------- */
+	// simg = ag.getImage(); 
+
+	/* -------------------------------------------------------------------------- */
+	/*                             Remaining Settings                             */
+	/* -------------------------------------------------------------------------- */
 	
 	// APPLY BASE FILTER
 	// simg.filter(GRAY|BLUR|DILATE|ERODE|INVERT);
@@ -78,7 +102,7 @@ void setup(){
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
 
-	gsd = 255.; /* 255 | 3 */
+	gsd = 1.0f/255.0f; /* 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
 	hav = false;
 	xmg = loadxm(simg, kwidth);
 	
@@ -168,10 +192,10 @@ float computeGS(color px){
 			(0.2989 * rpx) +
 			(0.5870 * gpx) +
 			(0.1140 * bpx)
-			) / gsd;
+			) * gsd;
 	} else if(!hav) {
 		// channel average
-		igs = (rpx + gpx + bpx) / gsd;
+		igs = (rpx + gpx + bpx) * gsd;
 	} else {
 		igs = 1.;
 	}
@@ -707,84 +731,6 @@ int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][]
 			System.out.println("CellularAutomatatize::Fatal error opening link: " + e.getMessage());
 			return clusters;
 		}
-	}
-
-
-// IMAGE GENERATORS
-PImage randomImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				color c = color(random(255.));
-				int index = (i + j * rimg.pixelWidth);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage noiseImage(int w, int h, int lod, float falloff){
-	  noiseDetail(lod, falloff);
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
-				int index = (i + j * rimg.pixelWidth);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage kuficImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				chance = ((i % 2) + (j % 2));
-				
-				float wallornot = random(2.);
-				int index = (i + j * rimg.pixelWidth);
-				if(wallornot <= chance){
-						color c = color(0);
-						rimg.pixels[index] = c;
-					} else {
-						color c = color(255-(255*(wallornot/2.)));
-						rimg.pixels[index] = c;
-					}
-				}
-			}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-
-void mazeImage(PImage source){
-		source.loadPixels();
-		for (int i = 0; i < source.pixelWidth; i++){
-			for (int j = 0; j < source.pixelHeight; j++){
-				
-				int loc = (i + j * source.pixelWidth);
-				
-				color cpx = source.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				float apx = alpha(cpx);
-				
-				float avgF = ((rpx+gpx+bpx+apx)/4.)/255.;
-				
-				float r = round(avgF);
-				color c = color(r*255);
-				source.pixels[loc] = c;
-				}
-			}
-		source.updatePixels();
 	}
 
 	void stop() {
