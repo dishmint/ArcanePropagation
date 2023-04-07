@@ -102,7 +102,7 @@ void setup(){
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
 
-	gsd = 1.0f/255.0f; /* 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
+	gsd = 1.0f/255.0f; /* 1.0f/ 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
 	hav = false;
 	xmg = loadxm(simg, kwidth);
 	
@@ -560,12 +560,13 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			float gs = computeGS(cpx);
 			
 			// the closer values are to 0 the more negative the transmission is, that's why a large value of kernelScale produces fast fades.
-			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
+			kern[i][j] = map(gs, 0.0f, 1.0f, -1.0f*kernelScale,1.0f*kernelScale);
 			// kern[i][j] = map(gs, 0, 1, -.5,.5);
 			// kern[i][j] = map(gs, 0, 1, -.5*kernelScale,.5*kernelScale);
 			// kern[i][j] = gs;
 			// kern[i][j] = map(gs, 0, 1, 0.,1.*kernelScale);
 			// kern[i][j] = map(gs, 0, 1, -1.,1.);
+			// kern[i][j] = map(gs, 0.0f, gsd, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
