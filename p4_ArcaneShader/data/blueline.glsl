@@ -263,7 +263,14 @@ struct settings
 	int grader; /* Specify whether to use the theme or not */
 };
 
-settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
+settings setting = settings(
+	C4B, 
+	normal, 
+	rblue, 
+	alphaY, 
+	GEO, 
+	GRADE /* NOGRADE */ /* SOURCE */
+	);
 
 void main( void ) {
 	
