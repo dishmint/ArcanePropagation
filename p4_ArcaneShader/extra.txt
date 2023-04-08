@@ -1,0 +1,54 @@
+	switch(selector){
+		case "transmit":
+			transmit(simg, xmg);
+			break;
+		case "convolve":
+			convolve(simg, xmg);
+			break;
+		case "smear":
+			smear(simg, xmg, 1);
+			break;
+		case "smearTotal":
+			smearTotal(simg, xmg, 1);
+			break;
+		case "transmitMBL":
+			transmitMBL(simg, xmg);
+			break;
+		case "blur":
+			simg.filter(BLUR);
+			break;
+		case "gol":
+			gol(simg, xmg);
+			break;
+		case "chladni":
+			chladni(simg, xmg);
+			break;
+		// case "dilate":
+		// 	simg.filter(DILATE);
+		// 	break;
+		case "switch":
+			// switchdraw((frameCount % 20)+1, 1);
+			switchdraw((frameCount % 60)+1, 1);
+			// switchdraw(20, 1);
+			// switchdraw(20, 2);
+			// switchdraw(20, 3);
+			// switchdraw(20, 4);
+			
+			// switchdraw(60, 1);
+			// switchdraw(60, 2);
+			// switchdraw(60, 3);
+			// switchdraw(60, 4);
+			break;
+		case "switchTotal":
+			// switchdrawTotal(60, 1);
+			// switchdrawTotal(60, 2);
+			// switchdrawTotal(60, 3);
+			// switchdrawTotal(100, 1);
+			// switchdrawTotal(100, 2);
+			// switchdrawTotal(100, 3);
+			// switchdrawTotal(100, 4);
+			break;
+		default:
+			transmit(simg, xmg);
+			break;
+	}

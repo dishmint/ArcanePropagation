@@ -163,9 +163,9 @@ class ArcaneFilter {
 					float gspx = spx >> 8 & 0xFF;
 					float bspx = spx & 0xFF;
 
-					float rtotal = rspx;
-					float gtotal = gspx;
-					float btotal = bspx;
+					float rtotal = rspx; /* 0.0f */
+					float gtotal = gspx; /* 0.0f */
+					float btotal = bspx; /* 0.0f */
 
 					int offset = kernelwidth / 2;
 					for (int i = 0; i < kernelwidth; i++){
@@ -679,6 +679,133 @@ class ArcaneFilter {
 		img.pixels[cloc] = color(rtotal, gtotal, btotal);
 	};
 
+	float chladnifunction(int x, int y, float n, float m){
+		float fx = float(x);
+		float fy = float(y);
+		float fn = n / 255.0;
+		float c1 = sin(fn * PI * fx) * sin(m * PI * fy);
+		float c2 = sin(m * PI * fx) * sin(fn * PI * fy);
+		return c1 - c2;
+	}
+
+	float chladnifunction(int x, int y){
+		return (sin(10.0 * PI * x) * sin( 5.0 * PI * y)) - (sin( 5.0 * PI * x) * sin(10.0 * PI * y));
+	}
+
+	// https://processing.org/examples/convolution.html
+	// Adjusted slightly for the purposes of this sketch
+	// chladnitize is also quite slow. I think using a shader might make more sense.
+	ArcaneProcess chladni = (x, y, img, ximg) ->
+	{
+		int cloc = x+y*img.pixelWidth;
+		cloc = constrain(cloc,0,img.pixels.length-1);
+
+		float rtotal = 0.0;
+		float gtotal = 0.0;
+		float btotal = 0.0;
+
+		int offset = kernelwidth / 2;
+		for (int i = 0; i < kernelwidth; i++){
+			for (int j= 0; j < kernelwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = (ximg[loc][i][j] * transmissionfactor);
+				
+				color cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+				rtotal += chladnifunction(xloc, yloc, rpx, xmsn);
+				gtotal += chladnifunction(xloc, yloc, gpx, xmsn);
+				btotal += chladnifunction(xloc, yloc, bpx, xmsn);
+
+				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+
+				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+
+				
+				// if(xloc == x && yloc == y){
+				// 	rtotal -= ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	gtotal -= ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	btotal -= ((bpx * xmsn) + chladnifunction(xloc, yloc));
+				// } else {
+				// 	rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
+				// 	btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
+				// }
+				
+			}
+		}
+		
+		img.pixels[cloc] = color(rtotal, gtotal, btotal);
+	};
+
+	ArcaneProcess gol = (x, y, img, ximg) ->
+	{
+		final int cloc = constrain(x+y*img.width, 0, ximg.length - 1);
+		final float xmn = ximg[cloc][1][1];
+		
+		final color cpx = img.pixels[cloc];
+		
+		float rpx = cpx >> 16 & 0xFF;
+		float gpx = cpx >> 8 & 0xFF;
+		float bpx = cpx & 0xFF;
+		
+		int count = 0;
+
+		final int offset = kernelwidth / 2;
+		for (int i = 0; i < kernelwidth; i++){
+			for (int j= 0; j < kernelwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.width*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+
+				color ipx = img.pixels[loc];
+		
+				float irpx = ipx >> 16 & 0xFF;
+				float igpx = ipx >> 8 & 0xFF;
+				float ibpx = ipx & 0xFF;
+
+				if(xloc != x && yloc != y){
+					float avg = ((irpx + igpx + ibpx) * 0.33f);
+					count += (avg > (255.0f * 0.50f)) ? 1 : 0;
+				}
+			}
+		}
+		float countd = 1.0f / (count + 1.0f);
+		if((count < 2) || (count > 3)){
+			// img.pixels[x+y*img.width] = color(rpx * .5, gpx * .5, bpx * .5);	
+			// img.pixels[x+y*img.width] = color(0,0,0);
+			/* 
+			rpx -= xmn;
+			gpx -= xmn;
+			bpx -= xmn;
+			 */
+			rpx -= (xmn * countd);
+			gpx -= (xmn * countd);
+			bpx -= (xmn * countd);
+			// ^^ could also add to those neighboring pixels
+			img.pixels[cloc] = color(rpx, gpx, bpx);
+		} 
+		else if (count == 2 || count == 3){
+			img.pixels[cloc] = color(rpx,gpx,bpx);
+		} else {
+			img.pixels[cloc] = color(255,255,255);
+		}
+	};
+
     ArcaneFilter(String fmode, int kw, float xsmnfac){
 		filtermode = fmode;
         kernelwidth = kw;
@@ -710,6 +837,12 @@ class ArcaneFilter {
 		    	break;
 		    case "weightedblur":
 		    	arcfilter = weightedblur;
+		    	break;
+		    case "chladni":
+		    	arcfilter = chladni;
+		    	break;
+		    case "gol":
+		    	arcfilter = gol;
 		    	break;
 		    case "rdf":
 		    	arcfilter = rdf;
