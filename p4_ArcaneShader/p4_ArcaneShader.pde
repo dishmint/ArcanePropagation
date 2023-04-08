@@ -8,20 +8,47 @@ float[][][] xmg;
 int downsample,modfac,dmfac;
 int kwidth = 3;
 int drawswitch = 0;
-float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
+float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
 boolean dispersed, hav;
+
+ArcaneFilter af;
+ArcaneGenerator ag;
 
 void setup(){
 	size(1422,800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
-	// pixelDensity(1);
 	hint(ENABLE_STROKE_PURE);
 
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	simg = loadImage("./imgs/buildings.jpg");
+	/* -------------------------------------------------------------------------- */
+	/*                                 Load Image                                 */
+	/* -------------------------------------------------------------------------- */
+	
+	/* ------------------------------- image files ------------------------------ */
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	
+	/* ---------------------------- image generators ---------------------------- */
+	// int noisew = int(0.0625 *  width);
+	// int noiseh = int(0.0625 * height);
+	// Random Noise
+	// ag = new ArcaneGenerator("random", noisew, noiseh);
+	
+	// Kufic Noise
+	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
+	
+	// Maze Noise
+	// ag = new ArcaneGenerator("maze", noisew, noiseh);
+	// PImage mimg = loadImage("./imgs/universe.jpg");
+	// ag.setMazeSource(mimg);
+
+	// Noise
+	// ag = new ArcaneGenerator("noise", noisew, noiseh);
+	// ag.setLod(3); ag.setFalloff(0.6f);
+		
+	/* -------------------------------- get image ------------------------------- */
+	// simg = ag.getImage(); 
 		
 	// simg.filter(GRAY);
 	// simg.filter(POSTERIZE, 4);
@@ -30,6 +57,12 @@ void setup(){
 	// simg.filter(ERODE);
 	// simg.filter(INVERT);
 	// simg.filter(THRESHOLD, .8);
+
+
+	/* -------------------------------------------------------------------------- */
+	/*                             Remaining Settings                             */
+	/* -------------------------------------------------------------------------- */
+	
 	
 	dmfac = 1;
 	downsample = modfac = dmfac;
@@ -46,24 +79,33 @@ void setup(){
 	simg.resize(nw, nh);
 	
 	// sf ~~ rate of decay
-	float sf = 0025.00;
-	scalefac = 255./sf;
+	// float sf = 1.0f/255.0f; /* 25.0f */
+	// kernelScale = 255. * sf;
+
+	/* ^^ kernelScale is kernelScale  */
+	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
+	// kernelScale = 1.0f / 255.0f;
+	kernelScale = 1.0f / 1.0f;
+	// kernelScale = 0.098f / 1.0f;
+	// kernelScale = 0.98f / 1.0f;
+	// kernelScale = 0.50f / 1.0f;
+	// kernelScale = 0.33f / 1.0f;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
 	// xsmnfactor = 1.;
 	// xsmnfactor = pow(kwidth,0.5);
 	// xsmnfactor = pow(kwidth,1.5);
 	// xsmnfactor = pow(kwidth - 1,3.); /* default */
-	// xsmnfactor = pow(kwidth, 2.); /* default */
+	xsmnfactor = 1.0f/pow(kwidth, 2.); /* default */
 	// xsmnfactor = pow(kwidth,3.);
 	// xsmnfactor = pow(kwidth,4.);
 	// xsmnfactor = pow(kwidth,6.);
-	xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
+	// xsmnfactor = kernelScale; /* makes transmission some value between 0 and 1*/
 	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
-	gsd = 255.; /* 255 | 3 */
+	gsd = 1.0f/255.0f; /* 1.0f/ 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
@@ -97,94 +139,24 @@ void setup(){
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
 	blueline.set("rfac", 1.0);
-	// blueline.set("rfac", 1.0625);
-	// blueline.set("rfac", 1.25);
-	// blueline.set("rfac", 1.300000);
 	
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
 		useOriginal();
 	}
-	
-	// frameRate(1.);
-	// frameRate(6.);
-	// noLoop();
+
 	background(0);
 	/* 
 		https://www.baeldung.com/java-8-lambda-expressions-tips
 		^^ will help with functionalizing selectDraw so I can set the draw function in setup instead of in draw.
 	 */
+	// convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weightedblur | gol | chladni
+	af = new ArcaneFilter("chladni", kwidth, xsmnfactor);
 }
 
 void draw(){
-	selectDraw("convolve");
-	// selectDraw("transmit");
-	// selectDraw("transmitMBL");
-	// selectDraw("switch");
-	// selectDraw("switchTotal");
-	// selectDraw("blur");
-	// selectDraw("dilate");
-	// selectDraw("gol");
-	// selectDraw("chladni"); /* This should be set in Setup. Therein lies the utility of objects */
-}
-
-void selectDraw(String selector){
-	switch(selector){
-		case "transmit":
-			transmit(simg, xmg);
-			break;
-		case "convolve":
-			convolve(simg, xmg);
-			break;
-		case "smear":
-			smear(simg, xmg, 1);
-			break;
-		case "smearTotal":
-			smearTotal(simg, xmg, 1);
-			break;
-		case "transmitMBL":
-			transmitMBL(simg, xmg);
-			break;
-		case "blur":
-			simg.filter(BLUR);
-			break;
-		case "gol":
-			gol(simg, xmg);
-			break;
-		case "chladni":
-			chladni(simg, xmg);
-			break;
-		// case "dilate":
-		// 	simg.filter(DILATE);
-		// 	break;
-		case "switch":
-			// switchdraw((frameCount % 20)+1, 1);
-			switchdraw((frameCount % 60)+1, 1);
-			// switchdraw(20, 1);
-			// switchdraw(20, 2);
-			// switchdraw(20, 3);
-			// switchdraw(20, 4);
-			
-			// switchdraw(60, 1);
-			// switchdraw(60, 2);
-			// switchdraw(60, 3);
-			// switchdraw(60, 4);
-			break;
-		case "switchTotal":
-			// switchdrawTotal(60, 1);
-			// switchdrawTotal(60, 2);
-			// switchdrawTotal(60, 3);
-			// switchdrawTotal(100, 1);
-			// switchdrawTotal(100, 2);
-			// switchdrawTotal(100, 3);
-			// switchdrawTotal(100, 4);
-			break;
-		default:
-			transmit(simg, xmg);
-			break;
-	}
-	
+	af.kernelmap( simg, xmg );
 	background(0);
 	pgDraw();
 	shaderDraw();
@@ -213,9 +185,9 @@ void switchdraw(int mod, int smearSelector){
 	}
 	
 	if(drawswitch == 0){
-		transmit(simg, xmg);
+		af.setFilterMode("transmit");
 	} else {
-		smear(simg, xmg, smearSelector);
+		af.setFilterMode("smear");
 	}
 }
 
@@ -225,9 +197,9 @@ void switchdrawTotal(int mod, int smearSelector){
 	}
 	
 	if(drawswitch == 0){
-		transmit(simg, xmg);
+		af.setFilterMode("transmit");
 	} else {
-		smearTotal(simg, xmg, smearSelector);
+		af.setFilterMode("smearTotal");
 	}
 }
 
@@ -273,10 +245,10 @@ float computeGS(color px){
 			0.2989 * rpx +
 			0.5870 * gpx +
 			0.1140 * bpx
-			) / gsd;
+			) * gsd;
 	} else {
 		// channel average
-		gs = (rpx + gpx + bpx) / gsd;
+		gs = (rpx + gpx + bpx) * gsd;
 	}
 	return gs;
 }
@@ -298,8 +270,8 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			
 			float gs = computeGS(cpx);
 			
-			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
-			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			// the closer values are to 0 the more negative the transmission is, that's why a large value of kernelScale produces fast fades.
+			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -352,7 +324,7 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 			
 			float gs = computeGS(cpx);
 			
-			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -398,555 +370,3 @@ void setDispersedImage(PImage source, PImage di) {
 	source.updatePixels();
 	di.updatePixels();
 }
-
-void convolve(PImage img, float[][][] ximage) {
-	img.loadPixels();
-	for (int i = 0; i < img.width; i++){
-		for (int j = 0; j < img.height; j++){
-			color c =  convolution(i,j, kwidth, img, ximage);
-			int index = (i + j * img.width);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-}
-
-// https://processing.org/examples/convolution.html
-// Adjusted slightly for the purposes of this sketch
-color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		float rtotal = 0.0;
-		float gtotal = 0.0;
-		float btotal = 0.0;
-
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				
-				if(xloc == x && yloc == y){
-					rtotal -= (rpx * xmsn);
-					gtotal -= (gpx * xmsn);
-					btotal -= (bpx * xmsn);
-				} else {
-					rtotal += (rpx * xmsn);
-					gtotal += (gpx * xmsn);
-					btotal += (bpx * xmsn);
-				}
-			}
-		}
-		
-		return color(rtotal, gtotal, btotal);
-	}
-
-float chladnifunction(int x, int y, float n, float m){
-	float fx = float(x);
-	float fy = float(y);
-	float fn = n / 255.0;
-	float c1 = sin(fn * PI * fx) * sin(m * PI * fy);
-	float c2 = sin(m * PI * fx) * sin(fn * PI * fy);
-	return c1 - c2;
-}
-
-float chladnifunction(int x, int y){
-	return (sin(10.0 * PI * x) * sin( 5.0 * PI * y)) - (sin( 5.0 * PI * x) * sin(10.0 * PI * y));
-}
-
-void chladni(PImage img, float[][][] ximage) {
-	img.loadPixels();
-	for (int i = 0; i < img.width; i++){
-		for (int j = 0; j < img.height; j++){
-			color c =  chladnitize(i,j, kwidth, img, ximage);
-			int index = (i + j * img.width);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-}
-
-// https://processing.org/examples/convolution.html
-// Adjusted slightly for the purposes of this sketch
-// chladnitize is also quite slow. I think using a shader might make more sense.
-color chladnitize(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		float rtotal = 0.0;
-		float gtotal = 0.0;
-		float btotal = 0.0;
-
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-
-				// rtotal += chladnifunction(xloc, yloc, rpx, xmsn);
-				// gtotal += chladnifunction(xloc, yloc, gpx, xmsn);
-				// btotal += chladnifunction(xloc, yloc, bpx, xmsn);
-
-				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-
-				rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-
-				
-				// if(xloc == x && yloc == y){
-				// 	rtotal -= ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	gtotal -= ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	btotal -= ((bpx * xmsn) + chladnifunction(xloc, yloc));
-				// } else {
-				// 	rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-				// }
-				
-			}
-		}
-		
-		return color(rtotal, gtotal, btotal);
-	}
-
-void smear(PImage img, float[][][] ximage, int selector) {
-	img.loadPixels();
-	for (int i = 0; i < img.width; i++){
-		for (int j = 0; j < img.height; j++){
-			color c =  smearing(i,j, kwidth, img, ximage, selector);
-			int index = (i + j * img.width);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-	}
-
-color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
-	{
-		
-		float rpx = 0.0;
-		float gpx = 0.0;
-		float bpx = 0.0;
-		
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				rpx = cpx >> 16 & 0xFF;
-				gpx = cpx >> 8 & 0xFF;
-				bpx = cpx & 0xFF;
-
-				switch(sel){
-					case 1:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx += (xmsn);
-								gpx += (xmsn);
-								bpx += (xmsn);
-							}
-						break;
-					case 2:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx *= (xmsn);
-								gpx *= (xmsn);
-								bpx *= (xmsn);
-							}
-						break;
-					case 3:
-						if(xloc == x && yloc == y){
-							rpx += (xmsn);
-							gpx += (xmsn);
-							bpx += (xmsn);
-							} else {
-								rpx *= (xmsn);
-								gpx *= (xmsn);
-								bpx *= (xmsn);
-							}
-						break;
-					case 4:
-						if(xloc == x && yloc == y){
-							rpx = (xmsn);
-							gpx = (xmsn);
-							bpx = (xmsn);
-						}
-						break;
-					default:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx += (xmsn);
-								gpx += (xmsn);
-								bpx += (xmsn);
-							}
-						break;
-				}
-			}
-		}
-		return color(rpx, gpx, bpx);
-	}
-
-	
-void smearTotal(PImage img, float[][][] ximage, int selector) {
-	img.loadPixels();
-	for (int i = 0; i < img.width; i++){
-		for (int j = 0; j < img.height; j++){
-			color c =  smearingTotal(i,j, kwidth, img, ximage, selector);
-			int index = (i + j * img.width);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-	}
-
-color smearingTotal(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
-	{
-		
-		float rtotal = 0.0;
-		float gtotal = 0.0;
-		float btotal = 0.0;
-		
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-
-				switch(sel){
-					case 1:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal += rpx * (xmsn);
-								gtotal += gpx * (xmsn);
-								btotal += bpx * (xmsn);
-							}
-						break;
-					case 2:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal *= rpx * (xmsn);
-								gtotal *= gpx * (xmsn);
-								btotal *= bpx * (xmsn);
-							}
-						break;
-					case 3:
-						if(xloc == x && yloc == y){
-							rtotal += rpx * (xmsn);
-							gtotal += gpx * (xmsn);
-							btotal += bpx * (xmsn);
-							} else {
-								rtotal *= rpx * (xmsn);
-								gtotal *= gpx * (xmsn);
-								btotal *= bpx * (xmsn);
-							}
-						break;
-					case 4:
-						if(xloc == x && yloc == y){
-							rtotal = rpx * (xmsn);
-							gtotal = gpx * (xmsn);
-							btotal = bpx * (xmsn);
-						}
-						break;
-					default:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal += rpx * (xmsn);
-								gtotal += gpx * (xmsn);
-								btotal += bpx * (xmsn);
-							}
-						break;
-				}
-			}
-		}
-		return color(rtotal, gtotal, btotal);
-	}
-
-void transmit(PImage img, float[][][] ximage)
-	{
-		img.loadPixels();
-		for (int i = 0; i < img.width; i++){
-			for (int j = 0; j < img.height; j++){
-				transmission(i,j, kwidth, img, ximage);
-			}
-		}
-		img.updatePixels();
-	}
-
-void transmission(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		color cpx = img.pixels[x+y*img.width];
-		
-		float rpx = cpx >> 16 & 0xFF;
-		float gpx = cpx >> 8 & 0xFF;
-		float bpx = cpx & 0xFF;
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				if(xloc == x && yloc == y){
-					rpx -= xmsn;
-					gpx -= xmsn;
-					bpx -= xmsn;
-				} else {
-					rpx += xmsn;
-					gpx += xmsn;
-					bpx += xmsn;
-				}
-			}
-		}
-		img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
-	}
-
-void gol(PImage img, float[][][] ximage)
-	{
-		img.loadPixels();
-		for (int i = 0; i < img.width; i++){
-			for (int j = 0; j < img.height; j++){
-				gols(i,j, kwidth, img, ximage);
-			}
-		}
-		img.updatePixels();
-	}
-
-void gols(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		final float xmn = ximg[constrain(x+y*img.width, 0, ximg.length - 1)][1][1];
-		
-		final color cpx = img.pixels[x+y*img.width];
-		
-		float rpx = cpx >> 16 & 0xFF;
-		float gpx = cpx >> 8 & 0xFF;
-		float bpx = cpx & 0xFF;
-		
-		int count = 0;
-
-		final int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-
-				color ipx = img.pixels[loc];
-		
-				float irpx = ipx >> 16 & 0xFF;
-				float igpx = ipx >> 8 & 0xFF;
-				float ibpx = ipx & 0xFF;
-
-				if(xloc != x && yloc != y){
-					float avg = ((irpx + igpx + ibpx) / 3.);
-					count += (avg > (255./2.)) ? 1 : 0;
-				}
-			}
-		}
-		if((count < 2) || (count > 3)){
-			// img.pixels[x+y*img.width] = color(rpx * .5, gpx * .5, bpx * .5);	
-			// img.pixels[x+y*img.width] = color(0,0,0);
-			/* 
-			rpx -= xmn;
-			gpx -= xmn;
-			bpx -= xmn;
-			 */
-			rpx -= (xmn / (count + 1));
-			gpx -= (xmn / (count + 1));
-			bpx -= (xmn / (count + 1));
-			// ^^ could also add to those neighboring pixels
-			img.pixels[x+y*img.width] = color(rpx, gpx, bpx);
-		} 
-		else if (count == 2 || count == 3){
-			img.pixels[x+y*img.width] = color(rpx,gpx,bpx);
-		} else {
-			img.pixels[x+y*img.width] = color(255,255,255);
-		}
-	}
-
-void transmitMBL(PImage img, float[][][] ximage)
-	{
-		img.loadPixels();
-		for (int i = 0; i < img.width; i++){
-			for (int j = 0; j < img.height; j++){
-				transmissionMBL(i,j, kwidth, img, ximage);
-			}
-		}
-		img.updatePixels();
-	}
-
-void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		int sloc = x+y*img.width;
-		
-		color spx = img.pixels[sloc];
-		float gs = computeGS(spx);
-		
-		float xmsn = map(gs, 0., 1., -.5, .5) / xsmnfactor;
-		// float xmsn = map(gs, 0., 1., -1.*scalefac, 1.*scalefac) / xsmnfactor;
-		// float xmsn = ximg[sloc][i][j] / xsmnfactor;
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				color cpx = img.pixels[loc];
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				
-				if(xloc == x && yloc == y){
-					continue;
-				} else {
-					// float xmsn = ximg[sloc][i][j] / xsmnfactor;
-					rpx += xmsn;
-					gpx += xmsn;
-					bpx += xmsn;
-				}
-				img.pixels[loc] = color(rpx,gpx,bpx);
-			}
-		}
-	}
-
-PImage randomImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				color c = color(random(255.));
-				int index = (i + j * rimg.width);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage noiseImage(int w, int h, int lod, float falloff){
-	  noiseDetail(lod, falloff);
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
-				int index = (i + j * rimg.width);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage kuficImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.width; i++){
-			for (int j = 0; j < rimg.height; j++){
-				chance = ((i % 2) + (j % 2));
-				
-				float wallornot = random(2.);
-				int index = (i + j * rimg.width);
-				if(wallornot <= chance){
-						color c = color(0);
-						rimg.pixels[index] = c;
-					} else {
-						color c = color(255-(255*(wallornot/2.)));
-						rimg.pixels[index] = c;
-					}
-				}
-			}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-
-void mazeImage(PImage source){
-		source.loadPixels();
-		for (int i = 0; i < source.width; i++){
-			for (int j = 0; j < source.height; j++){
-				
-				int loc = (i + j * source.width);
-				
-				color cpx = source.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				float apx = alpha(cpx);
-				
-				float avgF = ((rpx+gpx+bpx+apx)/4.)/255.;
-				
-				float r = round(avgF);
-				color c = color(r*255);
-				source.pixels[loc] = c;
-				}
-			}
-		source.updatePixels();
-	}
