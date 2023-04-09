@@ -6,7 +6,7 @@ PGraphics pg;
 PImage simg,dimg;
 float[][][] xmg;
 int downsample,modfac,dmfac;
-int kwidth = 3;
+int kwidth = 3; /* 3|5 */
 int drawswitch = 0;
 float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
@@ -27,7 +27,12 @@ void setup(){
 	/* -------------------------------------------------------------------------- */
 	
 	/* ------------------------------- image files ------------------------------ */
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif"); /* mwrTn-pixelmaze.gif | excited_shaq.gif | willem-dafoe-insane.gif */
+	simg = loadImage("./imgs/nasa.jpg"); /* universe.jpg */ 
+	/* 
+		No interesting movement with universe.jpg, maybe because it's not a gif? 
+		doesn't seem to be the case. Maybe because there's less information? like only two colors?
+	*/
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -79,27 +84,33 @@ void setup(){
 	simg.resize(nw, nh);
 	
 	// sf ~~ rate of decay
-	// float sf = 1.0f/255.0f; /* 25.0f */
+	// float sf = 1.0f/25.0f; /* 25.0f | 255.0f */
 	// kernelScale = 255. * sf;
+	
+	// kernelScale = 1.0f;
+	// kernelScale = 10.0f;
+	// kernelScale = 100.0f;
+	// kernelScale = 1000.0f;
 
-	/* ^^ kernelScale is kernelScale  */
 	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
 	// kernelScale = 1.0f / 255.0f;
-	kernelScale = 1.0f / 1.0f;
-	// kernelScale = 0.098f / 1.0f;
-	// kernelScale = 0.98f / 1.0f;
-	// kernelScale = 0.50f / 1.0f;
-	// kernelScale = 0.33f / 1.0f;
+	kernelScale = 1.000f;
+	// kernelScale = 0.098f;
+	// kernelScale = 0.980f;
+	// kernelScale = 0.500f;
+	// kernelScale = 0.330f;
+	// kernelScale = PI;
+	// kernelScale = 2.0f * PI;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
-	// xsmnfactor = 1.;
-	// xsmnfactor = pow(kwidth,0.5);
-	// xsmnfactor = pow(kwidth,1.5);
-	// xsmnfactor = pow(kwidth - 1,3.); /* default */
+	// xsmnfactor = 1.0f;
+	// xsmnfactor = 1.0f/pow(kwidth,0.5);
+	// xsmnfactor = 1.0f/pow(kwidth,1.5);
+	// xsmnfactor = 1.0f/pow(kwidth - 1,3.);
 	xsmnfactor = 1.0f/pow(kwidth, 2.); /* default */
-	// xsmnfactor = pow(kwidth,3.);
-	// xsmnfactor = pow(kwidth,4.);
-	// xsmnfactor = pow(kwidth,6.);
+	// xsmnfactor = 1.0f/pow(kwidth,3.);
+	// xsmnfactor = 1.0f/pow(kwidth,4.);
+	// xsmnfactor = 1.0f/pow(kwidth,6.);
 	// xsmnfactor = kernelScale; /* makes transmission some value between 0 and 1*/
 	
 	/*
@@ -120,7 +131,7 @@ void setup(){
 	pg.noSmooth();
 	
 	blueline = loadShader("blueline.glsl");
-	float resu = 100.;
+	float resu = 1000.;
 	blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
 	
 	// the unitsize determines the dimensions of a pixels for the shader
@@ -137,8 +148,9 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	// blueline.set("rfac", 0.0);
-	blueline.set("rfac", 1.0);
+	blueline.set("rfac", 0.0);
+	// blueline.set("rfac", 0.50);
+	// blueline.set("rfac", 1.0);
 	
 	if(dispersed){
 		useDispersed(modfac);
@@ -147,12 +159,9 @@ void setup(){
 	}
 
 	background(0);
-	/* 
-		https://www.baeldung.com/java-8-lambda-expressions-tips
-		^^ will help with functionalizing selectDraw so I can set the draw function in setup instead of in draw.
-	 */
-	// convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weightedblur | gol | chladni
-	af = new ArcaneFilter("chladni", kwidth, xsmnfactor);
+
+	// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
+	af = new ArcaneFilter("amble", kwidth, xsmnfactor);
 }
 
 void draw(){
