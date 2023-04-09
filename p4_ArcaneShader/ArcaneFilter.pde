@@ -471,9 +471,9 @@ class ArcaneFilter {
 						& is more efficient than using mod
 						https://stackoverflow.com/a/2229966
 					*/
-					rspx = (int(rspx) & 1) == 0 ? (rspx*0.5) : (3.0 * rspx) + 1.0;
-					gspx = (int(gspx) & 1) == 0 ? (gspx*0.5) : (3.0 * gspx) + 1.0;
-					bspx = (int(bspx) & 1) == 0 ? (bspx*0.5) : (3.0 * bspx) + 1.0;
+					rspx = (int(rspx) & 1) == 0 ? (rspx*0.5f) : (3.0f * rspx) + 1.0f;
+					gspx = (int(gspx) & 1) == 0 ? (gspx*0.5f) : (3.0f * gspx) + 1.0f;
+					bspx = (int(bspx) & 1) == 0 ? (bspx*0.5f) : (3.0f * bspx) + 1.0f;
 
 					img.pixels[sloc] = color(rspx, gspx, bspx);
 				};
@@ -896,6 +896,8 @@ class ArcaneFilter {
 		    	break;
 		    case "dilate":
 		    	break;
+		    case "still":
+		    	break;
 		    default:
 		    	arcfilter = transmit;
 		    	break;
@@ -927,6 +929,8 @@ class ArcaneFilter {
                 break;
             case "invert":
                 arcimg.filter(INVERT);
+                break;
+            case "still":
                 break;
             default:
 				customfilter(arcimg, ximg);
