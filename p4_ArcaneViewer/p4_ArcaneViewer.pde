@@ -8,7 +8,7 @@ PGraphics pg;
 
 Movie simg,dimg;
 float[][][] xmg;
-int downsample,modfac,dmfac;
+int nw,nh,downsample,modfac,dmfac;
 int kwidth = 3; /* 3|5 */
 int drawswitch = 0;
 float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
@@ -32,6 +32,7 @@ void setup(){
 	
 	simg = new Movie(this, "./imgs/willem-dafoe-insane.mp4");
 	simg.loop();
+	simg.read();
 	/* 
 		No interesting movement with universe.jpg, maybe because it's not a gif? 
 		doesn't seem to be the case. Maybe because there's less information? like only two colors?
@@ -53,8 +54,8 @@ void setup(){
 	float sh = (float)simg.height;
 	float scale = min(width/sw, height/sh);
 	
-	int nw = Math.round(sw*scale);
-	int nh = Math.round(sh*scale);
+	nw = Math.round(sw*scale);
+	nh = Math.round(sh*scale);
 	
 	// sf ~~ rate of decay
 	// float sf = 1.0f/25.0f; /* 25.0f | 255.0f */
@@ -140,7 +141,7 @@ void setup(){
 void draw(){
 	if (simg.available() == true) {
 		simg.read();
-    	// af.kernelmap( simg, xmg );
+    	// af.kernelmap( simg, xmg ); /* FIXME:  ArrayIndexOutOfBoundsException */
 	}
 	background(0);
 	pgDraw();

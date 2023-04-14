@@ -127,6 +127,7 @@ class ArcaneFilter {
 									int yloc = y+l-offset;
 									int loc = xloc + img.pixelWidth*yloc;
 									loc = constrain(loc,0,img.pixels.length-1);
+
 									float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
 									color icpx = img.pixels[loc];
