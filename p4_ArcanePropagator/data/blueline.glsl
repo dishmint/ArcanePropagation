@@ -186,7 +186,7 @@ void pushgrade(int selector, int selector2, int selector3){
 			grade =      makeGrade(selector2, selector3);
 			break;
 		case inverse:
-			grade = 1. - makeGrade(selector2, selector3);
+			grade = 1.0 - makeGrade(selector2, selector3);
 			break;
 		default:
 			grade =      makeGrade(selector2, selector3);
@@ -263,7 +263,13 @@ struct settings
 	int grader; /* Specify whether to use the theme or not */
 };
 
-settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
+settings setting = settings(
+	C4B, 
+	normal /* inverse */, 
+	rblue, 
+	alphaY, 
+	GEO, 
+	GRADE /* NOGRADE */ /* SOURCE */);
 
 void main( void ) {
 	
