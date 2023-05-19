@@ -10,6 +10,7 @@ function preload(){
 	arcshader = loadShader("assets/shaders/vs.vert","assets/shaders/blueline.frag")
 	console.log(arcshader)
 	simg = arcgen.getImage()
+	/* TODO: I'll need a buffer shader to load pixels into + read from. */
 }
 
 function setup() {
@@ -33,8 +34,8 @@ function setup() {
 
 function draw() {
 	parc.draw() 
-	// rect(0,0, windowWidth, windowHeight)
-	// image(simg, 0, 0, width, height)
+	rect(0,0, windowWidth, windowHeight)
+	image(simg, 0, windowHeight / 8.0, simg.width * 1.0, simg.height * 1.0)
 }
 
 function windowResized(){

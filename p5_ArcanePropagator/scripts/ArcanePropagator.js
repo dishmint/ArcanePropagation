@@ -35,7 +35,7 @@ class ArcanePropagator {
 
     draw(){
         this.update()
-        this.ar.show(this)
+        this.show(this)
     }
 
     imagefit(imageToResize){

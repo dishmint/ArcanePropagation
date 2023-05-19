@@ -42,7 +42,11 @@ class ArcaneRender {
             // console.log(simg.source)
             this.blueline.setUniform("tex0", simg.source)
             // console.log(simg)
-            image(this.buffer, this.w/2, this.h/2, simg.source.width*ds, simg.source.height*ds)
+            let iw = simg.source.width*ds
+            let ih = simg.source.height*ds
+            // rect(windowWidth/2, windowHeight/2, 0, iw, ih)
+            rect(0, 0, 0, iw, ih)
+            image(this.buffer, this.w/2, this.h/2, iw, ih)
         }
     }
 
