@@ -1,6 +1,8 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
 import com.wolfram.jlink.*;
+import java.util.function.*;
+import java.util.Arrays;
 
 KernelLink ml = null;
 Expr imgclusters;
@@ -16,67 +18,62 @@ int downsample,modfac,dmfac;
 int kwidth = 3;
 int kwidthsq = (int)(pow(kwidth, 2));
 int drawswitch = 0;
-float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
+float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
 
 boolean dispersed, hav, klinkQ;
 
+ArcaneFilter af;
+ArcaneGenerator ag;
+
 void setup(){
-	// size(300, 300, P3D);
-	size(711, 400, P3D);
-	// size(1422, 800, P3D);
-	// size(1600, 900, P3D);
-	// size(2880, 1620, P3D);
-	// size(3840, 2160, P3D);
+	/* -------------------------------------------------------------------------- */
+	/*                               Sketch Settings                              */
+	/* -------------------------------------------------------------------------- */
+	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
-	
 	hint(ENABLE_STROKE_PURE);
 	
-	// LOAD IMAGE
+	/* -------------------------------------------------------------------------- */
+	/*                                 Load Image                                 */
+	/* -------------------------------------------------------------------------- */
 	
-	// simg = loadImage("./imgs/buff_skate.JPG");
-	// simg = loadImage("./imgs/face.png");
-	// simg = loadImage("./imgs/p5sketch1.jpg");
-	simg = loadImage("./imgs/fruit.jpg");
-	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
-	// simg = loadImage("./imgs/fzn_dishmint.JPG");
-	// simg = loadImage("./imgs/fezHassan.JPG");
-	// simg = loadImage("./imgs/enter.jpg");
-	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
+	/* ------------------------------- image files ------------------------------ */
+	simg = loadImage("./imgs/universe.jpg");
 	
-	// simg = loadImage("./imgs/roc_flour.jpg");
-	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
-	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
-	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/universe.jpg");
+	/* ---------------------------- image generators ---------------------------- */
+	// int noisew = int(0.0625 *  width);
+	// int noiseh = int(0.0625 * height);
+	// Random Noise
+	// ag = new ArcaneGenerator("random", noisew, noiseh);
 	
-	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = loadImage("./imgs/mountains_1.jpg");
+	// Kufic Noise
+	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
 	
-	// int noisew =  width/32;
-	// int noiseh = height/32;
-	// simg = randomImage(noisew, noiseh);
-	// simg = noiseImage(noisew, noiseh, 3, .6);
-	// simg = kuficImage(noisew, noiseh);
-	
-	// mazeImage(simg);
+	// Maze Noise
+	// ag = new ArcaneGenerator("maze", noisew, noiseh);
+	// PImage mimg = loadImage("./imgs/universe.jpg");
+	// ag.setMazeSource(mimg);
+
+	// Noise
+	// ag = new ArcaneGenerator("noise", noisew, noiseh);
+	// ag.setLod(3); ag.setFalloff(0.6f);
+		
+	/* -------------------------------- get image ------------------------------- */
+	// simg = ag.getImage(); 
+
+	/* -------------------------------------------------------------------------- */
+	/*                             Remaining Settings                             */
+	/* -------------------------------------------------------------------------- */
 	
 	// APPLY BASE FILTER
-	// simg.filter(GRAY);
-	// simg.filter(POSTERIZE, 4);
-	// simg.filter(BLUR, 2);
-	// simg.filter(DILATE);
-	// simg.filter(ERODE);
-	// simg.filter(INVERT);
-	// simg.filter(THRESHOLD, .8);
+	// simg.filter(GRAY|BLUR|DILATE|ERODE|INVERT);
+	// simg.filter(POSTERIZE|BLUR|THRESHOLD, strength);
+	// simg.filter(...);
 	
-	downsampleFloat = 2.25;
-	modfac = 3;
+	downsampleFloat = 2.25; /* 1.75|2.25|5.0 */
+	modfac = 3; /* 4\5|8 */
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.pixelWidth;
@@ -87,66 +84,25 @@ void setup(){
 	int nh = Math.round(sh*scale/downsampleFloat);
 	simg.resize(nw, nh);
 	
-	// sf ~~ rate of decay
-	// convolve: As sf increases decay-rate increases
-	// transmit: As sf increases decay-rate decreases
-	// smear: As sf increases      smear decreases
-	// float sf = 0000.50;   /* 510.00 */
-	// float sf = 0001.00;   /* 255.00 */
-	// float sf = 0002.00;   /* 127.50 */
-	// float sf = 0003.00;   /* 085.00 */
-	// float sf = 0004.00;   /* 063.75 */
-	// float sf = 0005.00;   /* 051.00 */
-	// float sf = 0006.00;   /* 042.50 */
-	// float sf = 0010.00;   /* 025.50 */
-	// float sf = 0012.00;   /* 021.25 */
-	// float sf = 0015.00;   /* 017.00 */
-	// float sf = 0017.00;   /* 015.00 */
-	// float sf = 0020.00;   /* 012.75 */
-	// float sf = 0025.00;   /* 010.20 */
-	// float sf = 0027.00;   /* ————— */
-	// float sf = 0030.00;   /* 008.50 */
-	// float sf = 0034.00;   /* 007.50 */
-	// float sf = 0050.00;   /* 005.10 */
-	// float sf = 0051.00;   /* 005.00 */
-	// float sf = 0060.00;   /* 004.25 */
-	// float sf = 0068.00;   /* 003.75 */
-	// float sf = 0075.00;   /* 003.40 */
-	// float sf = 0085.00;   /* 003.00 */
-	// float sf = 0100.00;   /* 002.55 */
-	// float sf = 0102.00;   /* 002.50 */
-	// float sf = 0125.00;   /* 002.04 */
-	// float sf = 0150.00;   /* 001.70 */
-	// float sf = 0170.00;   /* 001.50 */
-	// float sf = 0204.00;   /* 001.25 */
-	// float sf = 0250.00;   /* 001.02 */
-	// float sf = 0255.00;   /* 001.00 */
-	// float sf = 0382.50;   /* 000.66 */
-	float sf = 0510.00;   /* 000.50 */
-	// float sf = 0637.50;   /* 000.40 */
-	// float sf = 0765.00;   /* 000.33 */ /* works well with transmit */
-	// float sf = 1020.00;   /* 000.25 */
-	// float sf = 2040.00;   /* 000.125 */
-	// float sf = 3750.00;   /* 000.068 */
-	// float sf = 4080.00;   /* 000.0625 */
-
-	scalefac = 255./sf;
+	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
+	// kernelScale = 1.0f / 255.0f;
+	// kernelScale = 1.0f / 1.0f;
+	// kernelScale = 0.098f / 1.0f;
+	// kernelScale = 0.98f / 1.0f;
+	kernelScale = 0.50f / 1.0f;
+	// kernelScale = 0.33f / 1.0f;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
-	// xsmnfactor = 1.;
-	// xsmnfactor = pow(kwidth,0.5);
-	// xsmnfactor = pow(kwidth,1.5);
-	// xsmnfactor = pow(kwidth - 1,3.); /* default */
-	xsmnfactor = pow(kwidth,2.); /* default */
-	// xsmnfactor = pow(kwidth,3.);
-	// xsmnfactor = pow(kwidth,4.);
-	// xsmnfactor = pow(kwidth,6.);
-	// xsmnfactor = scalefac; /* makes transmission some value between 0 and 1*/
+	xsmnfactor = 1.0f / pow(kwidth, 2.0f); /* default */
+	// xsmnfactor = 1.0f / kwidth;
+	// xsmnfactor = kwidth;
+	// xsmnfactor = kernelScale;
 	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
-	gsd = 255.; /* 255 | 3 */
+
+	gsd = 1.0f/255.0f; /* 1.0f/ 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
 	hav = false;
 	xmg = loadxm(simg, kwidth);
 	
@@ -156,110 +112,24 @@ void setup(){
 	background(0);
 	noCursor();
 	
-	klinkQ = true;
+	klinkQ = false;
 	if(klinkQ){
-		String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
-		
-		try {
-			ml = MathLinkFactory.createKernelLink(mlargs);
-			ml.discardAnswer();
-			} catch (MathLinkException e) {
-				System.out.println("MathLinkFactory::Fatal error opening link: " + e.getMessage());
-				return;
-			}
-			
-			// Define CellularAutomaton parameters
-			rule = 30;
-			k = 2;
-			r1 = r2 = 1;
-		
-		// Create 2D image array
-		int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
-		
-		simg.loadPixels();
-		int simglen = simg.pixelWidth * simg.pixelHeight;
-		for(int i=0; i<simg.pixelWidth; i++){
-			for(int j=0; j<simg.pixelHeight; j++){
-			int lc = (i*simg.pixelWidth) + j;
-			lc = constrain(lc,0,simglen-1);
-			iarray[i][j] = simg.pixels[lc];
-			}
-		}
-		simg.updatePixels();
-		
-		try {
-			// Evaluate (ClusteringComponents[image, k] - 1)
-			ml.putFunction("Subtract",2);
-				ml.putFunction("ClusteringComponents",2);
-					ml.put(iarray);
-					ml.put(k);
-				ml.put(1);
-			ml.waitForAnswer();
-			imgclusters = ml.getExpr();
-			} catch (MathLinkException e) {
-				System.out.println("LoadingArcaneUtilities::Fatal error opening link: " + e.getMessage());
-				return;
-			}
+		setupWLKernel();
 	}
+	//convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
+	/* TODO: add rdf filters */
+	af = new ArcaneFilter("transmitMBL", kwidth, xsmnfactor);
+
 }
 
 void draw(){
-	//selectDraw(String convolution, String style)
-	//convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	//style — point | line | xline | xliner | xliner2
-
-	// selectDraw("still", "point");
-	// selectDraw("transmitMBL", "point");
-	// selectDraw("posterize", "point", 25);
-	selectDraw("CA", "point");
+	selectDraw("line");
 }
 
-void selectDraw(String selector, String style){
-	switch(selector){
-		case "transmit":
-			transmit(simg, xmg);
-			break;
-		case "convolve":
-			convolve(simg, xmg);
-			break;
-		case "smear":
-			smear(simg, xmg, 1);
-			break;
-		case "smearTotal":
-			smearTotal(simg, xmg, 1);
-			break;
-		case "transmitMBL":
-			transmitMBL(simg, xmg);
-			break;
-		case "switch":
-		// switchdraw(int frames, int selector);
-			switchdraw(20, 2);
-			break;
-		case "switchTotal":
-		// switchdrawTotal(int frames, int selector);
-			switchdrawTotal(20, 4);
-			break;
-		case "blur":
-			simg.filter(BLUR, 1);
-			break;
-		case "posterize":
-			simg.filter(POSTERIZE, (frameCount % 253) + 2);
-			break;
-		case "dilate":
-			simg.filter(DILATE);
-			break;
-		case "erode":
-			simg.filter(ERODE);
-			break;
-		case "weightedblur":
-			weightedblur(simg, xmg);
-			break;
-		case "CA":
-			cellularAutomaton(simg);
-			break;
-		default:
-			break;
-		}
+void selectDraw(String style){
+
+	af.kernelmap(simg, xmg);
 	
 	background(0);
 	pointDraw(style);
@@ -322,16 +192,16 @@ float computeGS(color px){
 			(0.2989 * rpx) +
 			(0.5870 * gpx) +
 			(0.1140 * bpx)
-			) / gsd;
+			) * gsd;
 	} else if(!hav) {
 		// channel average
-		igs = (rpx + gpx + bpx) / gsd;
+		igs = (rpx + gpx + bpx) * gsd;
 	} else {
 		igs = 1.;
 	}
 	// return igs;
-	return map(igs, 0., 1., -.5*scalefac, .5*scalefac);
-	// return map(igs, 0., 1., -1.*scalefac, 1.*scalefac);
+	// return map(igs, 0., 1., -.5*kernelScale, .5*kernelScale);
+	return map(igs, 0., 1., -1.*kernelScale, 1.*kernelScale);
 }
 
 
@@ -347,15 +217,20 @@ float computeGS(color px, boolean hu){
 			0.2989 * rpx +
 			0.5870 * gpx +
 			0.1140 * bpx
-			) / gsd;
+			) * gsd;
 	} else {
 		// channel average
-		igs = (rpx + gpx + bpx) / gsd;
+		igs = (rpx + gpx + bpx) * gsd;
 	}
 	return igs;
 }
 
 void pointorbit(PImage nimg, String selector){
+	/* FIXME: Looping over the pixels here may be a bottlneck */
+	/* 
+		Should I do this in the filter? 
+		I guess this is fine then, because the filter is the kernel operation, and this is the rendering operation .
+		*/
 	nimg.loadPixels();
 	for(int x = 0; x < nimg.pixelWidth;x++){
 		for(int y = 0; y < nimg.pixelHeight; y++){
@@ -393,7 +268,7 @@ void pointorbit(PImage nimg, String selector){
 
 void showAsPoint(int x, int y, float energy) {
 	float enc = lerp(-1., 1., energy);
-	// float enc = lerp(-1., 1., energy/scalefac);
+	// float enc = lerp(-1., 1., energy/kernelScale);
 	// float enc = lerp(-1., 1., (energy+1.)/2.);
 	stroke(energyDegree(energy));
 	float ang = radians(energyAngle(enc));
@@ -623,13 +498,13 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 }
 
 float energyAngle(float ec) {
-	float ecc = (ec + 1.) / 2.;
-	float a = lerp(0., 360., ecc);
+	float ecc = (ec + 1.0f) / 2.0f;
+	float a = lerp(0.0f, 360.0f, ecc);
 	return a;
 }
 
 color energyDegree(float energy) {
-	float ne = (energy+1.)/2.;
+	float ne = (energy+1.0f)/2.0f;
 	return lerpColor(color(0, 255, 255, 255), color(215, 0, 55, 255), ne);
 }
 
@@ -647,9 +522,10 @@ void switchdraw(int mod, int smearSelector){
 	}
 	
 	if(drawswitch == 0){
-		transmit(simg, xmg);
+		af.setFilterMode("transmit");
 	} else {
-		smear(simg, xmg, smearSelector);
+		af.selector = smearSelector;
+		af.setFilterMode("smearTotal");
 	}
 }
 
@@ -659,9 +535,10 @@ void switchdrawTotal(int mod, int smearSelector){
 	}
 	
 	if(drawswitch == 0){
-		transmit(simg, xmg);
+		af.setFilterMode("transmit");
 	} else {
-		smearTotal(simg, xmg, smearSelector);
+		af.selector = smearSelector;
+		af.setFilterMode("smearTotal");
 	}
 }
 
@@ -682,13 +559,14 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			color cpx = img.pixels[loc];
 			float gs = computeGS(cpx);
 			
-			// the closer values are to 0 the more negative the transmission is, that's why a large value of scalefac produces fast fades.
-			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			// the closer values are to 0 the more negative the transmission is, that's why a large value of kernelScale produces fast fades.
+			kern[i][j] = map(gs, 0.0f, 1.0f, -1.0f*kernelScale,1.0f*kernelScale);
 			// kern[i][j] = map(gs, 0, 1, -.5,.5);
-			// kern[i][j] = map(gs, 0, 1, -.5*scalefac,.5*scalefac);
+			// kern[i][j] = map(gs, 0, 1, -.5*kernelScale,.5*kernelScale);
 			// kern[i][j] = gs;
-			// kern[i][j] = map(gs, 0, 1, 0.,1.*scalefac);
+			// kern[i][j] = map(gs, 0, 1, 0.,1.*kernelScale);
 			// kern[i][j] = map(gs, 0, 1, -1.,1.);
+			// kern[i][j] = map(gs, 0.0f, gsd, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -741,7 +619,7 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 			
 			float gs = computeGS(color(rpx,gpx,bpx));
 			
-			kern[i][j] = map(gs, 0, 1, -1.*scalefac,1.*scalefac);
+			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -788,388 +666,7 @@ void setDispersedImage(PImage source, PImage di) {
 	di.updatePixels();
 }
 
-void convolve(PImage img, float[][][] ximage) {
-	img.loadPixels();
-	for (int i = 0; i < img.pixelWidth; i++){
-		for (int j = 0; j < img.pixelHeight; j++){
-			color c =  convolution(i,j, kwidth, img, ximage);
-			int index = (i + j * img.pixelWidth);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-}
-
-// https://processing.org/examples/convolution.html
-// Adjusted slightly for the purposes of this sketch
-color convolution(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		//  TODO: It may be the case that (rgb)total shouldn't start at 0.
-		float rtotal = 0.0;
-		float gtotal = 0.0;
-		float btotal = 0.0;
-
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.pixelWidth*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				
-				if(xloc == x && yloc == y){
-					rtotal -= (rpx * xmsn);
-					gtotal -= (gpx * xmsn);
-					btotal -= (bpx * xmsn);
-				} else {
-					rtotal += (rpx * xmsn);
-					gtotal += (gpx * xmsn);
-					btotal += (bpx * xmsn);
-				}
-			}
-		}
-		
-		return color(rtotal, gtotal, btotal);
-	}
-
-void smear(PImage img, float[][][] ximage, int selector) {
-	img.loadPixels();
-	for (int i = 0; i < img.pixelWidth; i++){
-		for (int j = 0; j < img.pixelHeight; j++){
-			color c =  smearing(i,j, kwidth, img, ximage, selector);
-			int index = (i + j * img.pixelWidth);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-	}
-
-color smearing(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
-	{
-		
-		float rpx = 0.0;
-		float gpx = 0.0;
-		float bpx = 0.0;
-		
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.pixelWidth*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				rpx = cpx >> 16 & 0xFF;
-				gpx = cpx >> 8 & 0xFF;
-				bpx = cpx & 0xFF;
-
-				switch(sel){
-					case 1:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx += (xmsn);
-								gpx += (xmsn);
-								bpx += (xmsn);
-							}
-						break;
-					case 2:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx *= (xmsn);
-								gpx *= (xmsn);
-								bpx *= (xmsn);
-							}
-						break;
-					case 3:
-						if(xloc == x && yloc == y){
-							rpx += (xmsn);
-							gpx += (xmsn);
-							bpx += (xmsn);
-							} else {
-								rpx *= (xmsn);
-								gpx *= (xmsn);
-								bpx *= (xmsn);
-							}
-						break;
-					case 4:
-						if(xloc == x && yloc == y){
-							rpx = (xmsn);
-							gpx = (xmsn);
-							bpx = (xmsn);
-						}
-						break;
-					default:
-						if(xloc == x && yloc == y){
-							rpx -= (xmsn);
-							gpx -= (xmsn);
-							bpx -= (xmsn);
-							} else {
-								rpx += (xmsn);
-								gpx += (xmsn);
-								bpx += (xmsn);
-							}
-						break;
-				}
-			}
-		}
-		return color(rpx, gpx, bpx);
-	}
-
-void smearTotal(PImage img, float[][][] ximage, int selector) {
-	img.loadPixels();
-	for (int i = 0; i < img.pixelWidth; i++){
-		for (int j = 0; j < img.pixelHeight; j++){
-			color c =  smearingTotal(i,j, kwidth, img, ximage, selector);
-			int index = (i + j * img.pixelWidth);
-			img.pixels[index] = c;
-		}
-	}
-	img.updatePixels();
-	}
-
-color smearingTotal(int x, int y, int kwidth, PImage img, float[][][] ximg, int sel)
-	{
-		
-		float rtotal = 0.0;
-		float gtotal = 0.0;
-		float btotal = 0.0;
-		
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.pixelWidth*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				
-				float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				color cpx = img.pixels[loc];
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-
-				switch(sel){
-					case 1:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal += rpx * (xmsn);
-								gtotal += gpx * (xmsn);
-								btotal += bpx * (xmsn);
-							}
-						break;
-					case 2:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal *= rpx * (xmsn);
-								gtotal *= gpx * (xmsn);
-								btotal *= bpx * (xmsn);
-							}
-						break;
-					case 3:
-						if(xloc == x && yloc == y){
-							rtotal += rpx * (xmsn);
-							gtotal += gpx * (xmsn);
-							btotal += bpx * (xmsn);
-							} else {
-								rtotal *= rpx * (xmsn);
-								gtotal *= gpx * (xmsn);
-								btotal *= bpx * (xmsn);
-							}
-						break;
-					case 4:
-						if(xloc == x && yloc == y){
-							rtotal = rpx * (xmsn);
-							gtotal = gpx * (xmsn);
-							btotal = bpx * (xmsn);
-						}
-						break;
-					default:
-						if(xloc == x && yloc == y){
-							rtotal -= rpx * (xmsn);
-							gtotal -= gpx * (xmsn);
-							btotal -= bpx * (xmsn);
-							} else {
-								rtotal += rpx * (xmsn);
-								gtotal += gpx * (xmsn);
-								btotal += bpx * (xmsn);
-							}
-						break;
-				}
-			}
-		}
-		return color(rtotal, gtotal, btotal);
-	}
-
-void transmit(PImage img, float[][][] ximage)
-	{
-		img.loadPixels();
-		for (int i = 0; i < img.pixelWidth; i++){
-			for (int j = 0; j < img.pixelHeight; j++){
-				transmission(i,j, kwidth, img, ximage);
-			}
-		}
-		img.updatePixels();
-	}
-
-void transmission(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		color cpx = img.pixels[x+y*img.pixelWidth];
-		
-		float rpx = cpx >> 16 & 0xFF;
-		float gpx = cpx >> 8 & 0xFF;
-		float bpx = cpx & 0xFF;
-		
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.pixelWidth*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				// float xmsn = (ximg[loc][i][j] / xsmnfactor);
-				
-				float xmsn = computeGS(cpx) / xsmnfactor;
-				
-				if(xloc == x && yloc == y){
-					rpx -= xmsn;
-					gpx -= xmsn;
-					bpx -= xmsn;
-				} else {
-					rpx += xmsn;
-					gpx += xmsn;
-					bpx += xmsn;
-				}
-			}
-		}
-		img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
-	}
-
-void transmitMBL(PImage img, float[][][] ximage)
-	{
-		img.loadPixels();
-		for (int i = 0; i < img.pixelWidth; i++){
-			for (int j = 0; j < img.pixelHeight; j++){
-				transmissionMBL(i,j, kwidth, img, ximage);
-			}
-		}
-		img.updatePixels();
-	}
-
-void transmissionMBL(int x, int y, int kwidth, PImage img, float[][][] ximg)
-	{
-		int sloc = x+y*img.pixelWidth;
-		
-		color spx = img.pixels[sloc];
-		float gs = computeGS(spx);
-		float rpx = spx >> 16 & 0xFF;
-		float gpx = spx >> 8 & 0xFF;
-		float bpx = spx & 0xFF;
-		
-		
-		float xmission = gs * ximg[sloc][1][1];
-		float abse = abs(xmission - gs);
-		int offset = kwidth / 2;
-		for (int i = 0; i < kwidth; i++){
-			for (int j= 0; j < kwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.pixelWidth*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
-				color cpx = img.pixels[loc];
-				
-				float crpx = cpx >> 16 & 0xFF;
-				float cgpx = cpx >> 8 & 0xFF;
-				float cbpx = cpx & 0xFF;
-				
-				if(abse <= .1){
-					rpx -= (xmission);
-					gpx -= (xmission);
-					bpx -= (xmission);
-				} else {
-					rpx += (xmission);
-					gpx += (xmission);
-					bpx += (xmission);
-				}
-			}
-		}
-		img.pixels[sloc] = color(rpx,gpx,bpx);
-	}
-
-	void weightedblur(PImage img, float[][][] ximage)
-		{
-			img.loadPixels();
-			for (int i = 0; i < img.pixelWidth; i++){
-				for (int j = 0; j < img.pixelHeight; j++){
-					weightedblurring(i,j, kwidth, img, ximage);
-				}
-			}
-			img.updatePixels();
-		}
-
-	void weightedblurring(int x, int y, int kwidth, PImage img, float[][][] ximg)
-		{
-			int cloc = x+y*img.pixelWidth;
-			color cpx = img.pixels[cloc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			int offset = kwidth / 2;
-			for (int i = 0; i < kwidth; i++){
-				for (int j= 0; j < kwidth; j++){
-					
-					int xloc = x+i-offset;
-					int yloc = y+j-offset;
-					int loc = xloc + img.pixelWidth*yloc;
-					loc = constrain(loc,0,img.pixels.length-1);
-					color npx = img.pixels[loc];
-					float xmsn = (ximg[loc][i][j] / xsmnfactor);
-
-					float nrpx = npx >> 16 & 0xFF;
-					float ngpx = npx >> 8 & 0xFF;
-					float nbpx = npx & 0xFF;
-					
-					rpx += (nrpx * xmsn);
-					gpx += (ngpx * xmsn);
-					bpx += (nbpx * xmsn);
-				}
-			}
-			img.pixels[cloc] = color(rpx,gpx,bpx);
-		}
-
-	void cellularAutomaton(PImage img)
+void cellularAutomaton(PImage img)
 		{
 		img.loadPixels();
 		int[][] newClusters;
@@ -1237,84 +734,51 @@ int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][]
 		}
 	}
 
-
-// IMAGE GENERATORS
-PImage randomImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				color c = color(random(255.));
-				int index = (i + j * rimg.pixelWidth);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage noiseImage(int w, int h, int lod, float falloff){
-	  noiseDetail(lod, falloff);
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
-				int index = (i + j * rimg.pixelWidth);
-				rimg.pixels[index] = c;
-			}
-		}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-PImage kuficImage(int w, int h){
-		PImage rimg = createImage(w,h, ARGB);
-		rimg.loadPixels();
-		for (int i = 0; i < rimg.pixelWidth; i++){
-			for (int j = 0; j < rimg.pixelHeight; j++){
-				chance = ((i % 2) + (j % 2));
-				
-				float wallornot = random(2.);
-				int index = (i + j * rimg.pixelWidth);
-				if(wallornot <= chance){
-						color c = color(0);
-						rimg.pixels[index] = c;
-					} else {
-						color c = color(255-(255*(wallornot/2.)));
-						rimg.pixels[index] = c;
-					}
-				}
-			}
-		rimg.updatePixels();
-		return rimg;
-	}
-
-
-void mazeImage(PImage source){
-		source.loadPixels();
-		for (int i = 0; i < source.pixelWidth; i++){
-			for (int j = 0; j < source.pixelHeight; j++){
-				
-				int loc = (i + j * source.pixelWidth);
-				
-				color cpx = source.pixels[loc];
-				
-				float rpx = cpx >> 16 & 0xFF;
-				float gpx = cpx >> 8 & 0xFF;
-				float bpx = cpx & 0xFF;
-				float apx = alpha(cpx);
-				
-				float avgF = ((rpx+gpx+bpx+apx)/4.)/255.;
-				
-				float r = round(avgF);
-				color c = color(r*255);
-				source.pixels[loc] = c;
-				}
-			}
-		source.updatePixels();
-	}
-
 	void stop() {
 		ml.close();
 	}
+
+void setupWLKernel(){
+	String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
+		
+	try {
+		ml = MathLinkFactory.createKernelLink(mlargs);
+		ml.discardAnswer();
+		} catch (MathLinkException e) {
+			System.out.println("MathLinkFactory::Fatal error opening link: " + e.getMessage());
+			return;
+		}
+		
+		// Define CellularAutomaton parameters
+		rule = 30;
+		k = 2;
+		r1 = r2 = 1;
+	
+	// Create 2D image array
+	int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
+	
+	simg.loadPixels();
+	int simglen = simg.pixelWidth * simg.pixelHeight;
+	for(int i=0; i<simg.pixelWidth; i++){
+		for(int j=0; j<simg.pixelHeight; j++){
+		int lc = (i*simg.pixelWidth) + j;
+		lc = constrain(lc,0,simglen-1);
+		iarray[i][j] = simg.pixels[lc];
+		}
+	}
+	simg.updatePixels();
+	
+	try {
+		// Evaluate (ClusteringComponents[image, k] - 1)
+		ml.putFunction("Subtract",2);
+			ml.putFunction("ClusteringComponents",2);
+				ml.put(iarray);
+				ml.put(k);
+			ml.put(1);
+		ml.waitForAnswer();
+		imgclusters = ml.getExpr();
+		} catch (MathLinkException e) {
+			System.out.println("LoadingArcaneUtilities::Fatal error opening link: " + e.getMessage());
+			return;
+		}
+}

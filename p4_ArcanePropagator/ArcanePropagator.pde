@@ -4,6 +4,7 @@ class ArcanePropagator{
 	int kernelwidth;
 	float kernelScale;
 	float xfactor;
+	float colordiv;
 	/* IMAGE */
 	PImage source;
 	float[][][] ximage;
@@ -39,7 +40,7 @@ class ArcanePropagator{
 				0.2989 * rpx +
 				0.5870 * gpx +
 				0.1140 * bpx
-				) / 255.0;
+				) * colordiv;
 		
 		// return map((
 		// 		rpx +
@@ -84,12 +85,13 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float ks, float xf, float ds){
+	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float ks, float xf, float ds, float gsd){
 		/* SETUP VARS */
 		kernelwidth = kw;
 		kernelScale = ks;
 		xfactor = xf;
 		displayScale = ds;
+		colordiv = gsd;
 		/* SETUP IMAGE */
 		source = resize(img);		
 		ximage = loadxm(source);
