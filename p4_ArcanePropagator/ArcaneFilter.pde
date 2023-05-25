@@ -44,25 +44,25 @@ class ArcaneFilter {
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
-        			        // if(xloc == x && yloc == y){
-							// 		rpx -= xmsn;
-							// 		gpx -= xmsn;
-							// 		bpx -= xmsn;
-        			        //     } else {
-							// 		rpx += xmsn;
-							// 		gpx += xmsn;
-							// 		bpx += xmsn;
-        			        // 	}
-
         			        if(xloc == x && yloc == y){
-									rpx -= (xmsn * l);
-									gpx -= (xmsn * l);
-									bpx -= (xmsn * l);
+									rpx -= xmsn;
+									gpx -= xmsn;
+									bpx -= xmsn;
         			            } else {
-									rpx += (xmsn * l);
-									gpx += (xmsn * l);
-									bpx += (xmsn * l);
+									rpx += xmsn;
+									gpx += xmsn;
+									bpx += xmsn;
         			        	}
+
+        			        // if(xloc == x && yloc == y){
+							// 		rpx -= (xmsn * (l + 1.0f));
+							// 		gpx -= (xmsn * (l + 1.0f));
+							// 		bpx -= (xmsn * (l + 1.0f));
+        			        //     } else {
+							// 		rpx += (xmsn * (l + 1.0f));
+							// 		gpx += (xmsn * (l + 1.0f));
+							// 		bpx += (xmsn * (l + 1.0f));
+        			        // 	}
         			    	}
         				}
         				img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
@@ -87,15 +87,23 @@ class ArcaneFilter {
         			        int loc = xloc + img.pixelWidth*yloc;
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
-
+							/* 
+								The reason these fade so easily is that the same amount is subtracted from the current pixel and added to the neighboring pixel.
+							 */
         			        if(xloc == x && yloc == y){
-									rpx -= (rpx * xmsn);
-									gpx -= (gpx * xmsn);
-									bpx -= (bpx * xmsn);
+									// rpx -= (rpx * xmsn);
+									// gpx -= (gpx * xmsn);
+									// bpx -= (bpx * xmsn);
+									rpx -= (rpx * (xmsn * ((k + l) * 0.5)));
+									gpx -= (gpx * (xmsn * ((k + l) * 0.5)));
+									bpx -= (bpx * (xmsn * ((k + l) * 0.5)));
         			            } else {
 									rpx += xmsn;
 									gpx += xmsn;
 									bpx += xmsn;
+									// rpx += (rpx * xmsn);
+									// gpx += (gpx * xmsn);
+									// bpx += (bpx * xmsn);
         			        	}
         			    	}
         				}

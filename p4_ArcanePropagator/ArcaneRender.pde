@@ -26,9 +26,9 @@ class ArcaneRender {
 			- rfac >= 1.5 == black screen
 			- rfac == 0.0 == 1:1
 			*/
-			// blueline.set("rfac", 0.0);
+			// blueline.set("rfac", 0.0); 
 			// blueline.set("rfac", 0.5);
-			blueline.set("rfac", 1.0);
+			blueline.set("rfac", 1.0); /* default */
 
 			renderer = (simg, ds) -> {
 				blueline.set("tex0", simg);
