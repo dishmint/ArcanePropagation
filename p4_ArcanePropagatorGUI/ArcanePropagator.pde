@@ -1,5 +1,4 @@
 class ArcanePropagator{
-	Consumer<ArcanePropagator> updater;
 	/* VARS */
 	int kernelwidth;
 	float kernelScale;
@@ -99,22 +98,14 @@ class ArcanePropagator{
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
 		/* SETUP RENDERER */
 		ar = new ArcaneRender(source, "blueline.glsl", displayScale);
-
-		updater = (ap) -> {
-			ap.update();
-		};
 	}
 
-	void update(){
-		af.kernelmap(this);
-	}
-	
-	void show(){
-		ar.show(this); /* should just display an image (what about point orbit though w/ geo?)*/
-	}
-
-	void draw(){
-		updater.accept(this);
-		ar.show(this);
+	void run(){
+		if (gui.toggle("Animate")){
+			af.kernelmap(this);
+			ar.show(this);
+		} else {
+			ar.show(this);
+		}
 	}
 }

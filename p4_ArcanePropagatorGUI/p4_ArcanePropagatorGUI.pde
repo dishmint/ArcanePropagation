@@ -1,5 +1,8 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
+
+import com.krab.lazy.*;
+
 PImage simg;
 ArcaneGenerator arcgen;
 
@@ -9,12 +12,18 @@ float kernelScale,xsmnfactor,displayscale;
 
 ArcaneGenerator ag;
 
+LazyGui gui;
+
 void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
+
+	gui = new LazyGui(this);
+	gui.toggleSet("Animate", false);
+
 	imageMode(CENTER);
 
 	pixelDensity(displayDensity());
@@ -22,7 +31,7 @@ void setup(){
 	background(0);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+	simg = loadImage("./imgs/universe.jpg");
 
 
 	/* ---------------------------- image generators ---------------------------- */
@@ -60,13 +69,13 @@ void setup(){
 		as kw ⬇️ less pixels involved in convolution
 	 */
 	// kernelWidth = 1~n; 5 is best for rdf; 4 is best for rdfx
-	// kernelWidth = 1; /* 3 - default */
-	// kernelWidth = 2; /* 3 - default */
-	// kernelWidth = 3; /* 3 - default */
-	// kernelWidth = 4; /* 4 - default */
-	kernelWidth = 5; /* 5 - default */
-	// kernelWidth = 6; /* 6 - default */
-	// kernelWidth = 7; /* 7 - default */
+	// kernelWidth = 1; /* 1 */
+	// kernelWidth = 2; /* 2 */
+	kernelWidth = 3; /* 3 - default */
+	// kernelWidth = 4; /* 4 */
+	// kernelWidth = 5; /* 5 */
+	// kernelWidth = 6; /* 6 */
+	// kernelWidth = 7; /* 7 */
 
 	/* Divisor: kernelsum / xsmnfactor */
 	// xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
@@ -80,7 +89,7 @@ void setup(){
 	// float colordivisor = 255.0f;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
+	parc = new ArcanePropagator(simg, "amble", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
 
 	// frameRate(1);
 	// frameRate(5);
@@ -88,5 +97,5 @@ void setup(){
 }
 
 void draw(){
-	parc.draw();
+	parc.run();
 }

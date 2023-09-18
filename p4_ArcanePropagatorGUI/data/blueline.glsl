@@ -269,7 +269,7 @@ settings setting = settings(
 	rblue, 
 	alphaY, 
 	GEO /* NOGEO */, 
-	/* GRADE */ /* NOGRADE */ SOURCE);
+	GRADE /* NOGRADE */ /* SOURCE */);
 
 void main( void ) {
 	
