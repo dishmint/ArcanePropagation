@@ -13,6 +13,8 @@ void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
+	surface.setResizable(true);
+  	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
 	imageMode(CENTER);
 
 	pixelDensity(displayDensity());
@@ -78,7 +80,7 @@ void setup(){
 	// float colordivisor = 255.0f;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "rdfx", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
+	parc = new ArcanePropagator(simg, "transmit", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
 
 	// frameRate(1);
 	// frameRate(5);
