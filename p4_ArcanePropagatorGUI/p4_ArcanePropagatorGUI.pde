@@ -22,7 +22,12 @@ void setup(){
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
 
 	gui = new LazyGui(this);
+	
 	gui.toggleSet("Run", false);
+
+	int fR = gui.sliderInt("FrameRates", 60, 1, 120);
+
+	frameRate(fR);
 
 	imageMode(CENTER);
 
@@ -30,6 +35,7 @@ void setup(){
 	hint(ENABLE_STROKE_PURE);
 	background(0);
 	
+	gui.pushFolder("ArcaneSettings");
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
 
@@ -91,11 +97,21 @@ void setup(){
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
 	parc = new ArcanePropagator(simg, "amble", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
 
-	// frameRate(1);
-	// frameRate(5);
-	// frameRate(12);
+	gui.popFolder();
+}
+
+void update(){
+	guiRefresh();
 }
 
 void draw(){
 	parc.run();
+}
+
+/* FIXME: changing the advance rate with frameRate is a bad idea because then the gui lags too */
+void guiRefresh(){
+	if (frameCount % 60 == 0){
+		print("guiRefresh " + frameCount + "\n");
+	}
+	frameRate(gui.sliderInt("FrameRates"));
 }

@@ -813,7 +813,15 @@
     {
       "valueBoolean": false,
       "className": "ToggleNode",
-      "path": "Animate",
+      "path": "Run",
+      "type": "VALUE"
+    },
+    {
+      "valueFloat": 1.0,
+      "currentPrecisionIndex": 4,
+      "valueFloatPrecision": 1.0,
+      "className": "SliderIntNode",
+      "path": "FrameRates",
       "type": "VALUE"
     }
   ],
