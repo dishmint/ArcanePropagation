@@ -1,0 +1,191 @@
+Image Setup
+	// simg = loadImage("./imgs/nestedsquare.png");
+	// simg = loadImage("./imgs/enter.jpg");
+	// simg = loadImage("./imgs/nasa.jpg");
+	// simg = loadImage("./imgs/buildings.jpg");
+	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
+
+	// int dimw = int(width * 0.5), dimh = int(height * 0.95);
+	// simg = randomImage(dimw, dimh);
+	// simg = noiseImage(dimw, dimh, 12, 0.06);
+	// simg = kuficImage(dimw, dimh);
+
+	// simg.filter(GRAY);
+	// simg.filter(THRESHOLD);
+	/*
+		sf: Divisor which affects the pixel's x-strength
+
+		It's not clear yet when this value has more effect, as transmission can also be affected by kernelWidth and xsmnfactor, or the image size it looks like.
+
+	*/
+Transmission Factor
+	// xsmnfactor = pow(kernelWidth, 0.125);
+	// xsmnfactor = pow(kernelWidth, 0.250);
+	// xsmnfactor = pow(kernelWidth, 0.500);
+	// xsmnfactor = kernelWidth;
+    // xsmnfactor = pow(kernelWidth, 3.);
+    // xsmnfactor = 255.; 
+    // xsmnfactor = scalefac;
+
+ArcanePropagator - loadxm
+	// kernel[k][l] = gs;
+	// kernel[k][l] = gs * -2.0;
+	// kernel[k][l] = map(gs, 0, 1, -0.5,0.5);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)*scalefactor;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)/scalefactor;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.)*kernelwidth;
+	// kernel[k][l] = (map(gs, 0, 1, -1.,1.)*kernelwidth)/kernelwidth;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((k*l)/pow(kernelwidth, 2.0));
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * k;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * l;
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (k + l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k * l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - (k + l);
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - k); /* moves to the left */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * (offset - l); /* moves to the top */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) - ((k*l)/(kernelwidth*2.0)); /* blown out */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/kernelwidth); /* static */
+	// kernel[k][l] = map(gs, 0, 1, -1.,1.) * ((abs(k-offset) * abs(l-offset))/pow(kernelwidth,2.0)); /* dynamic */
+
+ArcaneRender - blueline
+	// blueline.set("resolution", float(buffer.pixelWidth), float(buffer.pixelHeight));
+	// blueline.set("resolution", 100.*float(buffer.pixelWidth), 100.*float(buffer.pixelHeight)); /* default */
+            
+	// blueline.set("rfac", 1.00000); /* default */
+	// blueline.set("rfac", 1.015625); 
+	// blueline.set("rfac", 1.03125); 
+	// blueline.set("rfac", 1.0625); 
+	// blueline.set("rfac", 1.25);
+	// blueline.set("rfac", 1.300000);
+	// blueline.set("rfac", 2.00);
+
+
+ArcaneProcess - convolve
+
+	/* some xmsn variants */
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * i;
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * j;
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) - (i * j);
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) - (i + j);
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * (i + j);
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * ((i-offset) + (j-offset));
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * (offset - i);
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * (offset - j);
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) - ((i*j)/(kernelwidth*2.0));
+	// float xmsn = (xmg[loc][i][j] * transmissionfactor) * ((abs(i-offset) * abs(j-offset))/kernelwidth);
+	
+	/* since I'm trying to affect the xmg, I could do these ^^ in loadxm. xmg values never change anyway (and maybe that's something I can add later) */
+	
+	/* Kernel processing */
+	// if(xloc == x && yloc == y){
+	// 	rtotal -= (rpx * xmsn) * j;
+	// 	gtotal -= (gpx * xmsn) * j;
+	// 	btotal -= (bpx * xmsn) * j;
+	// } else {
+	// 	rtotal += (rpx * xmsn) * j;
+	// 	gtotal += (gpx * xmsn) * j;
+	// 	btotal += (bpx * xmsn) * j;
+	// }
+
+ArcaneProcess - transmitMBL
+    // if(xloc == x && yloc == y){
+	// 		rpx -= (rpx * xmsn) * l;
+	// 		gpx -= (gpx * xmsn) * l;
+	// 		bpx -= (bpx * xmsn) * l;
+    //     } else {
+	// 		rpx += (xmsn * l);
+	// 		gpx += (xmsn * l);
+	// 		bpx += (xmsn * l);
+    // 	}
+
+    // if(xloc == x && yloc == y){
+	// 		rpx -= (rpx * xmsn) * (kernelwidth - l);
+	// 		gpx -= (gpx * xmsn) * (kernelwidth - l);
+	// 		bpx -= (bpx * xmsn) * (kernelwidth - l);
+    //     } else {
+	// 		rpx += (xmsn * (kernelwidth - l));
+	// 		gpx += (xmsn * (kernelwidth - l));
+	// 		bpx += (xmsn * (kernelwidth - l));
+    // 	}
+
+ArcaneProcess - rdft
+	ArcaneProcess rdft = (x, y, img, xmg) -> {
+					// CURRENT PIXEL POSITION
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+					color spx = img.pixels[sloc];
+							
+					float srpx = spx >> 16 & 0xFF;
+					float sgpx = spx >> 8 & 0xFF;
+					float sbpx = spx & 0xFF;
+
+					float rtotal = 0;
+					float gtotal = 0;
+					float btotal = 0;
+
+					int offset = kernelwidth / 2;
+					for (int i = 0; i < kernelwidth; i++){
+						for (int j= 0; j < kernelwidth; j++){
+							
+							int xloc = x+i-offset;
+							int yloc = y+j-offset;
+							int loc = xloc + img.pixelWidth*yloc;
+							loc = constrain(loc,0,img.pixels.length-1);
+							
+							float xmsn = rdfkernel[i][j];
+							
+							color cpx = img.pixels[loc];
+							
+							float rpx = cpx >> 16 & 0xFF;
+							float gpx = cpx >> 8 & 0xFF;
+							float bpx = cpx & 0xFF;
+
+							if(xloc == x && yloc == y){
+								rtotal -= (rpx * xmsn);
+								gtotal -= (gpx * xmsn);
+								btotal -= (bpx * xmsn);
+							} else {
+								rtotal += (rpx * xmsn);
+								gtotal += (gpx * xmsn);
+								btotal += (bpx * xmsn);
+							}
+
+							// rtotal += (rpx * xmsn);
+							// gtotal += (gpx * xmsn);
+							// btotal += (bpx * xmsn);
+						}
+					}
+
+					// float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
+					// float[] sr2 = reactdiffuse(srpx ,  sbpx, rtotal, btotal);
+
+
+					// float[] sg1 = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
+					// float[] sg2 = reactdiffuse(sgpx,  srpx, gtotal, rtotal);
+
+
+					// float[] sb1 = reactdiffuse(sbpx, srpx, btotal, rtotal);
+					// float[] sb2 = reactdiffuse(sbpx, sgpx, btotal, gtotal);
+
+					float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
+					float[] sr2 = reactdiffuse(sr1[0] ,  sbpx, rtotal, btotal);
+
+
+					float[] sg1 = reactdiffuse(sr1[1],  sr2[1], gtotal, btotal);
+					float[] sg2 = reactdiffuse(sg1[0],  sr2[0], gtotal, rtotal);
+
+
+					float[] sb1 = reactdiffuse(sg1[1], sg2[1], btotal, rtotal);
+					float[] sb2 = reactdiffuse(sb1[0], sg2[0], btotal, gtotal);
+
+
+					float newr = (sr1[0] + sr2[0] + sg2[1] + sb1[1]) * 0.5;
+					float newg = (sr1[1] + sg1[0] + sg2[0] + sb2[1]) * 0.5;
+					float newb = (sr2[1] + sg1[1] + sb1[0] + sb2[0]) * 0.5;
+					
+					// float newr = sb1[1];
+					// float newg = sb2[1];
+					// float newb = sb2[0];
+
+					img.pixels[sloc] = color(newr, newg, newb);
+				};
