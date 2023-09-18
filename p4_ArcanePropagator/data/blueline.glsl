@@ -264,12 +264,12 @@ struct settings
 };
 
 settings setting = settings(
-	C4B, 
+	C4B /* C4Z */, 
 	normal /* inverse */, 
 	rblue, 
 	alphaY, 
-	GEO, 
-	GRADE /* NOGRADE */ /* SOURCE */);
+	GEO /* NOGEO */, 
+	/* GRADE */ /* NOGRADE */ SOURCE);
 
 void main( void ) {
 	

@@ -20,7 +20,7 @@ void setup(){
 	background(0);
 	
 	/* IMAGE SETUP */
-	simg = loadImage("./imgs/universe.jpg");
+	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
 
 
 	/* ---------------------------- image generators ---------------------------- */
@@ -58,20 +58,31 @@ void setup(){
 		as kw ⬇️ less pixels involved in convolution
 	 */
 	// kernelWidth = 1~n; 5 is best for rdf; 4 is best for rdfx
-	kernelWidth = 3; /* 3 - default */
+	// kernelWidth = 1; /* 3 - default */
+	// kernelWidth = 2; /* 3 - default */
+	// kernelWidth = 3; /* 3 - default */
+	// kernelWidth = 4; /* 4 - default */
+	kernelWidth = 5; /* 5 - default */
+	// kernelWidth = 6; /* 6 - default */
+	// kernelWidth = 7; /* 7 - default */
 
 	/* Divisor: kernelsum / xsmnfactor */
-	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
+	// xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
 	// xsmnfactor = 1.0f / (pow(kernelWidth, 2.0f) - 1.0f);
 	// xsmnfactor = 1.0f / kernelWidth;
 	// xsmnfactor = kernelWidth;
-	// xsmnfactor = kernelScale;
+	xsmnfactor = kernelScale;
 
 	displayscale = 1.0;
 	float colordivisor = 1.0f/255.0f;
+	// float colordivisor = 255.0f;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "amble", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
+	parc = new ArcanePropagator(simg, "rdfx", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
+
+	// frameRate(1);
+	// frameRate(5);
+	// frameRate(12);
 }
 
 void draw(){

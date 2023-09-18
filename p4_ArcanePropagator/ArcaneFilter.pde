@@ -342,13 +342,13 @@ class ArcaneFilter {
 					float sgpx = spx >> 8 & 0xFF;
 					float sbpx = spx & 0xFF;
 
-					float rtotal = 0;
-					float gtotal = 0;
-					float btotal = 0;
+					// float rtotal = 0;
+					// float gtotal = 0;
+					// float btotal = 0;
 					
-					// float rtotal = srpx;
-					// float gtotal = sgpx;
-					// float btotal = sbpx;
+					float rtotal = srpx;
+					float gtotal = sgpx;
+					float btotal = sbpx;
 
 					int offset = kernelwidth / 2;
 					for (int i = 0; i < kernelwidth; i++){
