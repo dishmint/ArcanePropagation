@@ -22,7 +22,7 @@ void setup(){
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
 
 	gui = new LazyGui(this);
-	gui.toggleSet("Animate", false);
+	gui.toggleSet("Run", false);
 
 	imageMode(CENTER);
 

@@ -101,7 +101,7 @@ class ArcanePropagator{
 	}
 
 	void run(){
-		if (gui.toggle("Animate")){
+		if (gui.toggle("Run")){
 			af.kernelmap(this);
 			ar.show(this);
 		} else {
