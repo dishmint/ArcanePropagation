@@ -483,15 +483,8 @@ class ArcaneFilter {
 					img.pixels[sloc] = color(rspx, gspx, bspx);
 				};
 
-
-    ArcaneFilter(String fmode, int kw, float xsmnfac){
-		filtermode = fmode;
-        kernelwidth = kw;
-        modfactor = 1;
-        downsample = 1;
-        transmissionfactor = xsmnfac;
-
-        switch(filtermode){
+	void setArcaneProcess(String fm){
+		switch(fm){
 		    case "transmit":
 		    	arcfilter = transmit;
 		    	break;
@@ -555,10 +548,22 @@ class ArcaneFilter {
 		    	arcfilter = transmit;
 		    	break;
 	    }
+	}
+
+
+    ArcaneFilter(String fmode, int kw, float xsmnfac){
+		filtermode = fmode;
+        kernelwidth = kw;
+        modfactor = 1;
+        downsample = 1;
+        transmissionfactor = xsmnfac;
+
+        setArcaneProcess(filtermode);
     }
 
     void setFilterMode(String newfiltermode){
         filtermode = newfiltermode;
+		setArcaneProcess(filtermode);
     }
 
     void setFilter(ArcaneProcess newfilter){

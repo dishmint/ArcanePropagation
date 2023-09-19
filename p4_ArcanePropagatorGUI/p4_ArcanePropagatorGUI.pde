@@ -9,6 +9,8 @@ ArcaneGenerator arcgen;
 int kernelWidth;
 ArcanePropagator parc;
 float kernelScale,xsmnfactor,displayscale;
+String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "rdfm", "rdfr", "rdfx", "blur", "dilate"};
+String flt;
 
 ArcaneGenerator ag;
 
@@ -21,13 +23,13 @@ void setup(){
 	surface.setResizable(true);
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
 
-	gui = new LazyGui(this);
+	gui = new LazyGui(this, new LazyGuiSettings()
+		.setLoadLatestSaveOnStartup(false)
+		// .setAutosaveOnExit(false)
+		);
 	
 	gui.toggleSet("Run", false);
-
-	int fR = gui.sliderInt("FrameRates", 60, 1, 120);
-
-	frameRate(fR);
+	gui.sliderInt("Steps", 1, 1, 120);
 
 	imageMode(CENTER);
 
@@ -35,83 +37,54 @@ void setup(){
 	hint(ENABLE_STROKE_PURE);
 	background(0);
 	
-	gui.pushFolder("ArcaneSettings");
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
 
-
-	/* ---------------------------- image generators ---------------------------- */
-	// int noisew =  width/16; /* 2|16|32 */
-	// int noiseh = height/16; /* 2|16|32 */
-	// int noisew = int(0.0625 * width);
-	// int noiseh = int(0.0625 * height);
-	// Random Noise
-	// ag = new ArcaneGenerator("random", noisew, noiseh);
+	/* scales kernel values (-1.0~1.0) * kernelScale  */
+	gui.slider("ArcaneSettings/KernelScale", 1.0f/255.0f, 0.0f, 1.0f);
 	
-	// Kufic Noise
-	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
-	
-	// Maze Noise
-	// ag = new ArcaneGenerator("maze", noisew, noiseh);
-	// PImage mimg = loadImage("./imgs/universe.jpg");
-	// ag.setMazeSource(mimg);
+	/* TODO: kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
+	// gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
+	kernelWidth = 3;
 
-	// Noise
-	// ag = new ArcaneGenerator("noise", noisew, noiseh);
-	// ag.setLod(3); ag.setFalloff(0.6f);
-		
-	/* -------------------------------- get image ------------------------------- */
-	// simg = ag.getImage(); 
-
-	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	// kernelScale = 1.0f;
-	kernelScale = 1.0f / 255.0f; /* default */
-	// kernelScale = 1.0f / 0.098f;
-	
-	/* 
-		kernelWidth is the kernelsize
-
-		as kw ⬆️ more pixels involved in convolution
-		as kw ⬇️ less pixels involved in convolution
-	 */
-	// kernelWidth = 1~n; 5 is best for rdf; 4 is best for rdfx
-	// kernelWidth = 1; /* 1 */
-	// kernelWidth = 2; /* 2 */
-	kernelWidth = 3; /* 3 - default */
-	// kernelWidth = 4; /* 4 */
-	// kernelWidth = 5; /* 5 */
-	// kernelWidth = 6; /* 6 */
-	// kernelWidth = 7; /* 7 */
-
+	/* TODO:
+		xsmnfactor : radio({1,2,3,4})
+			1 -> 1/(kernelWidth^2),
+			2 -> 1/(kernelWidth^2 - 1),,
+			3 -> 1/kernelWidth,
+			4 -> kernelWidth
+			5 -> gui.slider("ArcaneSettings/KernelScale")
+		 */
 	/* Divisor: kernelsum / xsmnfactor */
-	// xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
+	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
 	// xsmnfactor = 1.0f / (pow(kernelWidth, 2.0f) - 1.0f);
 	// xsmnfactor = 1.0f / kernelWidth;
 	// xsmnfactor = kernelWidth;
-	xsmnfactor = kernelScale;
+	// xsmnfactor = kernelScale;
+	// xsmnfactor = gui.slider("ArcaneSettings/KernelScale");
 
 	displayscale = 1.0;
 	float colordivisor = 1.0f/255.0f;
 	// float colordivisor = 255.0f;
 
 	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
-	parc = new ArcanePropagator(simg, "amble", "shader", kernelWidth, kernelScale, xsmnfactor, displayscale, colordivisor);
-
-	gui.popFolder();
-}
-
-void update(){
-	guiRefresh();
+	parc = new ArcanePropagator(
+		simg,
+		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
+		"shader", 
+		// gui.sliderInt("ArcaneSettings/KernelWidth"), 
+		kernelWidth, 
+		gui.slider("ArcaneSettings/KernelScale"), 
+		xsmnfactor, displayscale, colordivisor
+		);
+	parc.debug();
 }
 
 void draw(){
-	parc.run();
-}
-
-/* FIXME: changing the advance rate with frameRate is a bad idea because then the gui lags too */
-void guiRefresh(){
-	if (frameCount % 60 == 0){
-		print("guiRefresh " + frameCount + "\n");
+	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
+	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
+	// parc.setKernelWidth(gui.sliderInt("ArcaneSettings/KernelWidth"));
+	if (frameCount % gui.sliderInt("Steps") == 0){
+		parc.run();
 	}
-	frameRate(gui.sliderInt("FrameRates"));
 }

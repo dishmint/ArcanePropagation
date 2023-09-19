@@ -100,6 +100,19 @@ class ArcanePropagator{
 		ar = new ArcaneRender(source, "blueline.glsl", displayScale);
 	}
 
+	void setFilter(String flt){
+		af.setFilterMode(flt);
+	}
+
+	void setKernelWidth(int nkw){
+		kernelwidth = nkw;
+		af.kernelwidth = nkw;
+	}
+
+	void setKernelScale(float nks){
+		kernelScale = nks;
+	}
+
 	void run(){
 		if (gui.toggle("Run")){
 			af.kernelmap(this);
@@ -107,5 +120,13 @@ class ArcanePropagator{
 		} else {
 			ar.show(this);
 		}
+	}
+
+	void debug(){
+		println("kernelwidth: " + kernelwidth);
+		println("kernelScale: " + kernelScale);
+		println("xfactor: " + xfactor);
+		println("colordiv: " + colordiv);
+		println("displayScale: " + displayScale);
 	}
 }

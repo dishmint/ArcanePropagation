@@ -821,8 +821,115 @@
       "currentPrecisionIndex": 4,
       "valueFloatPrecision": 1.0,
       "className": "SliderIntNode",
-      "path": "FrameRates",
+      "path": "Steps",
       "type": "VALUE"
+    },
+    {
+      "children": [
+        {
+          "valueFloat": 0.003921569,
+          "currentPrecisionIndex": 1,
+          "valueFloatPrecision": 0.001,
+          "className": "SliderNode",
+          "path": "ArcaneSettings/KernelScale",
+          "type": "VALUE"
+        },
+        {
+          "valueString": "rdfx",
+          "children": [
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/amble",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/transmit",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/transmitMBL",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/convolve",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/collatz",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/rdf",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/rdft",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/rdfm",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/rdfr",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": true,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/rdfx",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/blur",
+              "type": "TRANSIENT"
+            },
+            {
+              "valueBoolean": false,
+              "className": "RadioItemNode",
+              "path": "ArcaneSettings/Filter/dilate",
+              "type": "TRANSIENT"
+            }
+          ],
+          "window": {
+            "posX": 506.0,
+            "posY": 22.0,
+            "closed": false,
+            "windowSizeX": 176.0
+          },
+          "className": "RadioFolderNode",
+          "path": "ArcaneSettings/Filter",
+          "type": "FOLDER"
+        }
+      ],
+      "window": {
+        "posX": 264.0,
+        "posY": 22.0,
+        "closed": false,
+        "windowSizeX": 220.0
+      },
+      "className": "FolderNode",
+      "path": "ArcaneSettings",
+      "type": "FOLDER"
     }
   ],
   "window": {
