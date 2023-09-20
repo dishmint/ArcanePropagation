@@ -16,9 +16,9 @@ ArcaneGenerator ag;
 
 LazyGui gui;
 
-/* TODO: Add performance mode so live parameter changes can be recorded and saved */
-/* TODO: Add Button to save frame as -png/jpg/file- */
-/* TODO: Add ui to change shader parameters */
+/* TODO: #69 Add performance mode so live parameter changes can be recorded and saved */
+/* TODO: #70 Add Button to save frame as -png/jpg/file- */
+/* TODO: #71 Add ui to change shader parameters */
 void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
@@ -49,11 +49,11 @@ void setup(){
 	gui.slider("ArcaneSettings/KernelScale", factor, 0.0f, 1.0f);
 	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
 	
-	/* TODO: kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
+	/* TODO: #72 kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
 	// gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
 	kernelWidth = 3;
 
-	/* TODO:
+	/* TODO #73:
 		xsmnfactor : radio({1,2,3,4})
 			1 -> 1/(kernelWidth^2),
 			2 -> 1/(kernelWidth^2 - 1),,
