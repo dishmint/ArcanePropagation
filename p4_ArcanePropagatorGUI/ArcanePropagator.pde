@@ -119,6 +119,11 @@ class ArcanePropagator{
 		colordiv = ncd;
 	}
 
+	void setDisplayScale(float nds){
+		displayScale = nds;
+		ar.displayScale = nds;
+	}
+
 	void reset(){
 		source = og.copy();
 	}

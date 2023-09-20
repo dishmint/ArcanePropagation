@@ -806,12 +806,18 @@
           "type": "TRANSIENT"
         }
       ],
+      "window": {
+        "posX": 264.0,
+        "posY": 22.0,
+        "closed": true,
+        "windowSizeX": 198.0
+      },
       "className": "SaveFolderNode",
       "path": "saves",
       "type": "FOLDER"
     },
     {
-      "valueBoolean": false,
+      "valueBoolean": true,
       "className": "ToggleNode",
       "path": "Run",
       "type": "VALUE"
@@ -822,6 +828,14 @@
       "valueFloatPrecision": 1.0,
       "className": "SliderIntNode",
       "path": "Steps",
+      "type": "VALUE"
+    },
+    {
+      "valueFloat": 1.0,
+      "currentPrecisionIndex": 4,
+      "valueFloatPrecision": 1.0,
+      "className": "SliderNode",
+      "path": "DisplayScale",
       "type": "VALUE"
     },
     {
@@ -836,17 +850,17 @@
         },
         {
           "valueFloat": 0.003921569,
-          "currentPrecisionIndex": 1,
-          "valueFloatPrecision": 0.001,
+          "currentPrecisionIndex": 3,
+          "valueFloatPrecision": 0.1,
           "className": "SliderNode",
           "path": "ArcaneSettings/ColorFactor",
           "type": "VALUE"
         },
         {
-          "valueString": "collatz",
+          "valueString": "amble",
           "children": [
             {
-              "valueBoolean": false,
+              "valueBoolean": true,
               "className": "RadioItemNode",
               "path": "ArcaneSettings/Filter/amble",
               "type": "TRANSIENT"
@@ -870,7 +884,7 @@
               "type": "TRANSIENT"
             },
             {
-              "valueBoolean": true,
+              "valueBoolean": false,
               "className": "RadioItemNode",
               "path": "ArcaneSettings/Filter/collatz",
               "type": "TRANSIENT"

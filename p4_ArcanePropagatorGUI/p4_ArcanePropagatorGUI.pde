@@ -17,6 +17,8 @@ ArcaneGenerator ag;
 LazyGui gui;
 
 /* TODO: Add performance mode so live parameter changes can be recorded and saved */
+/* TODO: Add Button to save frame as -png/jpg/file- */
+/* TODO: Add ui to change shader parameters */
 void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
@@ -31,6 +33,7 @@ void setup(){
 	
 	gui.toggleSet("Run", false);
 	gui.sliderInt("Steps", 1, 1, 120);
+	gui.slider("DisplayScale", 1.0f, 0.5f, 1.0f);
 
 	imageMode(CENTER);
 
@@ -67,20 +70,22 @@ void setup(){
 	// xsmnfactor = kernelScale;
 	// xsmnfactor = gui.slider("ArcaneSettings/KernelScale");
 
-	displayscale = 1.0;
+	// displayscale = 1.0;
 
 	parc = new ArcanePropagator(
 		simg,
 		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
 		kernelWidth, 
 		gui.slider("ArcaneSettings/KernelScale"), 
-		xsmnfactor, displayscale,
+		xsmnfactor,
+		gui.slider("DisplayScale"),
 		gui.slider("ArcaneSettings/ColorFactor")
 		);
 	parc.debug();
 }
 
 void draw(){
+	parc.setDisplayScale(gui.slider("DisplayScale"));
 	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
 	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
 	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
