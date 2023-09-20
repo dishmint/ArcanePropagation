@@ -835,7 +835,15 @@
           "type": "VALUE"
         },
         {
-          "valueString": "rdfx",
+          "valueFloat": 0.003921569,
+          "currentPrecisionIndex": 1,
+          "valueFloatPrecision": 0.001,
+          "className": "SliderNode",
+          "path": "ArcaneSettings/ColorFactor",
+          "type": "VALUE"
+        },
+        {
+          "valueString": "collatz",
           "children": [
             {
               "valueBoolean": false,
@@ -862,7 +870,7 @@
               "type": "TRANSIENT"
             },
             {
-              "valueBoolean": false,
+              "valueBoolean": true,
               "className": "RadioItemNode",
               "path": "ArcaneSettings/Filter/collatz",
               "type": "TRANSIENT"
@@ -892,7 +900,7 @@
               "type": "TRANSIENT"
             },
             {
-              "valueBoolean": true,
+              "valueBoolean": false,
               "className": "RadioItemNode",
               "path": "ArcaneSettings/Filter/rdfx",
               "type": "TRANSIENT"
@@ -913,7 +921,7 @@
           "window": {
             "posX": 506.0,
             "posY": 22.0,
-            "closed": false,
+            "closed": true,
             "windowSizeX": 176.0
           },
           "className": "RadioFolderNode",
@@ -924,12 +932,17 @@
       "window": {
         "posX": 264.0,
         "posY": 22.0,
-        "closed": false,
+        "closed": true,
         "windowSizeX": 220.0
       },
       "className": "FolderNode",
       "path": "ArcaneSettings",
       "type": "FOLDER"
+    },
+    {
+      "className": "ButtonNode",
+      "path": "Reset",
+      "type": "TRANSIENT"
     }
   ],
   "window": {

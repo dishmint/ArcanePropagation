@@ -6,6 +6,7 @@ class ArcanePropagator{
 	float colordiv;
 	/* IMAGE */
 	PImage source;
+	PImage og;
 	float[][][] ximage;
 	float displayScale;
 	ArcaneFilter af;
@@ -84,7 +85,7 @@ class ArcanePropagator{
 	}
 
 	/* CNSR */
-	ArcanePropagator(PImage img, String filtermode, String rendermode, int kw, float ks, float xf, float ds, float gsd){
+	ArcanePropagator(PImage img, String filtermode, int kw, float ks, float xf, float ds, float gsd){
 		/* SETUP VARS */
 		kernelwidth = kw;
 		kernelScale = ks;
@@ -92,7 +93,8 @@ class ArcanePropagator{
 		displayScale = ds;
 		colordiv = gsd;
 		/* SETUP IMAGE */
-		source = resize(img);		
+		og = resize(img);
+		source = og.copy();		
 		ximage = loadxm(source);
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
@@ -111,6 +113,14 @@ class ArcanePropagator{
 
 	void setKernelScale(float nks){
 		kernelScale = nks;
+	}
+
+	void setColorDiv(float ncd){
+		colordiv = ncd;
+	}
+
+	void reset(){
+		source = og.copy();
 	}
 
 	void run(){

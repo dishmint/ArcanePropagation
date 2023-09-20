@@ -16,6 +16,7 @@ ArcaneGenerator ag;
 
 LazyGui gui;
 
+/* TODO: Add performance mode so live parameter changes can be recorded and saved */
 void setup(){
 	/* WINDOW SETUP */
 	size(1422, 800, P3D);
@@ -41,7 +42,9 @@ void setup(){
 	simg = loadImage("./imgs/universe.jpg");
 
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
-	gui.slider("ArcaneSettings/KernelScale", 1.0f/255.0f, 0.0f, 1.0f);
+	float factor = 1.0f/255.0f;
+	gui.slider("ArcaneSettings/KernelScale", factor, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
 	
 	/* TODO: kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
 	// gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
@@ -55,6 +58,7 @@ void setup(){
 			4 -> kernelWidth
 			5 -> gui.slider("ArcaneSettings/KernelScale")
 		 */
+
 	/* Divisor: kernelsum / xsmnfactor */
 	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
 	// xsmnfactor = 1.0f / (pow(kernelWidth, 2.0f) - 1.0f);
@@ -64,18 +68,14 @@ void setup(){
 	// xsmnfactor = gui.slider("ArcaneSettings/KernelScale");
 
 	displayscale = 1.0;
-	float colordivisor = 1.0f/255.0f;
-	// float colordivisor = 255.0f;
 
-	/* afilter = transmit|transmitMBL|amble|convolve|collatz|rdf|rdft|rdfm|rdfr|rdfx|blur|dilate */
 	parc = new ArcanePropagator(
 		simg,
 		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
-		"shader", 
-		// gui.sliderInt("ArcaneSettings/KernelWidth"), 
 		kernelWidth, 
 		gui.slider("ArcaneSettings/KernelScale"), 
-		xsmnfactor, displayscale, colordivisor
+		xsmnfactor, displayscale,
+		gui.slider("ArcaneSettings/ColorFactor")
 		);
 	parc.debug();
 }
@@ -83,7 +83,14 @@ void setup(){
 void draw(){
 	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
 	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
-	// parc.setKernelWidth(gui.sliderInt("ArcaneSettings/KernelWidth"));
+	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
+
+	/* Reset parc to the original image */
+	if(gui.button("Reset")){
+		parc.reset();
+	}
+
+	/* Every n "Steps" run parc */
 	if (frameCount % gui.sliderInt("Steps") == 0){
 		parc.run();
 	}
