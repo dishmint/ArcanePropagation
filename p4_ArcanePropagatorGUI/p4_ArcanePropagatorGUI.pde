@@ -33,7 +33,7 @@ void setup(){
 	
 	gui.toggleSet("Run", false);
 	gui.sliderInt("Steps", 1, 1, 120);
-	gui.slider("DisplayScale", 1.0f, 0.5f, 1.0f);
+	gui.slider("DisplayScale", 1.0f, 0.01f, 1.0f);
 
 	imageMode(CENTER);
 
