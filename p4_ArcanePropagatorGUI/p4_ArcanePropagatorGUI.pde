@@ -28,7 +28,7 @@ void setup(){
 
 	gui = new LazyGui(this, new LazyGuiSettings()
 		.setLoadLatestSaveOnStartup(false)
-		// .setAutosaveOnExit(false)
+		.setAutosaveOnExit(false)
 		);
 	
 	gui.toggleSet("Run", false);

@@ -293,6 +293,12 @@
               "type": "FOLDER"
             }
           ],
+          "window": {
+            "posX": 484.0,
+            "posY": 22.0,
+            "closed": true,
+            "windowSizeX": 220.0
+          },
           "className": "FolderNode",
           "path": "options/themes",
           "type": "FOLDER"
@@ -300,7 +306,7 @@
         {
           "children": [
             {
-              "valueFloat": 22.0,
+              "valueFloat": 26.0,
               "currentPrecisionIndex": 4,
               "valueFloatPrecision": 1.0,
               "className": "SliderIntNode",
@@ -354,6 +360,12 @@
                   "type": "VALUE"
                 }
               ],
+              "window": {
+                "posX": 832.0,
+                "posY": 26.0,
+                "closed": true,
+                "windowSizeX": 182.0
+              },
               "className": "FolderNode",
               "path": "options/windows/resize",
               "type": "FOLDER"
@@ -361,13 +373,13 @@
             {
               "children": [
                 {
-                  "valueBoolean": false,
+                  "valueBoolean": true,
                   "className": "ToggleNode",
                   "path": "options/windows/separators/show",
                   "type": "VALUE"
                 },
                 {
-                  "valueFloat": 0.5,
+                  "valueFloat": 0.6000002,
                   "currentPrecisionIndex": 3,
                   "valueFloatPrecision": 0.1,
                   "className": "SliderNode",
@@ -375,11 +387,23 @@
                   "type": "VALUE"
                 }
               ],
+              "window": {
+                "posX": 806.0,
+                "posY": 260.0,
+                "closed": true,
+                "windowSizeX": 156.0
+              },
               "className": "FolderNode",
               "path": "options/windows/separators",
               "type": "FOLDER"
             }
           ],
+          "window": {
+            "posX": 494.0,
+            "posY": 26.0,
+            "closed": true,
+            "windowSizeX": 234.0
+          },
           "className": "FolderNode",
           "path": "options/windows",
           "type": "FOLDER"
@@ -436,6 +460,12 @@
               "type": "TRANSIENT"
             }
           ],
+          "window": {
+            "posX": 494.0,
+            "posY": 26.0,
+            "closed": true,
+            "windowSizeX": 260.0
+          },
           "className": "FolderNode",
           "path": "options/font",
           "type": "FOLDER"
@@ -547,6 +577,12 @@
               "type": "VALUE"
             }
           ],
+          "window": {
+            "posX": 494.0,
+            "posY": 26.0,
+            "closed": true,
+            "windowSizeX": 234.0
+          },
           "className": "FolderNode",
           "path": "options/grid",
           "type": "FOLDER"
@@ -745,6 +781,12 @@
           "type": "FOLDER"
         }
       ],
+      "window": {
+        "posX": 468.0,
+        "posY": 26.0,
+        "closed": true,
+        "windowSizeX": 156.0
+      },
       "className": "FolderNode",
       "path": "options",
       "type": "FOLDER"
@@ -806,18 +848,12 @@
           "type": "TRANSIENT"
         }
       ],
-      "window": {
-        "posX": 264.0,
-        "posY": 22.0,
-        "closed": true,
-        "windowSizeX": 198.0
-      },
       "className": "SaveFolderNode",
       "path": "saves",
       "type": "FOLDER"
     },
     {
-      "valueBoolean": true,
+      "valueBoolean": false,
       "className": "ToggleNode",
       "path": "Run",
       "type": "VALUE"
@@ -841,7 +877,7 @@
     {
       "children": [
         {
-          "valueFloat": 0.003921569,
+          "valueFloat": 0.49092156,
           "currentPrecisionIndex": 1,
           "valueFloatPrecision": 0.001,
           "className": "SliderNode",
@@ -849,9 +885,9 @@
           "type": "VALUE"
         },
         {
-          "valueFloat": 0.003921569,
-          "currentPrecisionIndex": 3,
-          "valueFloatPrecision": 0.1,
+          "valueFloat": 0.4209215,
+          "currentPrecisionIndex": 1,
+          "valueFloatPrecision": 0.001,
           "className": "SliderNode",
           "path": "ArcaneSettings/ColorFactor",
           "type": "VALUE"
@@ -933,8 +969,8 @@
             }
           ],
           "window": {
-            "posX": 506.0,
-            "posY": 22.0,
+            "posX": 468.0,
+            "posY": 26.0,
             "closed": true,
             "windowSizeX": 176.0
           },
@@ -944,8 +980,8 @@
         }
       ],
       "window": {
-        "posX": 264.0,
-        "posY": 22.0,
+        "posX": 234.0,
+        "posY": 26.0,
         "closed": true,
         "windowSizeX": 220.0
       },
@@ -960,10 +996,10 @@
     }
   ],
   "window": {
-    "posX": 22.0,
-    "posY": 22.0,
+    "posX": 26.0,
+    "posY": 26.0,
     "closed": false,
-    "windowSizeX": 220.0
+    "windowSizeX": 182.0
   },
   "className": "FolderNode",
   "path": "",
