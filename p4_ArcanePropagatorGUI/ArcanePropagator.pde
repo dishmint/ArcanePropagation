@@ -106,6 +106,16 @@ class ArcanePropagator{
 		af.setFilterMode(flt);
 	}
 
+	void setImage(PImage nimg){
+		og = resize(nimg);
+		source = og.copy();
+		ximage = loadxm(source);
+		ar.setShader(source);
+		/* NOTE: 
+			^^ There may be cases where you want to preserve shader parameters even when you change images
+			(they may be preserved though because the blueline.set functions don't affect the GUI) */
+	}
+
 	void setKernelScale(float nks){
 		kernelScale = nks;
 	}
