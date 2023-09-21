@@ -128,6 +128,11 @@ class ArcanePropagator{
 		source = og.copy();
 	}
 
+	void save(String filename){
+		String file = "data/captures/" + filename + ".png";
+		saveFrame(file);
+	}
+
 	void run(){
 		if (gui.toggle("Run")){
 			af.kernelmap(this);
