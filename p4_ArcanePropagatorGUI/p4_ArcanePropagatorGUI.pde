@@ -10,6 +10,7 @@ int kernelWidth;
 ArcanePropagator parc;
 float kernelScale,xsmnfactor,displayscale;
 String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "rdfm", "rdfr", "rdfx", "blur", "dilate"};
+String[] xfactors = {"1 div kw^2", "1 div (kw^2 - 1)", "1 div kw", "kw", "kernel scale"};
 String flt;
 
 ArcaneGenerator ag;
@@ -61,24 +62,8 @@ void setup(){
 	// gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
 	kernelWidth = 3;
 
-	/* TODO #73:
-		xsmnfactor : radio({1,2,3,4})
-			1 -> 1/(kernelWidth^2),
-			2 -> 1/(kernelWidth^2 - 1),,
-			3 -> 1/kernelWidth,
-			4 -> kernelWidth
-			5 -> gui.slider("ArcaneSettings/KernelScale")
-		 */
-
 	/* Divisor: kernelsum / xsmnfactor */
-	xsmnfactor = 1.0f / pow(kernelWidth, 2.0f); /* default */
-	// xsmnfactor = 1.0f / (pow(kernelWidth, 2.0f) - 1.0f);
-	// xsmnfactor = 1.0f / kernelWidth;
-	// xsmnfactor = kernelWidth;
-	// xsmnfactor = kernelScale;
-	// xsmnfactor = gui.slider("ArcaneSettings/KernelScale");
-
-	// displayscale = 1.0;
+	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
 
 	parc = new ArcanePropagator(
 		simg,
@@ -96,6 +81,7 @@ void draw(){
 	parc.setDisplayScale(gui.slider("DisplayScale"));
 	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
 	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
+	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Xfac", xfactors));
 	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
 
 	/* Reset parc to the original image */
