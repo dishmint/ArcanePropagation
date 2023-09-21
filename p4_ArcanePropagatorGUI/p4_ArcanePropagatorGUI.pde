@@ -65,6 +65,10 @@ void setup(){
 	/* Divisor: kernelsum / xsmnfactor */
 	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
 
+	/* ---------------------------- SHADER PROPERTIES --------------------------- */
+	gui.slider("ArcaneSettings/Shader/Unit Size"      , 1.0f, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Shader/Pixel Thickness", 1.0f, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , 1.0f, 0.0f, 1.0f);
 	/* ---------------------------- ARCPROP INSTANCE ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
@@ -79,11 +83,16 @@ void setup(){
 }
 
 void draw(){
+	/* -------------------------------- PARC GUI -------------------------------- */
 	parc.setDisplayScale(gui.slider("DisplayScale"));
 	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
 	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Xfac", xfactors));
 	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
+	/* ------------------------------- SHADER GUI ------------------------------- */
+	parc.ar.setShaderUnitSize(gui.slider("ArcaneSettings/Shader/Unit Size"));
+	parc.ar.setShaderTFac(gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
+	parc.ar.setShaderRFac(gui.slider("ArcaneSettings/Shader/Orbit Radius"));
 
 	/* ------------------------------- RESET IMAGE ------------------------------ */
 	if(gui.button("Reset")){
