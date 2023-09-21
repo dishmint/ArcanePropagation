@@ -577,6 +577,10 @@ class ArcaneFilter {
     void setSampleStep(int nds){
         downsample = nds;
     }
+    
+    void setKernelWidth(int nkw){
+        kernelwidth = nkw;
+    }
 
     void kernelmap(ArcanePropagator arcprop){
         switch(filtermode){
@@ -596,8 +600,6 @@ class ArcaneFilter {
 				customfilter(arcprop.source, arcprop.ximage);
                 break;
         }
-
-        
     }
 
     void customfilter(PImage img, float[][][] ximg){
