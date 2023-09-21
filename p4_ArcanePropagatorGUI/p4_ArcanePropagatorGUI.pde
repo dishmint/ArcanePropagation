@@ -25,14 +25,15 @@ void setup(){
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
-
+	
+	/* ------------------------------ gui settings ------------------------------ */
 	gui = new LazyGui(this, new LazyGuiSettings()
 		.setMainFontSize(12)
 		.setSideFontSize(9)
 		.setLoadLatestSaveOnStartup(false)
 		.setAutosaveOnExit(false)
 		);
-	/* gui settings */
+	
 	gui.toggleSet("options/windows/separators/show", true);
 	gui.sliderSet("options/windows/separators/weight", 0.2);
 
@@ -53,18 +54,17 @@ void setup(){
 	/* IMAGE SETUP */
 	simg = loadImage("./imgs/universe.jpg");
 
+	/* ---------------------------- Kernel Properties --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
 	float factor = 1.0f/255.0f;
 	gui.slider("ArcaneSettings/KernelScale", factor, 0.0f, 1.0f);
-	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
-	
-	/* TODO: #72 kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
 	gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
-	// kernelWidth = 3;
 
+	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
 	/* Divisor: kernelsum / xsmnfactor */
 	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
 
+	/* ---------------------------- ArcProp Instance ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
 		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
