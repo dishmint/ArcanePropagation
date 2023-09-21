@@ -59,8 +59,8 @@ void setup(){
 	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
 	
 	/* TODO: #72 kernelWidth guislider needs to wait for the filter to apply to all pixels before the kw changes, otherwise index out of bounds error  */
-	// gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
-	kernelWidth = 3;
+	gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
+	// kernelWidth = 3;
 
 	/* Divisor: kernelsum / xsmnfactor */
 	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
@@ -68,7 +68,7 @@ void setup(){
 	parc = new ArcanePropagator(
 		simg,
 		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
-		kernelWidth, 
+		gui.sliderInt("ArcaneSettings/KernelWidth"), 
 		gui.slider("ArcaneSettings/KernelScale"), 
 		xsmnfactor,
 		gui.slider("DisplayScale"),

@@ -106,11 +106,6 @@ class ArcanePropagator{
 		af.setFilterMode(flt);
 	}
 
-	void setKernelWidth(int nkw){
-		kernelwidth = nkw;
-		af.kernelwidth = nkw;
-	}
-
 	void setKernelScale(float nks){
 		kernelScale = nks;
 	}
@@ -169,6 +164,15 @@ class ArcanePropagator{
 		} else {
 			ar.show(this);
 		}
+		/* if the current kw is different than the last then rerun loadxm */
+		int currentkw = gui.sliderInt("ArcaneSettings/KernelWidth");
+		if(kernelwidth != currentkw){
+			kernelwidth = currentkw;
+			ximage = loadxm(source);
+			af.kernelwidth = kernelwidth;
+		}
+		
+		
 	}
 
 	void debug(){
