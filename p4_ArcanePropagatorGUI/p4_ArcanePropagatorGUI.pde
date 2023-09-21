@@ -54,6 +54,7 @@ void setup(){
 	
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
 	/* TODO: #79 Add image selector */
+	gui.button("Select Image"); /* default image is universe */
 	simg = loadImage("./imgs/universe.jpg");
 
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
@@ -67,9 +68,13 @@ void setup(){
 	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
 
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
-	gui.slider("ArcaneSettings/Shader/Unit Size"      , 1.0f, 0.0f, 1.0f);
-	gui.slider("ArcaneSettings/Shader/Pixel Thickness", 1.0f, 0.0f, 1.0f);
-	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , 1.0f, 0.0f, 1.0f);
+	float usize, pixth, orbra;
+	// usize=pixth=orbra=1.0f;
+	usize=pixth=orbra=0.99f;
+
+	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Shader/Pixel Thickness", pixth, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , orbra, 0.0f, 1.0f);
 	/* ---------------------------- ARCPROP INSTANCE ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
@@ -108,4 +113,18 @@ void draw(){
 	if(gui.button("Save Frame/Capture")){
 		parc.save(gui.text("Save Frame/Filename"));
 	}
+
+	if(gui.button("Select Image")){
+		selectInput("Select an image to process:", "imageSelected");
+	}
+}
+
+void imageSelected(File selection){
+	if (selection == null) {
+    	println("Window was closed or the user hit cancel.");
+	} else {
+		PImage nimg = loadImage(selection.getAbsolutePath());
+		parc.setImage(nimg);
+		println("User selected " + selection.getAbsolutePath());
+		}
 }
