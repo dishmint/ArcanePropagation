@@ -53,6 +53,7 @@ void setup(){
 	gui.button("Save Frame/Capture");
 	
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
+	/* TODO: #79 Add image selector */
 	simg = loadImage("./imgs/universe.jpg");
 
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
