@@ -115,6 +115,35 @@ class ArcanePropagator{
 		kernelScale = nks;
 	}
 
+	void setTransmissionFactor(String nxf){
+		switch (nxf) {
+			case "1 div kw^2":
+				xfactor = 1.0f / pow(kernelwidth, 2.0f);
+				af.transmissionfactor = xfactor;
+				break;
+			case "1 div (kw^2 - 1)":
+				xfactor = 1.0f / (pow(kernelwidth, 2.0f) - 1.0f);
+				af.transmissionfactor = xfactor;
+				break;
+			case "1 div kw":
+				xfactor = 1.0f / kernelwidth;
+				af.transmissionfactor = xfactor;
+				break;
+			case "kernel width":
+				xfactor = kernelwidth;
+				af.transmissionfactor = xfactor;
+				break;
+			case "kernel scale":
+				xfactor = gui.slider("ArcaneSettings/KernelScale");
+				af.transmissionfactor = xfactor;
+				break;
+			default:
+				xfactor = 1.0f / pow(kernelwidth, 2.0f);
+				af.transmissionfactor = xfactor;
+		    	break;
+		}
+	}
+
 	void setColorDiv(float ncd){
 		colordiv = ncd;
 	}
