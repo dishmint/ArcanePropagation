@@ -46,6 +46,18 @@ class ArcaneRender {
 		setShader(source);
 	}
 
+	void setShaderUnitSize(float nus){
+		blueline.set("unitsize", nus);
+	}
+
+	void setShaderTFac(float ntf){
+		blueline.set("tfac", ntf);
+	}
+
+	void setShaderRFac(float nrf){
+		blueline.set("rfac", nrf);
+	}
+
 	void bufferDraw(){
 		buffer.beginDraw();
 		buffer.background(0);
