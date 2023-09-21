@@ -1,7 +1,7 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
 
-import com.krab.lazy.*;
+import com.krab.lazy.*; /* LazyGui */
 
 PImage simg;
 ArcaneGenerator arcgen;
@@ -13,6 +13,7 @@ String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "
 String[] xfactors = {"1 div kw^2", "1 div (kw^2 - 1)", "1 div kw", "kw", "kernel scale"};
 String flt;
 
+/* TODO: #81 add gui for ArcaneGenerator */
 ArcaneGenerator ag;
 
 LazyGui gui;
@@ -109,6 +110,7 @@ void draw(){
 		parc.run();
 	}
 
+	/* ---------------------- CAPTURE FRAME / SELECT IMAGE ---------------------- */
 	if(gui.button("Save Frame/Capture")){
 		parc.save(gui.text("Save Frame/Filename"));
 	}
