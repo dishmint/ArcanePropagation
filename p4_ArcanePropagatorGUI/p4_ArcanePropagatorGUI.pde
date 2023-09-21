@@ -27,13 +27,22 @@ void setup(){
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
 
 	gui = new LazyGui(this, new LazyGuiSettings()
+		.setMainFontSize(12)
+		.setSideFontSize(9)
 		.setLoadLatestSaveOnStartup(false)
 		.setAutosaveOnExit(false)
 		);
-	
+	/* gui settings */
+	gui.toggleSet("options/windows/separators/show", true);
+	gui.sliderSet("options/windows/separators/weight", 0.2);
+
+	gui.button("Reset");
 	gui.toggleSet("Run", false);
-	gui.sliderInt("Steps", 1, 1, 120);
+	gui.sliderInt("Rate", 1, 1, 120);
 	gui.slider("DisplayScale", 1.0f, 0.01f, 1.0f);
+
+	gui.text("Save Frame/Filename","arcane_capture");
+	gui.button("Save Frame/Capture");
 
 	imageMode(CENTER);
 
@@ -95,8 +104,12 @@ void draw(){
 		parc.reset();
 	}
 
-	/* Every n "Steps" run parc */
-	if (frameCount % gui.sliderInt("Steps") == 0){
+	/* Every n steps run parc */
+	if (frameCount % gui.sliderInt("Rate") == 0){
 		parc.run();
+	}
+
+	if(gui.button("Save Frame/Capture")){
+		parc.save(gui.text("Save Frame/Filename"));
 	}
 }
