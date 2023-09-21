@@ -53,7 +53,6 @@ void setup(){
 	gui.button("Save Frame/Capture");
 	
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
-	/* TODO: #79 Add image selector */
 	gui.button("Select Image"); /* default image is universe */
 	simg = loadImage("./imgs/universe.jpg");
 
