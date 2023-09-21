@@ -17,7 +17,6 @@ ArcaneGenerator ag;
 LazyGui gui;
 
 /* TODO: #69 Add performance mode so live parameter changes can be recorded and saved */
-/* TODO: #70 Add Button to save frame as -png/jpg/file- */
 /* TODO: #71 Add ui to change shader parameters */
 void setup(){
 	/* WINDOW SETUP */
