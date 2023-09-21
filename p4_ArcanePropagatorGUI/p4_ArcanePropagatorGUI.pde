@@ -20,13 +20,20 @@ LazyGui gui;
 /* TODO: #69 Add performance mode so live parameter changes can be recorded and saved */
 /* TODO: #71 Add ui to change shader parameters */
 void setup(){
-	/* WINDOW SETUP */
+	/* ----------------------------- SKETCH SETTINGS ---------------------------- */
 	size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
+
+	imageMode(CENTER);
+
+	pixelDensity(displayDensity());
+	hint(ENABLE_STROKE_PURE);
+	background(0);
+
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
-	
-	/* ------------------------------ gui settings ------------------------------ */
+
+	/* ------------------------------ GUI SETTINGS ------------------------------ */
 	gui = new LazyGui(this, new LazyGuiSettings()
 		.setMainFontSize(12)
 		.setSideFontSize(9)
@@ -44,17 +51,11 @@ void setup(){
 
 	gui.text("Save Frame/Filename","arcane_capture");
 	gui.button("Save Frame/Capture");
-
-	imageMode(CENTER);
-
-	pixelDensity(displayDensity());
-	hint(ENABLE_STROKE_PURE);
-	background(0);
 	
-	/* IMAGE SETUP */
+	/* ------------------------------- LOAD IMAGE ------------------------------- */
 	simg = loadImage("./imgs/universe.jpg");
 
-	/* ---------------------------- Kernel Properties --------------------------- */
+	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
 	float factor = 1.0f/255.0f;
 	gui.slider("ArcaneSettings/KernelScale", factor, 0.0f, 1.0f);
@@ -64,7 +65,7 @@ void setup(){
 	/* Divisor: kernelsum / xsmnfactor */
 	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
 
-	/* ---------------------------- ArcProp Instance ---------------------------- */
+	/* ---------------------------- ARCPROP INSTANCE ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
 		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
@@ -84,12 +85,12 @@ void draw(){
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Xfac", xfactors));
 	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
 
-	/* Reset parc to the original image */
+	/* ------------------------------- RESET IMAGE ------------------------------ */
 	if(gui.button("Reset")){
 		parc.reset();
 	}
 
-	/* Every n steps run parc */
+	/* -------------------------------- SIM RATE -------------------------------- */
 	if (frameCount % gui.sliderInt("Rate") == 0){
 		parc.run();
 	}
