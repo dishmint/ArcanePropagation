@@ -68,7 +68,7 @@ void setup(){
 
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
 	float usize, pixth, orbra;
-	// usize=pixth=orbra=1.0f;
+	// when set to 1.0f the slider effectively toggles between 1 and 0 even though it's not a sliderInt;
 	usize=pixth=orbra=0.99f;
 
 	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 1.0f);
