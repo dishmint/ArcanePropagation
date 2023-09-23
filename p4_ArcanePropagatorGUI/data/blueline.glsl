@@ -14,8 +14,15 @@ uniform float tfac;
 uniform float unitsize;
 uniform float densityscale;
 
+uniform int theme;
+uniform int geoQ;
+uniform int grader;
+uniform int state;
+uniform int alpha;
+uniform int emap;
+
 float energy, angle = 0;
-float pxos,clip,ec;
+float pxos,clip;
 
 vec2 radius, thickness, pixel;
 
@@ -265,12 +272,13 @@ struct settings
 };
 
 settings setting = settings(
-	C4B /* C4Z */, 
-	normal /* inverse */, 
-	rblue, 
-	alphaY, 
-	GEO /* NOGEO */, 
-	GRADE /* NOGRADE */ /* SOURCE */);
+	emap, 
+	state, 
+	theme, 
+	alpha, 
+	geoQ, 
+	grader
+	);
 
 void main( void ) {
 	

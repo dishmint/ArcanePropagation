@@ -11,6 +11,14 @@ ArcanePropagator parc;
 float kernelScale,xsmnfactor,displayscale;
 String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "rdfm", "rdfr", "rdfx", "blur", "dilate"};
 String[] xfactors = {"1 div kw^2", "1 div (kw^2 - 1)", "1 div kw", "kw", "kernel scale"};
+String[] themes = {"red","green","blue","yellow","yellowbrick","rblue","gred"};
+String[] grades = {"grade","nograde","source"};
+String[] states = {"normal","inverse"};
+String[] alphas = {"alpha1", "alphaC", "alphaY"};
+String[] emaps = {"C4Z","C4B","C4C","C3M","C3Z"};
+
+
+
 String flt;
 
 /* TODO: #81 add gui for ArcaneGenerator */
@@ -65,8 +73,8 @@ void setup(){
 
 	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
 	/* Divisor: kernelsum / xsmnfactor */
-	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2");
-
+	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2"); /* TODO: #83 isn't hooked up */
+	xsmnfactor = 1.0f / pow(gui.sliderInt("ArcaneSettings/KernelWidth"), 2.0f);
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
 	float usize, pixth, orbra;
 	// when set to 1.0f the slider effectively toggles between 1 and 0 even though it's not a sliderInt;
@@ -75,6 +83,12 @@ void setup(){
 	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 1.0f);
 	gui.slider("ArcaneSettings/Shader/Pixel Thickness", pixth, 0.0f, 1.0f);
 	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , orbra, 0.0f, 1.0f);
+	gui.radio("ArcaneSettings/Shader/Theme", themes, "rblue");
+	gui.toggleSet("ArcaneSettings/Shader/GeoQ", true);
+	gui.radio("ArcaneSettings/Shader/Grader", grades, "grade");
+	gui.radio("ArcaneSettings/Shader/State", states, "normal");
+	gui.radio("ArcaneSettings/Shader/Alpha", alphas, "alphaY");
+	gui.radio("ArcaneSettings/Shader/EMap", emaps, "C4B");
 	/* ---------------------------- ARCPROP INSTANCE ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
@@ -96,9 +110,16 @@ void draw(){
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Xfac", xfactors));
 	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
 	/* ------------------------------- SHADER GUI ------------------------------- */
-	parc.ar.setShaderUnitSize(gui.slider("ArcaneSettings/Shader/Unit Size"));
-	parc.ar.setShaderTFac(gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
-	parc.ar.setShaderRFac(gui.slider("ArcaneSettings/Shader/Orbit Radius"));
+	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/Unit Size"));
+	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
+	parc.ar.blueline.set("rfac", gui.slider("ArcaneSettings/Shader/Orbit Radius"));
+
+	setShaderTheme();
+	setShaderGeo();
+	setShaderGrader();
+	setShaderState();
+	setShaderAlpha();
+	setShaderEmap();
 
 	/* ------------------------------- RESET IMAGE ------------------------------ */
 	if(gui.button("Reset")){
@@ -117,6 +138,120 @@ void draw(){
 
 	if(gui.button("Select Image")){
 		selectInput("Select an image to process:", "imageSelected");
+	}
+}
+
+void setShaderTheme(){
+	String stheme = gui.radio("ArcaneSettings/Shader/Theme", themes);
+	switch (stheme) {
+		case "red":
+			parc.ar.blueline.set("theme", 1);
+			break;
+		case "blue":
+			parc.ar.blueline.set("theme", 2);
+			break;
+		case "green":
+			parc.ar.blueline.set("theme", 3);
+			break;
+		case "yellow":
+			parc.ar.blueline.set("theme", 4);
+			break;
+		case "rblue":
+			parc.ar.blueline.set("theme", 5);
+			break;
+		case "yellowbrick":
+			parc.ar.blueline.set("theme", 6);
+			break;
+		case "gred":
+			parc.ar.blueline.set("theme", 7);
+			break;
+		default:
+			parc.ar.blueline.set("theme", 5);
+			break;
+	}
+}
+
+void setShaderGeo(){
+	boolean geoQ = gui.toggle("ArcaneSettings/Shader/GeoQ");
+	if (geoQ) {
+		parc.ar.blueline.set("geoQ", 1);
+	} else {
+		parc.ar.blueline.set("geoQ", 2);
+	}
+}
+
+void setShaderGrader(){
+	String grader = gui.radio("ArcaneSettings/Shader/Grader", grades);
+	switch (grader) {
+		case "grade":
+			parc.ar.blueline.set("grader", 1);
+			break;
+		case "nograde":
+			parc.ar.blueline.set("grader", 2);
+			break;
+		case "source":
+			parc.ar.blueline.set("grader", 3);
+			break;
+		default:
+			parc.ar.blueline.set("grader", 1);
+			break;
+	}
+}
+
+void setShaderState(){
+	String state = gui.radio("ArcaneSettings/Shader/State", states);
+	switch (state) {
+		case "normal":
+			parc.ar.blueline.set("state", 1);
+			break;
+		case "inverse":
+			parc.ar.blueline.set("state", 2);
+			break;
+		default:
+			parc.ar.blueline.set("state", 1);
+			break;
+	}
+}
+
+void setShaderAlpha(){
+	String alpha = gui.radio("ArcaneSettings/Shader/Alpha", alphas);
+	switch (alpha) {
+		case "alpha1":
+			parc.ar.blueline.set("alpha", 1);
+			break;
+		case "alphaC":
+			parc.ar.blueline.set("alpha", 2);
+			break;
+		case "alphaY":
+			parc.ar.blueline.set("alpha", 3);
+			break;
+		default:
+			parc.ar.blueline.set("alpha", 3);
+			break;
+	}
+}
+
+void setShaderEmap(){
+	String emap = gui.radio("ArcaneSettings/Shader/EMap", emaps);
+	switch (emap) {
+		case "C4Z":
+			parc.ar.blueline.set("emap", 1);
+			break;
+		case "C4B":
+			parc.ar.blueline.set("emap", 2);
+			break;
+		case "C4C":
+			parc.ar.blueline.set("emap", 4);
+			break;
+		case "C3M":
+			parc.ar.blueline.set("emap", 5);
+			break;
+		case "C3Z":
+			parc.ar.blueline.set("emap", 6);
+			break;
+		default:
+			parc.ar.blueline.set("emap", 2);
+			break;
 	}
 }
 
