@@ -77,12 +77,22 @@ void setup(){
 	xsmnfactor = 1.0f / pow(gui.sliderInt("ArcaneSettings/KernelWidth"), 2.0f);
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
 	float usize, pixth, orbra;
-	// when set to 1.0f the slider effectively toggles between 1 and 0 even though it's not a sliderInt;
+	/* 
+		when set to 1.0f the slider effectively toggles between 1 and 0 even though it's not a sliderInt
+		so I've set the default to 0.99f which avoids this
+		then I set it to 1.00f afterward for a pseudo-default.
+		The only problem with this is that when reset is triggered over the slider it goes back to 0.99f instead of 1.00f
+		*/
 	usize=pixth=orbra=0.99f;
 
-	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 1.0f);
-	gui.slider("ArcaneSettings/Shader/Pixel Thickness", pixth, 0.0f, 1.0f);
-	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , orbra, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 2.0f);
+	gui.slider("ArcaneSettings/Shader/Pixel Thickness", pixth, 0.0f, 2.0f);
+	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , orbra, 0.0f, 2.0f);
+	
+	gui.sliderSet("ArcaneSettings/Shader/Unit Size"      , 1.00f);
+	gui.sliderSet("ArcaneSettings/Shader/Pixel Thickness", 1.00f);
+	gui.sliderSet("ArcaneSettings/Shader/Orbit Radius"   , 1.00f);
+
 	gui.radio("ArcaneSettings/Shader/Theme", themes, "rblue");
 	gui.toggleSet("ArcaneSettings/Shader/GeoQ", true);
 	gui.radio("ArcaneSettings/Shader/Grader", grades, "grade");
