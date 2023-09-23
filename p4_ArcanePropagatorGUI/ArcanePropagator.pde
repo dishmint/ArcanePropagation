@@ -142,7 +142,7 @@ class ArcanePropagator{
 				af.transmissionfactor = xfactor;
 				break;
 			case "kernel scale":
-				xfactor = gui.slider("ArcaneSettings/KernelScale");
+				xfactor = gui.slider("ArcaneSettings/Kernel/KernelScale");
 				af.transmissionfactor = xfactor;
 				break;
 			default:
@@ -196,7 +196,7 @@ class ArcanePropagator{
 		}
 
 		/* if the current kw is different than the last then rerun loadxm */
-		int currentkw = gui.sliderInt("ArcaneSettings/KernelWidth");
+		int currentkw = gui.sliderInt("ArcaneSettings/Kernel/KernelWidth");
 		if(kernelwidth != currentkw){
 			kernelwidth = currentkw;
 			ximage = loadxm(source);

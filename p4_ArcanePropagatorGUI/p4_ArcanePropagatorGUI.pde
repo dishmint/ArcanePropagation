@@ -68,13 +68,13 @@ void setup(){
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
 	float factor = 1.0f/255.0f;
-	gui.slider("ArcaneSettings/KernelScale", factor, 0.0f, 1.0f);
-	gui.sliderInt("ArcaneSettings/KernelWidth", 3, 1, 7);
+	gui.slider("ArcaneSettings/Kernel/KernelScale", factor, 0.0f, 1.0f);
+	gui.sliderInt("ArcaneSettings/Kernel/KernelWidth", 3, 1, 7);
 
-	gui.slider("ArcaneSettings/ColorFactor", factor, 0.0f, 1.0f);
+	gui.slider("ArcaneSettings/Kernel/ColorFactor", factor, 0.0f, 1.0f);
 	/* Divisor: kernelsum / xsmnfactor */
-	gui.radio("ArcaneSettings/Xfac", xfactors, "1 div kw^2"); /* TODO: #83 isn't hooked up */
-	xsmnfactor = 1.0f / pow(gui.sliderInt("ArcaneSettings/KernelWidth"), 2.0f);
+	gui.radio("ArcaneSettings/Kernel/Xfac", xfactors, "1 div kw^2"); /* TODO: #83 isn't hooked up */
+	xsmnfactor = 1.0f / pow(gui.sliderInt("ArcaneSettings/Kernel/KernelWidth"), 2.0f);
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
 	float usize, pixth, orbra;
 	/* 
@@ -102,12 +102,12 @@ void setup(){
 	/* ---------------------------- ARCPROP INSTANCE ---------------------------- */
 	parc = new ArcanePropagator(
 		simg,
-		gui.radio("ArcaneSettings/Filter", afilter, "transmit"), 
-		gui.sliderInt("ArcaneSettings/KernelWidth"), 
-		gui.slider("ArcaneSettings/KernelScale"), 
+		gui.radio("ArcaneSettings/Kernel/Filter", afilter, "transmit"), 
+		gui.sliderInt("ArcaneSettings/Kernel/KernelWidth"), 
+		gui.slider("ArcaneSettings/Kernel/KernelScale"), 
 		xsmnfactor,
 		gui.slider("DisplayScale"),
-		gui.slider("ArcaneSettings/ColorFactor")
+		gui.slider("ArcaneSettings/Kernel/ColorFactor")
 		);
 	parc.debug();
 }
@@ -115,10 +115,10 @@ void setup(){
 void draw(){
 	/* -------------------------------- PARC GUI -------------------------------- */
 	parc.setDisplayScale(gui.slider("DisplayScale"));
-	parc.setFilter(gui.radio("ArcaneSettings/Filter", afilter));
-	parc.setKernelScale(gui.slider("ArcaneSettings/KernelScale"));
-	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Xfac", xfactors));
-	parc.setColorDiv(gui.slider("ArcaneSettings/ColorFactor"));
+	parc.setFilter(gui.radio("ArcaneSettings/Kernel/Filter", afilter));
+	parc.setKernelScale(gui.slider("ArcaneSettings/Kernel/KernelScale"));
+	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Kernel/Xfac", xfactors));
+	parc.setColorDiv(gui.slider("ArcaneSettings/Kernel/ColorFactor"));
 	/* ------------------------------- SHADER GUI ------------------------------- */
 	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/Unit Size"));
 	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
