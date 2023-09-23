@@ -32,7 +32,7 @@ class ArcaneRender {
 
 			renderer = (simg, ds) -> {
 				blueline.set("tex0", simg);
-				image(buffer, width/2, height/2, simg.pixelWidth*ds, simg.pixelHeight*ds);
+				image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, simg.pixelHeight*ds);
 			};
 		};
 

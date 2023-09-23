@@ -7,6 +7,7 @@ class ArcanePropagator{
 	/* IMAGE */
 	PImage source;
 	PImage og;
+	PImage overlay;
 	float[][][] ximage;
 	float displayScale;
 	ArcaneFilter af;
@@ -94,7 +95,8 @@ class ArcanePropagator{
 		colordiv = gsd;
 		/* SETUP IMAGE */
 		og = resize(img);
-		source = og.copy();		
+		source = og.copy();	
+		overlay = og.copy();	
 		ximage = loadxm(source);
 		/* SETUP FILTER */
 		af = new ArcaneFilter(filtermode, kernelwidth, xfactor);
@@ -109,6 +111,7 @@ class ArcanePropagator{
 	void setImage(PImage nimg){
 		og = resize(nimg);
 		source = og.copy();
+		overlay = og.copy();
 		ximage = loadxm(source);
 		ar.setShader(source);
 		/* NOTE: 
@@ -174,6 +177,24 @@ class ArcanePropagator{
 		} else {
 			ar.show(this);
 		}
+
+		if(gui.toggle("Overlay")){
+			tint(255, 127);
+			float osw = (float)overlay.pixelWidth;
+			float osh = (float)overlay.pixelHeight;
+			float oscale = min(width/((float)overlay.pixelWidth), height/((float)overlay.pixelHeight));
+			int nw = Math.round(osw*oscale);
+			int nh = Math.round(osh*oscale);
+			// print("og — " + overlay.pixelWidth + " " + overlay.pixelHeight + " " + nw + " " + nh + "\n");
+			overlay.resize(nw, nh);
+			// print("rz — " + overlay.pixelWidth + " " + overlay.pixelHeight + " " + nw + " " + nh + "\n");
+			// print("sz — " + source.pixelWidth + " " + source.pixelHeight + " " + nw + " " + nh + "\n");
+			float szc = ((float)source.pixelHeight)/((float)source.pixelWidth);
+			// println(szc);
+			image(overlay, width*0.5, height*0.5, source.pixelWidth*displayScale, source.pixelHeight*displayScale*szc);
+			tint(255, 255);
+		}
+
 		/* if the current kw is different than the last then rerun loadxm */
 		int currentkw = gui.sliderInt("ArcaneSettings/KernelWidth");
 		if(kernelwidth != currentkw){
