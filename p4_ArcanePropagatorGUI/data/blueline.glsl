@@ -2,6 +2,8 @@
 precision highp float;
 #endif
 
+/* TODO: #88 Improve orbit visibility (like p4_ArcanePropagation_PointOrbit) */
+
 #define PROCESSING_COLOR_SHADER
 
 uniform vec2 resolution;
