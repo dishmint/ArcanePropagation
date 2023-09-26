@@ -116,9 +116,9 @@ void draw(){
 	/* -------------------------------- PARC GUI -------------------------------- */
 	parc.setDisplayScale(gui.slider("DisplayScale"));
 	parc.setFilter(gui.radio("ArcaneSettings/Kernel/Filter", afilter));
-	parc.setKernelScale(gui.slider("ArcaneSettings/Kernel/KernelScale"));
+	// parc.setKernelScale(gui.slider("ArcaneSettings/Kernel/KernelScale"));
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Kernel/Xfac", xfactors));
-	parc.setColorDiv(gui.slider("ArcaneSettings/Kernel/ColorFactor"));
+	// parc.setColorDiv(gui.slider("ArcaneSettings/Kernel/ColorFactor"));
 	/* ------------------------------- SHADER GUI ------------------------------- */
 	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/Unit Size"));
 	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
