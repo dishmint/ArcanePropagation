@@ -119,9 +119,10 @@ class ArcanePropagator{
 			(they may be preserved though because the blueline.set functions don't affect the GUI) */
 	}
 
-	void setKernelScale(float nks){
-		kernelScale = nks;
-	}
+	// void setKernelScale(float nks){
+	// 	kernelScale = nks;
+	// 	ximage = loadxm(source);
+	// }
 
 	void setTransmissionFactor(String nxf){
 		switch (nxf) {
@@ -152,9 +153,16 @@ class ArcanePropagator{
 		}
 	}
 
-	void setColorDiv(float ncd){
-		colordiv = ncd;
-	}
+	// void setColorDiv(float ncd){
+	// 	colordiv = ncd;
+	// 	if(kernelwidth != currentkw){
+	// 		kernelwidth = currentkw;
+	// 		ximage = loadxm(source);
+	// 		/* ^^ should this use og instead of source? source is the current state of the image, where og is the original image */
+	// 		af.kernelwidth = kernelwidth;
+	// 	}
+	// 	ximage = loadxm(source);
+	// }
 
 	void setDisplayScale(float nds){
 		displayScale = nds;
@@ -200,9 +208,19 @@ class ArcanePropagator{
 		if(kernelwidth != currentkw){
 			kernelwidth = currentkw;
 			ximage = loadxm(source);
+			/* ^^ should this use og instead of source? source is the current state of the image, where og is the original image */
 			af.kernelwidth = kernelwidth;
 		}
-		
+		float currentks = gui.slider("ArcaneSettings/Kernel/KernelScale");
+		if(kernelScale != currentks){
+			kernelScale = currentks;
+			ximage = loadxm(source);
+		}
+		float currentcd = gui.slider("ArcaneSettings/Kernel/ColorFactor");
+		if(colordiv != currentcd){
+			colordiv = currentcd;
+			ximage = loadxm(source);
+		}
 		
 	}
 
