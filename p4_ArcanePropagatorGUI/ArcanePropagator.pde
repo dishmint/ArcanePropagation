@@ -84,7 +84,7 @@ class ArcanePropagator{
 		img.updatePixels();
 		return xms;
 	}
-
+	/* TODO: #89 ColorDiv and KernelScale gui controls require hookup */
 	/* CNSR */
 	ArcanePropagator(PImage img, String filtermode, int kw, float ks, float xf, float ds, float gsd){
 		/* SETUP VARS */
