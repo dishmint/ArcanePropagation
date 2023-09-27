@@ -64,6 +64,7 @@ void setup(){
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
 	gui.button("Select Image"); /* default image is universe */
 	simg = loadImage("./imgs/universe.jpg");
+	/* FIXME: #91 image dimensions are still off */
 
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
