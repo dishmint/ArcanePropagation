@@ -17,8 +17,6 @@ String[] states = {"normal","inverse"};
 String[] alphas = {"alpha1", "alphaC", "alphaY"};
 String[] emaps = {"C4Z","C4B","C4C","C3M","C3Z"};
 
-/* TODO: #86 Refresh GUI layout */
-
 String flt;
 
 /* TODO: #81 add gui for ArcaneGenerator */
