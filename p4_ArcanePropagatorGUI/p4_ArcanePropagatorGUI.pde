@@ -27,10 +27,10 @@ ArcaneGenerator ag;
 LazyGui gui;
 
 /* TODO: #69 Add performance mode so live parameter changes can be recorded and saved */
-/* TODO: #71 Add ui to change shader parameters */
 void setup(){
 	/* ----------------------------- SKETCH SETTINGS ---------------------------- */
 	size(1422, 800, P3D);
+	println("Canvas width: " + width + " height: " + height);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
 
@@ -56,7 +56,9 @@ void setup(){
 	gui.button("Reset");
 	gui.toggleSet("Run", false);
 	gui.sliderInt("Rate", 1, 1, 120);
-	gui.slider("DisplayScale", 1.0f, 0.01f, 1.0f);
+	float ds = 0.99f;
+	gui.slider("DisplayScale", ds, 0.01f, 1.0f);
+	gui.sliderSet("DisplayScale", 0.95f); /* FIXME: Image extends slightly beyond canvas with displayScale of 1.0  */
 
 	gui.text("Save Frame/Filename","arcane_capture");
 	gui.button("Save Frame/Capture");
@@ -64,7 +66,6 @@ void setup(){
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
 	gui.button("Select Image"); /* default image is universe */
 	simg = loadImage("./imgs/universe.jpg");
-	/* FIXME: #91 image dimensions are still off */
 
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
@@ -74,7 +75,7 @@ void setup(){
 
 	gui.slider("ArcaneSettings/Kernel/ColorFactor", factor, 0.0f, 1.0f);
 	/* Divisor: kernelsum / xsmnfactor */
-	gui.radio("ArcaneSettings/Kernel/Xfac", xfactors, "1 div kw^2"); /* TODO: #83 isn't hooked up */
+	gui.radio("ArcaneSettings/Kernel/Xfac", xfactors, "1 div kw^2");
 	xsmnfactor = 1.0f / pow(gui.sliderInt("ArcaneSettings/Kernel/KernelWidth"), 2.0f);
 	/* ---------------------------- SHADER PROPERTIES --------------------------- */
 	float usize, pixth, orbra;
@@ -94,7 +95,7 @@ void setup(){
 	gui.sliderSet("ArcaneSettings/Shader/Pixel Thickness", 1.00f);
 	gui.sliderSet("ArcaneSettings/Shader/Orbit Radius"   , 1.00f);
 
-	gui.radio("ArcaneSettings/Shader/Theme", themes, "rblue");
+	gui.radio("ArcaneSettings/Shader/Theme", themes, "gred");
 	gui.toggleSet("ArcaneSettings/Shader/GeoQ", true);
 	gui.radio("ArcaneSettings/Shader/Grader", grades, "grade");
 	gui.radio("ArcaneSettings/Shader/State", states, "normal");
@@ -117,9 +118,7 @@ void draw(){
 	/* -------------------------------- PARC GUI -------------------------------- */
 	parc.setDisplayScale(gui.slider("DisplayScale"));
 	parc.setFilter(gui.radio("ArcaneSettings/Kernel/Filter", afilter));
-	// parc.setKernelScale(gui.slider("ArcaneSettings/Kernel/KernelScale"));
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Kernel/Xfac", xfactors));
-	// parc.setColorDiv(gui.slider("ArcaneSettings/Kernel/ColorFactor"));
 	/* ------------------------------- SHADER GUI ------------------------------- */
 	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/Unit Size"));
 	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/Pixel Thickness"));

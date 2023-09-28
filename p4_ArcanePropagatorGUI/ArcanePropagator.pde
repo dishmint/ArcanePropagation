@@ -19,35 +19,23 @@ class ArcanePropagator{
 		float sw = (float)img.pixelWidth;
 		float sh = (float)img.pixelHeight;
 		float scale = min(width/sw, height/sh);
-
 		int nw = Math.round(sw*scale);
 		int nh = Math.round(sh*scale);
 		img.resize(nw, nh);
-		return img; /* might not need to return this if img.resize is changing the original image */
+		return img;
 	}
+
 
 	float computeGS(color px){
 		float rpx = px >> 16 & 0xFF;
 		float gpx = px >> 8 & 0xFF;
 		float bpx = px & 0xFF;
-		
-		// return map((
-		// 		0.2989 * rpx +
-		// 		0.5870 * gpx +
-		// 		0.1140 * bpx
-		// 		) / 3.0, 0.0, 255.0, 0.0, 1.0);
-		
+				
 		return (
 				0.2989 * rpx +
 				0.5870 * gpx +
 				0.1140 * bpx
 				) * colordiv;
-		
-		// return map((
-		// 		rpx +
-		// 		gpx +
-		// 		bpx
-		// 		) / 3.0, 0.0, 255.0, 0.0, 1.0);
 	}
 	
 	float[][][] loadxm(PImage img) {
@@ -84,7 +72,7 @@ class ArcanePropagator{
 		img.updatePixels();
 		return xms;
 	}
-	/* TODO: #89 ColorDiv and KernelScale gui controls require hookup */
+
 	/* CNSR */
 	ArcanePropagator(PImage img, String filtermode, int kw, float ks, float xf, float ds, float gsd){
 		/* SETUP VARS */
@@ -94,7 +82,9 @@ class ArcanePropagator{
 		displayScale = ds;
 		colordiv = gsd;
 		/* SETUP IMAGE */
+		println("img dimensions: " + img.pixelWidth + " " + img.pixelHeight);
 		og = resize(img);
+		println("og dimensions: " + og.pixelWidth + " " + og.pixelHeight);
 		source = og.copy();	
 		overlay = og.copy();	
 		ximage = loadxm(source);
@@ -119,10 +109,6 @@ class ArcanePropagator{
 			(they may be preserved though because the blueline.set functions don't affect the GUI) */
 	}
 
-	// void setKernelScale(float nks){
-	// 	kernelScale = nks;
-	// 	ximage = loadxm(source);
-	// }
 
 	void setTransmissionFactor(String nxf){
 		switch (nxf) {
@@ -153,17 +139,6 @@ class ArcanePropagator{
 		}
 	}
 
-	// void setColorDiv(float ncd){
-	// 	colordiv = ncd;
-	// 	if(kernelwidth != currentkw){
-	// 		kernelwidth = currentkw;
-	// 		ximage = loadxm(source);
-	// 		/* ^^ should this use og instead of source? source is the current state of the image, where og is the original image */
-	// 		af.kernelwidth = kernelwidth;
-	// 	}
-	// 	ximage = loadxm(source);
-	// }
-
 	void setDisplayScale(float nds){
 		displayScale = nds;
 		ar.displayScale = nds;
@@ -188,18 +163,7 @@ class ArcanePropagator{
 
 		if(gui.toggle("Overlay")){
 			tint(255, 127);
-			float osw = (float)overlay.pixelWidth;
-			float osh = (float)overlay.pixelHeight;
-			float oscale = min(width/((float)overlay.pixelWidth), height/((float)overlay.pixelHeight));
-			int nw = Math.round(osw*oscale);
-			int nh = Math.round(osh*oscale);
-			// print("og — " + overlay.pixelWidth + " " + overlay.pixelHeight + " " + nw + " " + nh + "\n");
-			overlay.resize(nw, nh);
-			// print("rz — " + overlay.pixelWidth + " " + overlay.pixelHeight + " " + nw + " " + nh + "\n");
-			// print("sz — " + source.pixelWidth + " " + source.pixelHeight + " " + nw + " " + nh + "\n");
-			float szc = ((float)source.pixelHeight)/((float)source.pixelWidth);
-			// println(szc);
-			image(overlay, width*0.5, height*0.5, source.pixelWidth*displayScale, source.pixelHeight*displayScale*szc);
+			image(overlay, width*0.5, height*0.5, overlay.pixelWidth*displayScale, overlay.pixelHeight*displayScale);
 			tint(255, 255);
 		}
 

@@ -32,7 +32,12 @@ class ArcaneRender {
 
 			renderer = (simg, ds) -> {
 				blueline.set("tex0", simg);
-				image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, simg.pixelHeight*ds);
+
+				float sw = (float)simg.pixelWidth;
+				float sh = (float)simg.pixelHeight;
+				float scale = min(width/sw, height/sh);
+				float wh = sw/sh;
+				image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, wh*simg.pixelHeight*ds);
 			};
 		};
 

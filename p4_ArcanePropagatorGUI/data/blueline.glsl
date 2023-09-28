@@ -254,7 +254,6 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 	return c;
 }
 
-/* TODO: #82 expose shader settings to gui */
 /* SETTINGS  */
 /* — emap   : C4Z|C4B|C3M|C3Z                               — */
 /* — state  : normal|inverse                                — */
