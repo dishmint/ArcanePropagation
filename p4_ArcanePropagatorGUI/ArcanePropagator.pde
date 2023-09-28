@@ -82,9 +82,7 @@ class ArcanePropagator{
 		displayScale = ds;
 		colordiv = gsd;
 		/* SETUP IMAGE */
-		println("img dimensions: " + img.pixelWidth + " " + img.pixelHeight);
 		og = resize(img);
-		println("og dimensions: " + og.pixelWidth + " " + og.pixelHeight);
 		source = og.copy();	
 		overlay = og.copy();	
 		ximage = loadxm(source);
@@ -104,9 +102,6 @@ class ArcanePropagator{
 		overlay = og.copy();
 		ximage = loadxm(source);
 		ar.setShader(source);
-		/* NOTE: 
-			^^ There may be cases where you want to preserve shader parameters even when you change images
-			(they may be preserved though because the blueline.set functions don't affect the GUI) */
 	}
 
 

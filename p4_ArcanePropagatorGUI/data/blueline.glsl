@@ -7,7 +7,6 @@ precision highp float;
 #define PROCESSING_COLOR_SHADER
 
 uniform vec2 resolution;
-uniform sampler2D ppixels;
 
 uniform sampler2D tex0;
 uniform float aspect;

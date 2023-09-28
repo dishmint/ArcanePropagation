@@ -8,26 +8,30 @@ class ArcaneRender {
 
 	void setShader(PImage source){
 			blueline = loadShader(shaderPath);
-			blueline.set("aspect", float(source.pixelWidth)/float(source.pixelHeight));
+
+			println("SET_SHADER | source dimentions: " + source.pixelWidth + " x " + source.pixelHeight);
+			if (source.pixelWidth != source.pixelHeight) {
+				if (source.pixelWidth > source.pixelHeight){
+					blueline.set("aspect", float(source.pixelWidth)/float(source.pixelHeight));
+				} else if (source.pixelWidth < source.pixelHeight){
+					// blueline.set("aspect", (float(source.height)/float(source.width)));
+					blueline.set("aspect", 1.0);
+				}
+			} else {
+				blueline.set("aspect", 1.0);
+			}
+			
 			blueline.set("tex0", source);
 			blueline.set("densityscale", 1.0/displayDensity());
 
 			blueline.set("resolution", 1000.*float(buffer.pixelWidth), 1000.*float(buffer.pixelHeight));
-			// blueline.set("resolution", 100.*float(buffer.pixelWidth), 100.*float(buffer.pixelHeight));
 	
-			/* the unitsize determines the dimensions of pixels for the shader */
+			/* unitsize => size of pixel */
 			blueline.set("unitsize", 1.00);
-			/* the thickness used to determine a points position is determined by thickness/tfac */
+			/* (unitsize/resolution)/tfac => scales size of pixel */
 			blueline.set("tfac", 1.0);
 
-			/*
-			- The radius of a point orbit is determined by rfac * thickness
-			- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
-			- rfac >= 1.5 == black screen
-			- rfac == 0.0 == 1:1
-			*/
-			// blueline.set("rfac", 0.0); 
-			// blueline.set("rfac", 0.5);
+			/* (unitsize/resolution) * rfac => scales orbit radius */
 			blueline.set("rfac", 1.0); /* default */
 
 			renderer = (simg, ds) -> {
@@ -36,8 +40,15 @@ class ArcaneRender {
 				float sw = (float)simg.pixelWidth;
 				float sh = (float)simg.pixelHeight;
 				float scale = min(width/sw, height/sh);
-				float wh = sw/sh;
-				image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, wh*simg.pixelHeight*ds);
+				// float wh = sw/sh;
+				float wh = 1.0;
+
+				if (simg.pixelWidth > simg.pixelHeight){
+						wh = sw/sh;
+						image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, wh*simg.pixelHeight*ds);
+					} else {
+						image(buffer, width*0.5, height*0.5, simg.pixelWidth*ds, simg.pixelHeight*ds);
+					}
 			};
 		};
 

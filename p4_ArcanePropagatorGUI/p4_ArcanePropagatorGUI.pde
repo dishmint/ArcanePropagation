@@ -28,7 +28,7 @@ LazyGui gui;
 void setup(){
 	/* ----------------------------- SKETCH SETTINGS ---------------------------- */
 	size(1422, 800, P3D);
-	println("Canvas width: " + width + " height: " + height);
+	println("Canvas Dimensions: " + width + " height: " + height);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
 
@@ -85,13 +85,13 @@ void setup(){
 		*/
 	usize=pixth=orbra=0.99f;
 
-	gui.slider("ArcaneSettings/Shader/Unit Size"      , usize, 0.0f, 2.0f);
-	gui.slider("ArcaneSettings/Shader/Pixel Thickness", pixth, 0.0f, 2.0f);
-	gui.slider("ArcaneSettings/Shader/Orbit Radius"   , orbra, 0.0f, 2.0f);
+	gui.slider("ArcaneSettings/Shader/PixelMax"      , usize, 0.0f, 2.0f);
+	gui.slider("ArcaneSettings/Shader/OrbitThickness", pixth, 0.0f, 2.0f);
+	gui.slider("ArcaneSettings/Shader/OrbitRadius"   , orbra, 0.0f, 2.0f);
 	
-	gui.sliderSet("ArcaneSettings/Shader/Unit Size"      , 1.00f);
-	gui.sliderSet("ArcaneSettings/Shader/Pixel Thickness", 1.00f);
-	gui.sliderSet("ArcaneSettings/Shader/Orbit Radius"   , 1.00f);
+	gui.sliderSet("ArcaneSettings/Shader/PixelMax"      , 1.00f);
+	gui.sliderSet("ArcaneSettings/Shader/OrbitThickness", 1.00f);
+	gui.sliderSet("ArcaneSettings/Shader/OrbitRadius"   , 1.00f);
 
 	gui.radio("ArcaneSettings/Shader/Theme", themes, "gred");
 	gui.toggleSet("ArcaneSettings/Shader/GeoQ", true);
@@ -118,9 +118,9 @@ void draw(){
 	parc.setFilter(gui.radio("ArcaneSettings/Kernel/Filter", afilter));
 	parc.setTransmissionFactor(gui.radio("ArcaneSettings/Kernel/Xfac", xfactors));
 	/* ------------------------------- SHADER GUI ------------------------------- */
-	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/Unit Size"));
-	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/Pixel Thickness"));
-	parc.ar.blueline.set("rfac", gui.slider("ArcaneSettings/Shader/Orbit Radius"));
+	parc.ar.blueline.set("unitsize", gui.slider("ArcaneSettings/Shader/PixelMax"));
+	parc.ar.blueline.set("tfac", gui.slider("ArcaneSettings/Shader/OrbitThickness"));
+	parc.ar.blueline.set("rfac", gui.slider("ArcaneSettings/Shader/OrbitRadius"));
 
 	setShaderTheme();
 	setShaderGeo();
