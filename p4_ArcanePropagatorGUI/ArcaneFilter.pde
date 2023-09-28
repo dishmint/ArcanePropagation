@@ -474,6 +474,82 @@ class ArcaneFilter {
 
 					img.pixels[sloc] = color(rspx, gspx, bspx);
 				};
+ 	
+    /* arcblur */
+	ArcaneProcess arcblur = (x, y, img, xmg) -> {
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
+        
+        			// float rpx = cpx >> 16 & 0xFF;
+        			// float gpx = cpx >> 8 & 0xFF;
+        			// float bpx = cpx & 0xFF;
+        
+        			float rpx = 0;
+        			float gpx = 0;
+        			float bpx = 0;
+
+        			int offset = kernelwidth / 2;
+        			for (int k = 0; k < kernelwidth; k++){
+        			    for (int l= 0; l < kernelwidth; l++){
+        			        int xloc = x+k-offset;
+        			        int yloc = y+l-offset;
+        			        int loc = xloc + img.pixelWidth*yloc;
+        			        loc = constrain(loc,0,img.pixels.length-1);
+							color npx = img.pixels[loc];
+
+							float nrpx = npx >> 16 & 0xFF;
+							float ngpx = npx >> 8 & 0xFF;
+							float nbpx = npx & 0xFF;
+
+        			        rpx += nrpx;
+							gpx += ngpx;
+							bpx += nbpx;
+        			    	}
+        				}
+
+					rpx *= (1.0/(kernelwidth * kernelwidth));
+					gpx *= (1.0/(kernelwidth * kernelwidth));
+					bpx *= (1.0/(kernelwidth * kernelwidth));
+        			img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
+					};
+ 	
+    /* xdilate */
+	ArcaneProcess xdilate = (x, y, img, xmg) -> {
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
+        
+ 					float rpx = cpx >> 16 & 0xFF;
+        			float gpx = cpx >> 8 & 0xFF;
+        			float bpx = cpx & 0xFF;
+
+        			int offset = kernelwidth / 2;
+        			for (int k = 0; k < kernelwidth; k++){
+        			    for (int l= 0; l < kernelwidth; l++){
+        			        int xloc = x+k-offset;
+        			        int yloc = y+l-offset;
+        			        int loc = xloc + img.pixelWidth*yloc;
+        			        loc = constrain(loc,0,img.pixels.length-1);
+        			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
+
+							color npx = img.pixels[loc];
+
+							float nrpx = npx >> 16 & 0xFF;
+							float ngpx = npx >> 8 & 0xFF;
+							float nbpx = npx & 0xFF;
+
+							if(nrpx + ngpx + nbpx > rpx + gpx + bpx){
+								rpx = nrpx*xmsn;
+								gpx = ngpx*xmsn;
+								bpx = nbpx*xmsn;
+								}
+        			    	}
+        				}
+        				img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
+					};
 
 	void setArcaneProcess(String fm){
 		switch(fm){
@@ -531,6 +607,12 @@ class ArcaneFilter {
 				dB = 0.50;
 				fr = 0.055;
 				kr = 0.062;
+		    	break;
+		    case "arcblur":
+				arcfilter = arcblur;
+		    	break;
+			case "xdilate":
+				arcfilter = xdilate;
 		    	break;
 		    case "blur":
 		    	break;
