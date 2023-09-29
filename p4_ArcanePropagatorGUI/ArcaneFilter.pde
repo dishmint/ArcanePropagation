@@ -223,7 +223,6 @@ class ArcaneFilter {
 			}
 		}
 
-		// println(Arrays.deepToString(nk).replace("], ", "]\n"));
 		return nk;
 	}
 	float[][] createrdfkernel(float min, float max){
@@ -238,7 +237,6 @@ class ArcaneFilter {
 			}
 		}
 
-		// println(Arrays.deepToString(nk).replace("], ", "]\n"));
 		return nk;
 	}
 	float[] reactdiffuse(float a, float b, float la, float lb){
@@ -509,9 +507,13 @@ class ArcaneFilter {
         			    	}
         				}
 
-					rpx *= (1.0/(kernelwidth * kernelwidth));
-					gpx *= (1.0/(kernelwidth * kernelwidth));
-					bpx *= (1.0/(kernelwidth * kernelwidth));
+					// rpx *= (1.0/(kernelwidth * kernelwidth));
+					// gpx *= (1.0/(kernelwidth * kernelwidth));
+					// bpx *= (1.0/(kernelwidth * kernelwidth));
+
+					rpx *= transmissionfactor;
+					gpx *= transmissionfactor;
+					bpx *= transmissionfactor;
         			img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
 					};
  	

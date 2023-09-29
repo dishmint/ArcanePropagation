@@ -104,7 +104,6 @@ class ArcanePropagator{
 		ar.setShader(source);
 	}
 
-
 	void setTransmissionFactor(String nxf){
 		switch (nxf) {
 			case "1 div kw^2":
@@ -184,10 +183,14 @@ class ArcanePropagator{
 	}
 
 	void debug(){
-		println("kernelwidth: " + kernelwidth);
-		println("kernelScale: " + kernelScale);
-		println("xfactor: " + xfactor);
-		println("colordiv: " + colordiv);
-		println("displayScale: " + displayScale);
+		println("-------------------");
+		println("ArcanePropagator ::");
+		println("kw -> " + kernelwidth);
+		println("ks -> " + kernelScale);
+		println("xf -> " + xfactor);
+		println("cd -> " + colordiv);
+		println("ds -> " + displayScale);
+		println("-------------------");
+		println("");
 	}
 }

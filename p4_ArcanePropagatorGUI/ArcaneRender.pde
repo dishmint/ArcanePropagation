@@ -9,7 +9,6 @@ class ArcaneRender {
 	void setShader(PImage source){
 			blueline = loadShader(shaderPath);
 
-			println("SET_SHADER | source dimentions: " + source.pixelWidth + " x " + source.pixelHeight);
 			if (source.pixelWidth != source.pixelHeight) {
 				if (source.pixelWidth > source.pixelHeight){
 					blueline.set("aspect", float(source.pixelWidth)/float(source.pixelHeight));

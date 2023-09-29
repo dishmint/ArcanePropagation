@@ -28,7 +28,6 @@ LazyGui gui;
 void setup(){
 	/* ----------------------------- SKETCH SETTINGS ---------------------------- */
 	size(1422, 800, P3D);
-	println("Canvas Dimensions: " + width + " height: " + height);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
 
