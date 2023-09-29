@@ -61,7 +61,6 @@ class ArcanePropagator{
 
 						float gs = computeGS(cpx);
 
-						// kernel[k][l] = map(gs, 0, 1, -1.,1.) /* * kernelScale */;
 						kernel[k][l] = map(gs, 0, 1, -1.,1.) * kernelScale;
 
 						}
