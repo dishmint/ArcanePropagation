@@ -271,3 +271,11 @@ void imageSelected(File selection){
 		println("User selected " + selection.getAbsolutePath());
 		}
 }
+
+void exit(){
+	// https://stackoverflow.com/a/28693343/12317788
+	println("Exiting...");
+	println("");
+	parc.debug();
+	super.exit();//let processing carry with it's regular exit routine
+}
