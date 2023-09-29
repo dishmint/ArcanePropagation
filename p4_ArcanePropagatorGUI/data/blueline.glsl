@@ -125,6 +125,10 @@ void pushgeo(int selector, vec2 uv){
 #define rblue  5
 #define yellowbrick 6
 #define gred 7
+#define starrynight 8
+#define ember 9
+#define bloodred 10
+#define gundam 11
 
 vec3 makebase(int selector){
 	vec3 b;
@@ -152,6 +156,18 @@ vec3 makebase(int selector){
 		case gred:
 		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
 			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
+			break;
+		case starrynight:
+			b = mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), (angle/(TAU)));
+			break;
+		case ember:
+			b = mix(vec3(0.18, 0.28, 0.35), vec3(0.95, .39, 0.1), (angle/(TAU)));
+			break;
+		case bloodred:
+			b = mix(vec3(0.34, 0.0, 0.0), vec3(0.99, 1.0, 1.0), (angle/(TAU)));
+			break;
+		case gundam:
+			b = mix(vec3(0.12, 0.2, 0.19), vec3(0.86, 0.3, 0.25), (angle/(TAU)));
 			break;
 		default:
 			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));

@@ -11,7 +11,7 @@ ArcanePropagator parc;
 float kernelScale,xsmnfactor,displayscale;
 String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "rdfm", "rdfr", "rdfx", "arcblur","xdilate", "blur", "dilate"};
 String[] xfactors = {"1 div kw^2", "1 div (kw^2 - 1)", "1 div kw", "kw", "kernel scale"};
-String[] themes = {"red","green","blue","yellow","yellowbrick","rblue","gred"};
+String[] themes = {"red","green","blue","yellow","yellowbrick","rblue","gred", "starrynight","ember","bloodred","gundam"};
 String[] grades = {"grade","nograde","source"};
 String[] states = {"normal","inverse"};
 String[] alphas = {"alpha1", "alphaC", "alphaY"};
@@ -172,6 +172,18 @@ void setShaderTheme(){
 		case "gred":
 			parc.ar.blueline.set("theme", 7);
 			break;
+		case "starrynight":
+			parc.ar.blueline.set("theme", 8);
+			break;
+		case "ember":
+			parc.ar.blueline.set("theme", 9);
+			break;
+		case "bloodred":
+			parc.ar.blueline.set("theme", 10);
+			break;
+		case "gundam":
+			parc.ar.blueline.set("theme", 11);
+			break;
 		default:
 			parc.ar.blueline.set("theme", 5);
 			break;
@@ -274,6 +286,7 @@ void imageSelected(File selection){
 
 void exit(){
 	// https://stackoverflow.com/a/28693343/12317788
+	println("");
 	println("Exiting...");
 	println("");
 	parc.debug();
