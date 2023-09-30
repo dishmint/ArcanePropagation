@@ -55,7 +55,6 @@ void setup(){
 	gui.sliderInt("Rate", 1, 1, 120);
 	float ds = 0.99f;
 	gui.slider("DisplayScale", ds, 0.01f, 1.0f);
-	gui.sliderSet("DisplayScale", 0.95f); /* FIXME: Image extends slightly beyond canvas with displayScale of 1.0  */
 
 	gui.text("Save Frame/Filename","arcane_capture");
 	gui.button("Save Frame/Capture");

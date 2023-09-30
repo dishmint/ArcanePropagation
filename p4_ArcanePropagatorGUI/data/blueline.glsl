@@ -57,7 +57,7 @@ void pushEnergyAngle(int selector){
 			energy = (color.r+color.g+color.b+color.a/4.0);
 			// energy = mix(-1.,1.,(color.r+color.g+color.b+color.a));
 			theta = mix(vec4(-QTAU), vec4(QTAU), energy); /* default */
-			// vec4 theta = mix(vec4(-TAU), vec4(TAU), energy);
+			// theta = mix(vec4(-TAU), vec4(TAU), energy);
 			
 			angle = theta.x+theta.y+theta.z+theta.w;
 			break;
@@ -135,42 +135,42 @@ vec3 makebase(int selector){
 	switch(selector)
 	{
 		case red:
-			b = vec3(1.0,0.0,0.0)*(angle/(TAU));
+			b = vec3(1.0,0.0,0.0)*(angle/TAU);
 			break;
 		case blue:
-			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(TAU));
+			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/TAU);
 			break;
 		case green:
-			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(TAU));
+			b = vec3(0.101961, 0.145098, 0.117647)*(angle/TAU);
 			break;
 		case yellow:
-			b = vec3(1., 1., 0.0)*(angle/(TAU));
+			b = vec3(1., 1., 0.0)*(angle/TAU);
 			break;
 		case yellowbrick:
-		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(TAU)));
-			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(TAU)));
+		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/TAU));
+			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/TAU));
 			break;
 		case rblue:
-			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle/TAU)*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 		case gred:
-		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
-			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
+		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/TAU));
+			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/TAU));
 			break;
 		case starrynight:
-			b = mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), (angle/(TAU)));
+			b = mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), (angle/TAU));
 			break;
 		case ember:
-			b = mix(vec3(0.18, 0.28, 0.35), vec3(0.95, .39, 0.1), (angle/(TAU)));
+			b = mix(vec3(0.18, 0.28, 0.35), vec3(0.95, .39, 0.1), (angle/TAU));
 			break;
 		case bloodred:
-			b = mix(vec3(0.34, 0.0, 0.0), vec3(0.99, 1.0, 1.0), (angle/(TAU)));
+			b = mix(vec3(0.34, 0.0, 0.0), vec3(0.99, 1.0, 1.0), (angle/TAU));
 			break;
 		case gundam:
-			b = mix(vec3(0.12, 0.2, 0.19), vec3(0.86, 0.3, 0.25), (angle/(TAU)));
+			b = mix(vec3(0.12, 0.2, 0.19), vec3(0.86, 0.3, 0.25), (angle/TAU));
 			break;
 		default:
-			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = mix(vec3(0.0), vec3(1.0), angle/TAU);
 			break;
 	}
 	return b;
@@ -254,7 +254,7 @@ vec4 pushfrag(int geoQ, int gradeQ, vec2 uv){
 			thm = grade;
 			break;
 		case NOGRADE:
-			thm = vec4(1.0);
+			thm = makeGrade(-1, alpha);
 			break;
 		case SOURCE:
 			thm = color;
