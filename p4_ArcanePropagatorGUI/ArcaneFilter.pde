@@ -208,7 +208,7 @@ class ArcaneFilter {
 				
 				float d = dist(center,center,float(i),float(j));
 				
-				nk[i][j] = map(d, 0.0, center, -1.0, 0.00);
+				nk[i][j] = map(d, 0.0f, center, -1.0, 0.0f);
 				
 			}
 		}
@@ -237,8 +237,11 @@ class ArcaneFilter {
 
 			https://editor.p5js.org/codingtrain/sketches/govdEW5aE
 		*/
-		a += (dA * la) - (a * b * b) + (fr * (1 - a));
+		/* TODO: should be 3 component rdf system a:red, b:green, c:blue */
+		a += (dA * la) - (a * b * b) + (fr * (1.0 - a));
 		b += (dB * lb) + (a * b * b) - ((kr + fr) * b);
+		// a = (dA * la) - (a * b * b) + (fr * (1.0 - a));
+		// b = (dB * lb) + (a * b * b) - ((kr + fr) * b);
 		result[0] = a; 
 		result[1] = b; 
 		return result;
@@ -294,6 +297,10 @@ class ArcaneFilter {
 					float newr = sb[1];
 					float newg = sg[0];
 					float newb = sb[0];
+
+					// float newr = sr[0];
+					// float newg = sr[1];
+					// float newb = newr;
 					
 					/* ------------------------- reaction diffusion two ------------------------- */
 				
@@ -524,6 +531,45 @@ class ArcaneFilter {
         			        int xloc = x+k-offset;
         			        int yloc = y+l-offset;
         			        int loc = xloc + img.pixelWidth*yloc;
+							/* FIXME: sometimes there's an ArrayOutOfBoundsException when switching images — not sure why it's happening when the image is changed _after_ the filter is applied */
+        			        loc = constrain(loc,0,img.pixels.length-1);
+        			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
+
+							color npx = img.pixels[loc];
+
+							float nrpx = npx >> 16 & 0xFF;
+							float ngpx = npx >> 8 & 0xFF;
+							float nbpx = npx & 0xFF;
+
+							/* immediate settlement */
+							if(nrpx + ngpx + nbpx > rpx + gpx + bpx){
+								rpx = nrpx*xmsn;
+								gpx = ngpx*xmsn;
+								bpx = nbpx*xmsn;
+								}
+        			    	}
+        				}
+        				img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
+					};
+ 	
+    /* xsdilate */
+	ArcaneProcess xsdilate = (x, y, img, xmg) -> {
+					int sloc = x+y*img.pixelWidth;
+					sloc = constrain(sloc,0,img.pixels.length-1);
+
+					color cpx = img.pixels[sloc];
+        
+ 					float rpx = cpx >> 16 & 0xFF;
+        			float gpx = cpx >> 8 & 0xFF;
+        			float bpx = cpx & 0xFF;
+
+        			int offset = kernelwidth / 2;
+        			for (int k = 0; k < kernelwidth; k++){
+        			    for (int l= 0; l < kernelwidth; l++){
+        			        int xloc = x+k-offset;
+        			        int yloc = y+l-offset;
+        			        int loc = xloc + img.pixelWidth*yloc;
+							/* FIXME: sometimes there's an ArrayOutOfBoundsException when switching images — not sure why it's happening when the image is changed _after_ the filter is applied */
         			        loc = constrain(loc,0,img.pixels.length-1);
         			        float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
@@ -534,9 +580,9 @@ class ArcaneFilter {
 							float nbpx = npx & 0xFF;
 
 							if(nrpx + ngpx + nbpx > rpx + gpx + bpx){
-								rpx = nrpx*xmsn;
-								gpx = ngpx*xmsn;
-								bpx = nbpx*xmsn;
+								rpx += nrpx*xmsn;
+								gpx += ngpx*xmsn;
+								bpx += nbpx*xmsn;
 								}
         			    	}
         				}
@@ -565,8 +611,18 @@ class ArcaneFilter {
 				rdfkernel = createrdfkernel();
 				dA = 1.00;
 				dB = 0.50;
+				/* Default */
+				/* https://karlsims.com/rd.html */
 				fr = 0.055;
 				kr = 0.062;
+
+				// /* mitosis */
+				// fr = 0.0367;
+				// kr = 0.0649;
+
+				// /* Coral Growth */
+				// fr = 0.0545;
+				// kr = 0.062;
 		    	break;
 		    case "rdft":
 		    	arcfilter = rdft;
@@ -605,6 +661,9 @@ class ArcaneFilter {
 		    	break;
 			case "xdilate":
 				arcfilter = xdilate;
+		    	break;
+			case "xsdilate":
+				arcfilter = xsdilate;
 		    	break;
 		    case "blur":
 		    	break;

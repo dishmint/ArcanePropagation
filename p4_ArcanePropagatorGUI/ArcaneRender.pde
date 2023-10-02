@@ -23,7 +23,7 @@ class ArcaneRender {
 			blueline.set("tex0", source);
 			blueline.set("densityscale", 1.0/displayDensity());
 
-			blueline.set("resolution", 1000.*float(buffer.pixelWidth), 1000.*float(buffer.pixelHeight));
+			blueline.set("resolution", 10000.0*float(buffer.pixelWidth), 10000.0*float(buffer.pixelHeight));
 	
 			/* unitsize => size of pixel */
 			blueline.set("unitsize", 1.00);
