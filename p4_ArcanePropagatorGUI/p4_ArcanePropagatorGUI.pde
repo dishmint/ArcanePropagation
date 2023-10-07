@@ -20,7 +20,6 @@ String[] noises = {"random","noise","kufic" /* ,"maze" */}; /* FIXME: "maze" gen
 
 String flt;
 
-/* TODO: #81 add gui for ArcaneGenerator */
 ArcaneGenerator ag;
 
 LazyGui gui;
