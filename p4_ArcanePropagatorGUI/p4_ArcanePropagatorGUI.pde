@@ -16,10 +16,10 @@ String[] grades = {"grade","nograde","source"};
 String[] states = {"normal","inverse"};
 String[] alphas = {"alpha1", "alphaC", "alphaY"};
 String[] emaps = {"C4Z","C4B","C4C","C3M","C3Z"};
+String[] noises = {"random","noise","kufic" /* ,"maze" */}; /* FIXME: "maze" generation is uber slow */
 
 String flt;
 
-/* TODO: #81 add gui for ArcaneGenerator */
 ArcaneGenerator ag;
 
 LazyGui gui;
@@ -62,6 +62,8 @@ void setup(){
 	/* ------------------------------- LOAD IMAGE ------------------------------- */
 	gui.button("Select Image"); /* default image is universe */
 	simg = loadImage("./imgs/universe.jpg");
+	gui.radio("Noised Image/Noise", noises, "random");
+	gui.button("Noised Image/Generate"); /* Use a randomly generated image */
 
 	/* ---------------------------- KERNEL PROPERTIES --------------------------- */
 	/* scales kernel values (-1.0~1.0) * kernelScale  */
@@ -144,6 +146,12 @@ void draw(){
 
 	if(gui.button("Select Image")){
 		selectInput("Select an image to process:", "imageSelected");
+	}
+
+	if(gui.button("Noised Image/Generate")){
+		String selection = gui.radio("Noised Image/Noise", noises);
+		ag = new ArcaneGenerator(selection, width, height);
+		parc.setImage(ag.getImage());
 	}
 }
 
