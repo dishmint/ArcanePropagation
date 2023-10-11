@@ -21,6 +21,7 @@ class ArcaneFilter {
 	float[][] rdfkernel;
 	float dA;
 	float dB;
+	float dC;
 	float fr;
 	float kr;
 
@@ -229,22 +230,99 @@ class ArcaneFilter {
 
 		return nk;
 	}
-	float[] reactdiffuse(float a, float b, float la, float lb){
-		float[] result = new float[2];
-		/* 
-			a' = a+(d_a * l_a^2 - ab^2 + (f * (1-a)^2))
-			b' = b+(d_b * l_b^2 + ab^2 - ((k+f) * b))
 
-			https://editor.p5js.org/codingtrain/sketches/govdEW5aE
-		*/
-		/* TODO: should be 3 component rdf system a:red, b:green, c:blue */
-		a += (dA * la) - (a * b * b) + (fr * (1.0 - a));
-		b += (dB * lb) + (a * b * b) - ((kr + fr) * b);
-		// a = (dA * la) - (a * b * b) + (fr * (1.0 - a));
-		// b = (dB * lb) + (a * b * b) - ((kr + fr) * b);
-		result[0] = a; 
-		result[1] = b; 
-		return result;
+	/* TODO: move rdf code to a new class ArcaneReact */
+	color reactdiffuse(float r, float g, float b, float lA, float lB, float lC){
+		r += (dA * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+
+		return color(r,g,b);
+	}
+
+	color reactdiffuse2(float xg, float r, float g, float b, float lA, float lB, float lC){
+		r += (xg * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (xg * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (xg * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+
+		return color(r,g,b);
+	}
+
+	color reactdiffuse3(float r, float g, float b, float lA, float lB, float lC){
+		r += (r * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (g * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (b * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+
+		return color(r,g,b);
+	}
+
+	color reactdiffuse4(float r, float g, float b, float lA, float lB, float lC){
+		r += (dA * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+
+		return color(r,g,b);
+	}
+
+	color reactdiffuse5(float r, float g, float b, float lA, float lB, float lC){
+		/* might need separate r's,g's and b's */
+		
+		/* R */
+		r += (dA * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+		/* G */
+		g += (dA * lA) - (r * g * b) + ( fr       * (1.0 - g)); /* 1.0 -r may need to be 2.0 - r */
+		r += (dB * lB) + (r * g * b) - ((kr + fr) *        r ); /* 1.0 -g may need to be 2.0 - g */
+		/* B */
+		b += (dA * lA) - (r * g * b) + ( fr       * (1.0 - b)); /* 1.0 -r may need to be 2.0 - r */
+
+		return color(r,g,b);
+	}
+
+	color reactdiffuse6(float r, float g, float b, float lA, float lB, float lC){
+		/* might need separate r's,g's and b's */
+		
+		/* R */
+		r += (dA * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		g += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		b += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+		/* G */
+		g += (dB * lB) - (r * g * b) + ( fr       * (1.0 - g)); /* 1.0 -r may need to be 2.0 - r */
+		r += (dA * lA) + (r * g * b) - ((kr + fr) *        r ); /* 1.0 -g may need to be 2.0 - g */
+		b += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+		// b /=b;
+		/* B */
+		b += (dC * lC) - (r * g * b) + ( fr       * (1.0 - b)); /* 1.0 -r may need to be 2.0 - r */
+		r += (dA * lA) + (r * g * b) - ((kr + fr) *        r ); /* 1.0 -g may need to be 2.0 - g */
+		g += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -b may need to be 2.0 - b */
+
+		// return color(r/3.0,g/3.0,b/3.0);
+		return color(r,g,b);
+	}
+
+	color reactdiffuse7(float r, float g, float b, float lA, float lB, float lC){
+		/* might need separate r's,g's and b's */
+		float rnew = r;
+		float gnew = g;
+		float bnew = b;
+
+		/* R */
+		rnew += (dA * lA) - (r * g * b) + ( fr       * (1.0 - r)); /* 1.0 -r may need to be 2.0 - r */
+		gnew += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -g may need to be 2.0 - g */
+		bnew += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+		/* G */
+		gnew += (dB * lB) - (r * g * b) + ( fr       * (1.0 - g)); /* 1.0 -r may need to be 2.0 - r */
+		rnew += (dA * lA) + (r * g * b) - ((kr + fr) *        r ); /* 1.0 -g may need to be 2.0 - g */
+		bnew += (dC * lC) + (r * g * b) - ((kr + fr) *        b ); /* 1.0 -b may need to be 2.0 - b */
+		// b /=b;
+		/* B */
+		bnew += (dC * lC) - (r * g * b) + ( fr       * (1.0 - b)); /* 1.0 -r may need to be 2.0 - r */
+		rnew += (dA * lA) + (r * g * b) - ((kr + fr) *        r ); /* 1.0 -g may need to be 2.0 - g */
+		gnew += (dB * lB) + (r * g * b) - ((kr + fr) *        g ); /* 1.0 -b may need to be 2.0 - b */
+
+		// return color(r/3.0,g/3.0,b/3.0);
+		return color(rnew,gnew,bnew);
 	}
 
 	ArcaneProcess rdf = (x, y, img, xmg) -> {
@@ -260,6 +338,10 @@ class ArcaneFilter {
 					float rtotal = 0;
 					float gtotal = 0;
 					float btotal = 0;
+
+					// float rtotal = srpx;
+					// float gtotal = sgpx;
+					// float btotal = sbpx;
 
 					int offset = kernelwidth / 2;
 					for (int i = 0; i < kernelwidth; i++){
@@ -284,45 +366,26 @@ class ArcaneFilter {
 						}
 					}
 
-					/* ------------------------- reaction diffusion one ------------------------- */
-					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal); /* default */
-					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal); /* default */
-					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal); /* default */
+					// rtotal *= 0.11111111;
+					// gtotal *= 0.11111111;
+					// btotal *= 0.11111111;
 
-					// float[] sr = reactdiffuse(srpx,  sgpx, rtotal, gtotal);
-					// float[] sg = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
-					// float[] sb = reactdiffuse(sbpx,  srpx, btotal, rtotal);
-
-					/* take the latest diffused channel value to be the new channel color */
-					float newr = sb[1];
-					float newg = sg[0];
-					float newb = sb[0];
-
-					// float newr = sr[0];
-					// float newg = sr[1];
-					// float newb = newr;
+					// color next = reactdiffuse(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					
-					/* ------------------------- reaction diffusion two ------------------------- */
-				
-					// float[] sr1 = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
-					// float[] sr2 = reactdiffuse(sr1[0] ,  sbpx, rtotal, btotal);
+					// color next = reactdiffuse2(xmg[sloc][1][1], srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					// color next = reactdiffuse3(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					// color next = reactdiffuse4(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					// color next = reactdiffuse5(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					// color next = reactdiffuse6(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					color next = reactdiffuse7(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 
-
-					// float[] sg1 = reactdiffuse(sr1[1],  sr2[1], gtotal, btotal);
-					// float[] sg2 = reactdiffuse(sg1[0],  sr2[0], gtotal, rtotal);
-
-
-					// float[] sb1 = reactdiffuse(sg1[1], sg2[1], btotal, rtotal);
-					// float[] sb2 = reactdiffuse(sb1[0], sg2[0], btotal, gtotal);
-
-
-					// float newr = (sr1[0] + sr2[0] + sg2[1] + sb1[1]) * 0.5;
-					// float newg = (sr1[1] + sg1[0] + sg2[0] + sb2[1]) * 0.5;
-					// float newb = (sr2[1] + sg1[1] + sb1[0] + sb2[0]) * 0.5;
-					
-					img.pixels[sloc] = color(newr, newg, newb);
+					// float avg = (srpx+sgpx+sbpx / 3.0);
+					// float avg = (srpx+sgpx+sbpx / 3.0) * xmg[sloc][1][1];
+					// color next = reactdiffuse(avg, avg, avg, rtotal, gtotal, btotal);
+					img.pixels[sloc] = next;
 				};
 
+	
 	ArcaneProcess rdft = (x, y, img, xmg) -> {
 					// CURRENT PIXEL POSITION
 					int sloc = x+y*img.pixelWidth;
@@ -332,6 +395,10 @@ class ArcaneFilter {
 					float srpx = spx >> 16 & 0xFF;
 					float sgpx = spx >> 8 & 0xFF;
 					float sbpx = spx & 0xFF;
+					
+					// float rtotal = 0;
+					// float gtotal = 0;
+					// float btotal = 0;
 					
 					float rtotal = srpx;
 					float gtotal = sgpx;
@@ -359,95 +426,8 @@ class ArcaneFilter {
 							btotal += (bpx * xmsn);
 						}
 					}
-
-					/* ------------------------- reaction diffusion one ------------------------- */
-					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal); /* default */
-					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal); /* default */
-					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal); /* default */
-
-					// float[] sr = reactdiffuse(srpx,  sgpx, rtotal, gtotal);
-					// float[] sg = reactdiffuse(sgpx,  sbpx, gtotal, btotal);
-					// float[] sb = reactdiffuse(sbpx,  srpx, btotal, rtotal);
-
-					/* take the latest diffused channel value to be the new channel color */
-					float newr = sb[1];
-					float newg = sg[0];
-					float newb = sb[0];
-					
-					img.pixels[sloc] = color(newr, newg, newb);
-				};
- 	
-    /* reaction-diffusion with xmg */
-	ArcaneProcess rdfx = (x, y, img, xmg) -> {
-					// CURRENT PIXEL POSITION
-					int sloc = x+y*img.pixelWidth;
-					sloc = constrain(sloc,0,img.pixels.length-1);
-					color spx = img.pixels[sloc];
-							
-					float srpx = spx >> 16 & 0xFF;
-					float sgpx = spx >> 8 & 0xFF;
-					float sbpx = spx & 0xFF;
-
-					float rtotal = 0;
-					float gtotal = 0;
-					float btotal = 0;
-					
-					// float rtotal = srpx;
-					// float gtotal = sgpx;
-					// float btotal = sbpx;
-
-					int offset = kernelwidth / 2;
-					for (int i = 0; i < kernelwidth; i++){
-						for (int j= 0; j < kernelwidth; j++){
-							
-							int xloc = x+i-offset;
-							int yloc = y+j-offset;
-							int loc = xloc + img.pixelWidth*yloc;
-							loc = constrain(loc,0,img.pixels.length-1);
-							
-							/* --------------------------- xmg <op> rdfkernel --------------------------- */
-							// float xmsn = xmg[loc][i][j] + rdfkernel[i][j]; /* Makes a triangle w/ nw hypotenuse */
-							
-							/* ------------------------ (xmg <op> rdfkernel) * tf ----------------------- */
-							float xmsn = ((xmg[loc][i][j]) + rdfkernel[i][j]) * transmissionfactor; /* Noise buckets */
-							
-							/* ------------------------ (xmg <op> tf) + rdfkernel ----------------------- */
-							// float xmsn = ((xmg[loc][i][j]) * transmissionfactor) + rdfkernel[i][j]; /* Makes a triangle w/ nw hypotenuse */
-							
-							color cpx = img.pixels[loc];
-							
-							float rpx = cpx >> 16 & 0xFF;
-							float gpx = cpx >> 8 & 0xFF;
-							float bpx = cpx & 0xFF;
-
-							/* TRY: different ops between _px and xmsn */
-							/* ------------------------------- _px * xmsn ------------------------------- */
-							rtotal += (rpx * xmsn);
-							gtotal += (gpx * xmsn);
-							btotal += (bpx * xmsn);
-
-							/* ------------------------------- _px - xmsn ------------------------------- */
-							// rtotal += (rpx - xmsn);
-							// gtotal += (gpx - xmsn);
-							// btotal += (bpx - xmsn);
-
-							/* ------------------------------- _px / xmsn ------------------------------- */
-							// rtotal += (rpx / xmsn);
-							// gtotal += (gpx / xmsn);
-							// btotal += (bpx / xmsn);
-						}
-					}
-
-					float[] sr = reactdiffuse(srpx ,  sgpx, rtotal, gtotal);
-					float[] sg = reactdiffuse(sr[1],  sbpx, gtotal, btotal);
-					float[] sb = reactdiffuse(sg[1], sr[0], btotal, rtotal);
-
-					/* take the latest diffused channel value to be the new channel color */
-					float newr = sb[1];
-					float newg = sg[0];
-					float newb = sb[0];
-
-					img.pixels[sloc] = color(newr, newg, newb);
+					color next = reactdiffuse(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					img.pixels[sloc] = next;
 				};
  	
     /* collatz */
@@ -611,8 +591,10 @@ class ArcaneFilter {
 				rdfkernel = createrdfkernel();
 				dA = 1.00;
 				dB = 0.50;
+				dC = 0.00 /* 1.00 */ /* -1.00 */;
 				/* Default */
 				/* https://karlsims.com/rd.html */
+				/* TODO: add gui element for feedrate and killrate */
 				fr = 0.055;
 				kr = 0.062;
 
@@ -629,30 +611,7 @@ class ArcaneFilter {
 				rdfkernel = createrdfkernel();
 				dA = 1.00;
 				dB = 0.50;
-				fr = 0.055;
-				kr = 0.062;
-		    	break;
-		    case "rdfr":
-		    	arcfilter = rdf;
-				rdfkernel = createrdfkernel();
-				dA = random(1.00);
-				dB = random(1.00);
-				fr = random(1.00);
-				kr = random(1.00);
-		    	break;
-		    case "rdfm":
-		    	arcfilter = rdf;
-				rdfkernel = createrdfkernel();
-				dA = random(-1.00, 1.00);
-				dB = random(-1.00, 1.00);
-				fr = random(-1.00, 1.00);
-				kr = random(-1.00, 1.00);
-		    	break;
-		    case "rdfx":
-		    	arcfilter = rdfx;
-				rdfkernel = createrdfkernel(-1.0, .50);
-				dA = 1.00;
-				dB = 0.50;
+				dC = 0.00 /* 1.00 */ /* -1.00 */;
 				fr = 0.055;
 				kr = 0.062;
 		    	break;
