@@ -9,7 +9,7 @@ ArcaneGenerator arcgen;
 int kernelWidth;
 ArcanePropagator parc;
 float kernelScale,xsmnfactor,displayscale;
-String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "rdfm", "rdfr", "rdfx", "arcblur","xdilate", "xsdilate", "blur", "dilate", "erode", "invert"};
+String[] afilter = {"amble", "transmit", "transmitMBL", "convolve", "collatz", "rdf", "rdft", "arcblur","xdilate", "xsdilate", "blur", "dilate", "erode", "invert"};
 String[] xfactors = {"1 div kw^2", "1 div (kw^2 - 1)", "1 div kw", "kw", "kernel scale"};
 String[] themes = {"red","green","blue","yellow","yellowbrick","rblue","gred", "starrynight","ember","bloodred","gundam"};
 String[] grades = {"grade","nograde","source"};
