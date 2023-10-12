@@ -93,9 +93,9 @@ void setup(){
 	gui.sliderSet("ArcaneSettings/Shader/OrbitThickness", 1.00f);
 	gui.sliderSet("ArcaneSettings/Shader/OrbitRadius"   , 1.00f);
 
-	gui.radio("ArcaneSettings/Shader/Theme", themes, "gred");
+	gui.radio("ArcaneSettings/Shader/Theme", themes, "rblue");
 	gui.toggleSet("ArcaneSettings/Shader/GeoQ", true);
-	gui.radio("ArcaneSettings/Shader/Grader", grades, "grade");
+	gui.radio("ArcaneSettings/Shader/Grader", grades, "source");
 	gui.radio("ArcaneSettings/Shader/State", states, "normal");
 	gui.radio("ArcaneSettings/Shader/Alpha", alphas, "alphaY");
 	gui.radio("ArcaneSettings/Shader/EMap", emaps, "C4B");

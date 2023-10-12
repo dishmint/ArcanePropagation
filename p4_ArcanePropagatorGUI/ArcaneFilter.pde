@@ -370,14 +370,14 @@ class ArcaneFilter {
 					// gtotal *= 0.11111111;
 					// btotal *= 0.11111111;
 
-					// color next = reactdiffuse(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					color next = reactdiffuse(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					
 					// color next = reactdiffuse2(xmg[sloc][1][1], srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					// color next = reactdiffuse3(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					// color next = reactdiffuse4(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					// color next = reactdiffuse5(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 					// color next = reactdiffuse6(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
-					color next = reactdiffuse7(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
+					// color next = reactdiffuse7(srpx, sgpx, sbpx, rtotal, gtotal, btotal);
 
 					// float avg = (srpx+sgpx+sbpx / 3.0);
 					// float avg = (srpx+sgpx+sbpx / 3.0) * xmg[sloc][1][1];
