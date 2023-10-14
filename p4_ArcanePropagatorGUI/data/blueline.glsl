@@ -88,6 +88,11 @@ void pushEnergyAngle(int selector){
 }
 
 float _point(in vec2 uv, vec2 o){
+	/* 
+		TODO: look into relationship between thickness and radius
+		Increasing thickness and radius over one makes more pixels start at black, and then overtime they effectively wave through values.
+		Pixelmax also doesn't seem to do much.
+	 */
 	float s1 = step(o.x - (thickness.x/tfac), uv.x) - step(o.x + (thickness.x/tfac), uv.x);
 	float s2 = step(o.y - (thickness.y/tfac), uv.y) - step(o.y + (thickness.y/tfac), uv.y);
 	return s1*s2;
