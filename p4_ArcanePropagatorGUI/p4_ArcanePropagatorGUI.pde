@@ -17,7 +17,7 @@ String[] states = {"normal","inverse"};
 String[] alphas = {"alpha1", "alphaC", "alphaY"};
 String[] emaps = {"C4Z","C4B","C4C","C3M","C3Z"};
 String[] noises = {"random","noise","kufic" /* ,"maze" */}; /* FIXME: "maze" generation is uber slow */
-
+/* Consider using enums for the above options — will need to figure out how that will work with the gui */
 String flt;
 
 ArcaneGenerator ag;
