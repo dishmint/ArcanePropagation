@@ -147,6 +147,7 @@ class ArcanePropagator{
 	}
 
 	void run(){
+		// FIXME: App gets choppy when run is `false`
 		if (gui.toggle("Run")){
 			af.kernelmap(this);
 			ar.show(this);
