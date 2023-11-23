@@ -3,10 +3,10 @@ import java.util.Arrays;
 @FunctionalInterface
 public interface ArcaneImager {
 	PImage generator();
-    }
+	}
 
 class ArcaneGenerator  {
-    // PImage arcimg;
+	// PImage arcimg;
 	int lod;
 	float falloff;
 
@@ -43,41 +43,41 @@ class ArcaneGenerator  {
 	};
 
 	ArcaneImager noiseImage = () -> {
-    	noiseDetail(lod, falloff);
-    	PImage rimg = createImage(arcwidth, archeight, ARGB);
-    	rimg.loadPixels();
-    	for (int i = 0; i < rimg.width; i++){
-    		for (int j = 0; j < rimg.height; j++){
-    			color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
-    			int index = (i + j * rimg.width);
-    			rimg.pixels[index] = c;
-    		}
-    	}
-    	rimg.updatePixels();
-    	return rimg;
+		noiseDetail(lod, falloff);
+		PImage rimg = createImage(arcwidth, archeight, ARGB);
+		rimg.loadPixels();
+		for (int i = 0; i < rimg.width; i++){
+			for (int j = 0; j < rimg.height; j++){
+				color c = color(lerp(0,1,noise(i*cos(i),j*sin(j), (i+j)/2))*255);
+				int index = (i + j * rimg.width);
+				rimg.pixels[index] = c;
+			}
+		}
+		rimg.updatePixels();
+		return rimg;
 	};
 
 	ArcaneImager kuficImage = () -> {
-    	float chance;
-    	PImage rimg = createImage(arcwidth, archeight, ARGB);
-    	rimg.loadPixels();
-    	for (int i = 0; i < rimg.width; i++){
-    		for (int j = 0; j < rimg.height; j++){
-    			chance = ((i % 2) + (j % 2));
+		float chance;
+		PImage rimg = createImage(arcwidth, archeight, ARGB);
+		rimg.loadPixels();
+		for (int i = 0; i < rimg.width; i++){
+			for (int j = 0; j < rimg.height; j++){
+				chance = ((i % 2) + (j % 2));
 
-    			float wallornot = random(2.);
-    			int index = (i + j * rimg.width);
-    			if(wallornot <= chance){
-    					color c = color(0);
-    					rimg.pixels[index] = c;
-    				} else {
-    					color c = color(255-(255*(wallornot/2.)));
-    					rimg.pixels[index] = c;
-    				}
-    			}
-    		}
-    	rimg.updatePixels();
-    	return rimg;
+				float wallornot = random(2.);
+				int index = (i + j * rimg.width);
+				if(wallornot <= chance){
+						color c = color(0);
+						rimg.pixels[index] = c;
+					} else {
+						color c = color(255-(255*(wallornot/2.)));
+						rimg.pixels[index] = c;
+					}
+				}
+			}
+		rimg.updatePixels();
+		return rimg;
 	};
 
 	ArcaneImager mazeImage = () -> {
@@ -109,45 +109,45 @@ class ArcaneGenerator  {
 		return mazeSource;
 	};
 
-    ArcaneGenerator (String generator, int w, int h) {
+	ArcaneGenerator (String generator, int w, int h) {
 		arcwidth = w;
 		archeight = h;
-        switch (generator) {
-            case "random":
-                arcgen = randomImage;
-                break;
-            case "noise":
+		switch (generator) {
+			case "random":
+				arcgen = randomImage;
+				break;
+			case "noise":
 				lod = 2;
 				falloff = 0.5;
-                arcgen = noiseImage;
-                break;
-            case "kufic":
-                arcgen = kuficImage;
-                break;
-            case "maze":
-                arcgen = mazeImage;
-                break;
-            default:
-                arcgen = randomImage;
-                break;
-            }   
-        }
+				arcgen = noiseImage;
+				break;
+			case "kufic":
+				arcgen = kuficImage;
+				break;
+			case "maze":
+				arcgen = mazeImage;
+				break;
+			default:
+				arcgen = randomImage;
+				break;
+		}   
+	}
 	
 	void setLod(int l){
 		lod = l;
-		}
+	}
 	
 	void setFalloff(float f){
 		falloff = f;
-		}
+	}
 	
 	void setMazeSource(PImage m){
 		mazeSource = m;
-		}
+	}
 	
 	PImage getImage(){
 		return arcgen.generator();
-		}
+	}
 
 
-    }
+}
