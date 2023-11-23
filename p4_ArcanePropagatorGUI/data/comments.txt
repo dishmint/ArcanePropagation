@@ -23,9 +23,9 @@ Transmission Factor
 	// xsmnfactor = pow(kernelWidth, 0.250);
 	// xsmnfactor = pow(kernelWidth, 0.500);
 	// xsmnfactor = kernelWidth;
-    // xsmnfactor = pow(kernelWidth, 3.);
-    // xsmnfactor = 255.; 
-    // xsmnfactor = scalefac;
+	// xsmnfactor = pow(kernelWidth, 3.);
+	// xsmnfactor = 255.; 
+	// xsmnfactor = scalefac;
 
 ArcanePropagator - loadxm
 	// kernel[k][l] = gs;
@@ -50,7 +50,7 @@ ArcanePropagator - loadxm
 ArcaneRender - blueline
 	// blueline.set("resolution", float(buffer.pixelWidth), float(buffer.pixelHeight));
 	// blueline.set("resolution", 100.*float(buffer.pixelWidth), 100.*float(buffer.pixelHeight)); /* default */
-            
+	
 	// blueline.set("rfac", 1.00000); /* default */
 	// blueline.set("rfac", 1.015625); 
 	// blueline.set("rfac", 1.03125); 
@@ -88,25 +88,25 @@ ArcaneProcess - convolve
 	// }
 
 ArcaneProcess - transmitMBL
-    // if(xloc == x && yloc == y){
+	// if(xloc == x && yloc == y){
 	// 		rpx -= (rpx * xmsn) * l;
 	// 		gpx -= (gpx * xmsn) * l;
 	// 		bpx -= (bpx * xmsn) * l;
-    //     } else {
+	//     } else {
 	// 		rpx += (xmsn * l);
 	// 		gpx += (xmsn * l);
 	// 		bpx += (xmsn * l);
-    // 	}
+	// 	}
 
-    // if(xloc == x && yloc == y){
+	// if(xloc == x && yloc == y){
 	// 		rpx -= (rpx * xmsn) * (kernelwidth - l);
 	// 		gpx -= (gpx * xmsn) * (kernelwidth - l);
 	// 		bpx -= (bpx * xmsn) * (kernelwidth - l);
-    //     } else {
+	//     } else {
 	// 		rpx += (xmsn * (kernelwidth - l));
 	// 		gpx += (xmsn * (kernelwidth - l));
 	// 		bpx += (xmsn * (kernelwidth - l));
-    // 	}
+	// 	}
 
 ArcaneProcess - rdft
 	ArcaneProcess rdft = (x, y, img, xmg) -> {

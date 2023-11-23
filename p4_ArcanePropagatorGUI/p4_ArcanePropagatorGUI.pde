@@ -283,12 +283,12 @@ void setShaderEmap(){
 
 void imageSelected(File selection){
 	if (selection == null) {
-    	println("Window was closed or the user hit cancel.");
+		println("Window was closed or the user hit cancel.");
 	} else {
 		PImage nimg = loadImage(selection.getAbsolutePath());
 		parc.setImage(nimg);
 		println("User selected " + selection.getAbsolutePath());
-		}
+	}
 }
 
 void exit(){
