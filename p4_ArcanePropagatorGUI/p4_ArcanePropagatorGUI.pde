@@ -27,7 +27,8 @@ LazyGui gui;
 /* TODO: #69 Add performance mode so live parameter changes can be recorded and saved */
 void setup(){
 	/* ----------------------------- SKETCH SETTINGS ---------------------------- */
-	size(1422, 800, P3D);
+	size(711, 400, P3D);
+	// size(1422, 800, P3D);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
 
@@ -52,7 +53,7 @@ void setup(){
 
 	gui.button("Reset");
 	gui.toggleSet("Run", false);
-	gui.sliderInt("Rate", 1, 1, 120);
+	gui.sliderInt("Rate", 60, 1, 120);
 	float ds = 0.99f;
 	gui.slider("DisplayScale", ds, 0.01f, 1.0f);
 
