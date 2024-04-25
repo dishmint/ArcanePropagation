@@ -10,6 +10,11 @@ Expr imgclusters;
 // CellularAutomaton variables
 int rule, k, r1, r2;
 
+
+final float D4 = 0.25;
+
+final int mfd = 4;
+float dmfd;
 PGraphics pg;
 
 PImage simg,dximg;
@@ -30,18 +35,18 @@ void setup(){
 	/*                               Sketch Settings                              */
 	/* -------------------------------------------------------------------------- */
 	size(1422, 800, P3D);
-	surface.setTitle("Arcane Propagations");
-	imageMode(CENTER);
+	// surface.setTitle("Arcane Propagations");
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
+	imageMode(CENTER);
 	
 	/* -------------------------------------------------------------------------- */
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
 	
 	/* ------------------------------- image files ------------------------------ */
-	simg = loadImage("./imgs/universe.jpg");
-	// simg = loadImage("/Users/faizonzaman/Documents/Assets/Images/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
+	// simg = loadImage("./imgs/universe.jpg");
+	simg = loadImage("/Users/faizonzaman/Documents/Assets/Images/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -75,6 +80,8 @@ void setup(){
 	
 	downsampleFloat = /* 1.0| */2.25/* |1.75|2.25|5.0 */;
 	modfac = 3; /* 1|2|3|4|5|8 */
+
+	dmfd = modfac/mfd;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.pixelWidth;
@@ -86,11 +93,11 @@ void setup(){
 	simg.resize(nw, nh);
 	
 	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	kernelScale = 1.0f;
+	// kernelScale = 1.0f;
 	// kernelScale = 1.0f / 255.0f;
 	// kernelScale = 0.098f / 1.0f;
 	// kernelScale = 0.98f / 1.0f;
-	// kernelScale = 0.50f / 1.0f;
+	kernelScale = 0.50f / 1.0f;
 	// kernelScale = 0.33f / 1.0f;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
@@ -125,7 +132,7 @@ void setup(){
 
 void draw(){
 	//style — point | line | xline | xliner | xliner2
-	selectDraw("line");
+	selectDraw("point");
 }
 
 void selectDraw(String style){
@@ -372,7 +379,7 @@ void showTLines(PImage img, int x, int y, float energy) {
 	sloc = constrain(sloc, 0, img.pixels.length - 1);
 	color cc = img.pixels[sloc];
 
-	int offset = kwidth / 2;
+	int offset = int(kwidth * 0.5);
 	for (int i = 0; i < kwidth; i++){
 		for (int j= 0; j < kwidth; j++){
 			
@@ -426,7 +433,7 @@ void showTRotator(PImage img, int x, int y, float energy) {
 	float enc = lerp(-1., 1., energy);
 	float ang = radians(energyAngle(enc));
 
-	int offset = kwidth / 2;
+	int offset = int(kwidth * 0.5);
 	for (int i = 0; i < kwidth; i++){
 		for (int j= 0; j < kwidth; j++){
 			
@@ -478,7 +485,7 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 	float enc = lerp(-1., 1., energy);
 	float ang = radians(energyAngle(enc));
 
-	int offset = kwidth / 2;
+	int offset = int(kwidth * 0.5);
 	for (int i = 0; i < kwidth; i++){
 		for (int j= 0; j < kwidth; j++){
 			
@@ -510,13 +517,13 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 					pushMatrix();
 					translate((midpoint.x*modfac), (midpoint.y*modfac));
 					rotate(ang);
-					int mfd = 4;
+					// int mfd = 4;
 					line(
-						(-l * 0.5) * (modfac/mfd),
-						(-l * 0.5) * (modfac/mfd),
-						( l * 0.5) * (modfac/mfd) ,
-						( l * 0.5) * (modfac/mfd)
-						);
+						(-l * 0.5) * dmfd,
+						(-l * 0.5) * dmfd,
+						( l * 0.5) * dmfd,
+						( l * 0.5) * dmfd
+					);
 						
 					popMatrix();
 					popMatrix();
@@ -536,6 +543,20 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 			}
 		}
 }
+
+// float getEnergy(color c) {
+// 	float apx = c >> 24 & 0xFF;
+// 	float rpx = c >> 16 & 0xFF;
+// 	float gpx = c >> 8  & 0xFF;
+// 	float bpx = c       & 0xFF;
+
+// 	return (apx + rpx + gpx + bpx) * D4;
+// }
+
+// float getQTAU(color c) {
+// 	float energy = getEnergy(c);
+	
+// }
 
 float energyAngle(float ec) {
 	float ecc = (ec + 1.0f) / 2.0f;
@@ -585,7 +606,7 @@ void switchdrawTotal(int mod, int smearSelector){
 float[][] loadkernel(int x, int y, int dim, PImage img){
 	float[][] kern = new float[dim][dim];
 	img.loadPixels();
-	int offset = dim / 2;
+	int offset = int(dim * 0.5);
 	for (int i = 0; i < dim; i++){
 		for (int j= 0; j < dim; j++){
 			
@@ -628,8 +649,8 @@ int[][] makeEdgeKernel(int dim, int min, int max){
 			} else {
 				ek[i][j] = min;
 			}
-			}
 		}
+	}
 	return ek;
 }
 float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
@@ -637,7 +658,7 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 	int[][] edge = makeEdgeKernel(dim, -1, 9);
 	// {{-1,-1,-1},{-1,9,-1},{-1,-1,-1}}
 	img.loadPixels();
-	int offset = dim / 2;
+	int offset = int(dim * 0.5);
 	for (int i = 0; i < dim; i++){
 		for (int j= 0; j < dim; j++){
 			
