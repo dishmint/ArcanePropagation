@@ -46,7 +46,7 @@ void setup(){
 	
 	/* ------------------------------- image files ------------------------------ */
 	// simg = loadImage("./imgs/universe.jpg");
-	simg = loadImage("/Users/faizonzaman/Documents/Assets/Images/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
+	simg = loadImage("./imgs/face.png");
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -93,14 +93,15 @@ void setup(){
 	simg.resize(nw, nh);
 	
 	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	// kernelScale = 1.0f;
+	kernelScale = 1.0f;
 	// kernelScale = 1.0f / 255.0f;
 	// kernelScale = 0.098f / 1.0f;
 	// kernelScale = 0.98f / 1.0f;
-	kernelScale = 0.50f / 1.0f;
+	// kernelScale = 0.50f / 1.0f;
 	// kernelScale = 0.33f / 1.0f;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
+	// xsmnfactor = 1.0f;
 	xsmnfactor = 1.0f / pow(kwidth, 2.0f); /* default */
 	// xsmnfactor = 1.0f / kwidth;
 	// xsmnfactor = kwidth;
@@ -124,15 +125,22 @@ void setup(){
 	if(klinkQ){
 		setupWLKernel();
 	}
-	//convolution — still | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
+	//convolution — still | amble | collatz | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	/* TODO: add rdf filters */
-	af = new ArcaneFilter("transmitMBL", kwidth, xsmnfactor);
-
+	af = new ArcaneFilter("transmit", kwidth, xsmnfactor);
 }
 
 void draw(){
 	//style — point | line | xline | xliner | xliner2
+	/* 
+	fps : modfac 8
+		point — 8
+		line  — 15
+	 */
 	selectDraw("point");
+
+	stroke(255);
+	text("fps: " + str(frameRate), 25,25);
 }
 
 void selectDraw(String style){
