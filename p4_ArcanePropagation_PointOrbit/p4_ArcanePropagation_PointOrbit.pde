@@ -15,7 +15,7 @@ PGraphics pg;
 PImage simg,dximg;
 float[][][] xmg;
 int downsample,modfac,dmfac;
-int kwidth = 3;
+int kwidth = 3/* |5 */;
 int kwidthsq = (int)(pow(kwidth, 2));
 int drawswitch = 0;
 float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
@@ -41,6 +41,7 @@ void setup(){
 	
 	/* ------------------------------- image files ------------------------------ */
 	simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("/Users/faizonzaman/Documents/Assets/Images/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -72,8 +73,8 @@ void setup(){
 	// simg.filter(POSTERIZE|BLUR|THRESHOLD, strength);
 	// simg.filter(...);
 	
-	downsampleFloat = 2.25; /* 1.75|2.25|5.0 */
-	modfac = 3; /* 4\5|8 */
+	downsampleFloat = /* 1.0| */2.25/* |1.75|2.25|5.0 */;
+	modfac = 3; /* 1|2|3|4|5|8 */
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.pixelWidth;
@@ -85,11 +86,11 @@ void setup(){
 	simg.resize(nw, nh);
 	
 	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
+	kernelScale = 1.0f;
 	// kernelScale = 1.0f / 255.0f;
-	// kernelScale = 1.0f / 1.0f;
 	// kernelScale = 0.098f / 1.0f;
 	// kernelScale = 0.98f / 1.0f;
-	kernelScale = 0.50f / 1.0f;
+	// kernelScale = 0.50f / 1.0f;
 	// kernelScale = 0.33f / 1.0f;
 	
 	// Determine the leak-rate (transmission factor) of each pixel
@@ -226,41 +227,80 @@ float computeGS(color px, boolean hu){
 }
 
 void pointorbit(PImage nimg, String selector){
-	/* FIXME: Looping over the pixels here may be a bottlneck */
-	/* 
-		Should I do this in the filter? 
-		I guess this is fine then, because the filter is the kernel operation, and this is the rendering operation .
-		*/
 	nimg.loadPixels();
-	for(int x = 0; x < nimg.pixelWidth;x++){
-		for(int y = 0; y < nimg.pixelHeight; y++){
-			int index = (x + (y * nimg.pixelWidth));
-			color cpx = nimg.pixels[index];
-			float gs = computeGS(cpx);
-			pushMatrix();
-			
-			switch(selector){
-				case "point":
+	switch(selector){
+		case "point":
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
 					showAsPoint(x,y,gs);
-					break;
-				case "line":
-					showAsLine(x,y,gs);
-					break;
-				case "xline":
-					showTLines(nimg,x,y,gs);
-					break;
-				case "xliner":
-					showTRotator(nimg,x,y,gs);
-					break;
-				case "xliner2":
-					showTRotator2(nimg,x,y,gs);
-					break;
-				default:
-					showAsPoint(x,y,gs);
-					break;
+					popMatrix();
+				}
 			}
-			popMatrix();
-		}
+			break;
+		case "line":
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
+					showAsLine(x,y,gs);
+					popMatrix();
+				}
+			}
+			break;
+		case "xline":
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
+					showTLines(nimg,x,y,gs);
+					popMatrix();
+				}
+			}
+			break;
+		case "xliner":
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
+					showTRotator(nimg,x,y,gs);
+					popMatrix();
+				}
+			}
+			break;
+		case "xliner2":
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
+					showTRotator2(nimg,x,y,gs);
+					popMatrix();
+				}
+			}
+			break;
+		default:
+			for(int x = 0; x < nimg.pixelWidth;x++){
+				for(int y = 0; y < nimg.pixelHeight; y++){
+					int index = (x + (y * nimg.pixelWidth));
+					color cpx = nimg.pixels[index];
+					float gs = computeGS(cpx);
+					pushMatrix();
+					showAsPoint(x,y,gs);
+					popMatrix();
+				}
+			}
+			break;
 	}
 	nimg.updatePixels();
 }
@@ -273,15 +313,15 @@ void showAsPoint(int x, int y, float energy) {
 	stroke(energyDegree(energy));
 	float ang = radians(energyAngle(enc));
 	
-	// float px = x + (1./(modfac/2) * cos(ang));
-	// float py = y + (1./(modfac/2) * sin(ang));
+	// float px = x + (1./(modfac * 0.5) * cos(ang));
+	// float py = y + (1./(modfac * 0.5) * sin(ang));
 	
 	float px = x + (1./(modfac) * cos(ang));
 	float py = y + (1./(modfac) * sin(ang));
 	
 	if(dispersed){
 		pushMatrix();
-		translate((width/2)-(modfac*(dximg.pixelWidth/2)),(height/2)-(modfac*(dximg.pixelHeight/2)));
+		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 		point(
 			(px) * modfac,
 			(py) * modfac
@@ -289,7 +329,7 @@ void showAsPoint(int x, int y, float energy) {
 		popMatrix();
 		} else {
 			pushMatrix();
-			translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
+			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
 			point(
 				(px),
 				(py)
@@ -309,7 +349,7 @@ void showAsLine(int x, int y, float energy) {
 
 	if(dispersed){
 		pushMatrix();
-		translate((width/2)-(modfac*(dximg.pixelWidth/2)),(height/2)-(modfac*(dximg.pixelHeight/2)));
+		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 		line(
 				x  * modfac,
 				y  * modfac,
@@ -319,7 +359,7 @@ void showAsLine(int x, int y, float energy) {
 		popMatrix();
 		} else {
 			pushMatrix();
-			translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
+			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
 			line(x, y, px, py);
 			popMatrix();
 		}
@@ -356,7 +396,7 @@ void showTLines(PImage img, int x, int y, float energy) {
 			} else{
 				if(dispersed){
 					pushMatrix();
-					translate((width/2)-(modfac*(dximg.pixelWidth/2)),(height/2)-(modfac*(dximg.pixelHeight/2)));
+					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 
 					line(
 						(x + .5) * modfac,
@@ -367,7 +407,7 @@ void showTLines(PImage img, int x, int y, float energy) {
 					popMatrix();
 					} else {
 						pushMatrix();
-						translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
+						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
 						line(
 							(x + (.5)),
 							(y + (.5)),
@@ -410,7 +450,7 @@ void showTRotator(PImage img, int x, int y, float energy) {
 			} else{
 				if(dispersed){
 					pushMatrix();
-					translate((width/2)-(modfac*(dximg.pixelWidth/2)),(height/2)-(modfac*(dximg.pixelHeight/2)));
+					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 					line(
 						(x + .5) * modfac,
 						(y + .5) * modfac,
@@ -420,7 +460,7 @@ void showTRotator(PImage img, int x, int y, float energy) {
 					popMatrix();
 					} else {
 						pushMatrix();
-						translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
+						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
 						line(
 							(x + .5),
 							(y + .5),
@@ -462,7 +502,7 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 			} else{
 				if(dispersed){
 					pushMatrix();
-					translate((width/2)-(modfac*(dximg.pixelWidth/2)),(height/2)-(modfac*(dximg.pixelHeight/2)));
+					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 					PVector midpoint = new PVector(lerp(float(x), float(xloc), .5), lerp(float(y), float(yloc), .5));
 					PVector p1 = new PVector(float(x), float(y));
 					PVector p2 = new PVector(float(xloc), float(yloc));
@@ -472,17 +512,17 @@ void showTRotator2(PImage img, int x, int y, float energy) {
 					rotate(ang);
 					int mfd = 4;
 					line(
-						(-l/2) * (modfac/mfd),
-						(-l/2) * (modfac/mfd),
-						( l/2) * (modfac/mfd) ,
-						( l/2) * (modfac/mfd)
+						(-l * 0.5) * (modfac/mfd),
+						(-l * 0.5) * (modfac/mfd),
+						( l * 0.5) * (modfac/mfd) ,
+						( l * 0.5) * (modfac/mfd)
 						);
 						
 					popMatrix();
 					popMatrix();
 					} else {
 						pushMatrix();
-						translate((width/2)-(simg.pixelWidth/2),(height/2)-(simg.pixelHeight/2));
+						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
 						rotate(ang);
 						line(
 							(x + .5),
