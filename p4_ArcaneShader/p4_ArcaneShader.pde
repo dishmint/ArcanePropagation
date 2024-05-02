@@ -69,7 +69,7 @@ void setup(){
 	/* -------------------------------------------------------------------------- */
 	
 	
-	dmfac = 1;
+	dmfac = 3;
 	downsample = modfac = dmfac;
 	// downsample = 1;
 	// modfac = 5;
@@ -120,7 +120,7 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = false;
+	dispersed = true;
 	displayscale = 1.0;
 	// displayscale = 0.5;
 	
@@ -161,7 +161,7 @@ void setup(){
 	background(0);
 
 	// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
-	af = new ArcaneFilter("amble", kwidth, xsmnfactor);
+	af = new ArcaneFilter("transmit", kwidth, xsmnfactor);
 }
 
 void draw(){

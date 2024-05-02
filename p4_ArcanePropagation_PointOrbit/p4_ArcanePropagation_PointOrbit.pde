@@ -14,7 +14,7 @@ int rule, k, r1, r2;
 final float D4 = 0.25;
 
 final int mfd = 4;
-float dmfd;
+float dmfd, fmfd;
 PGraphics pg;
 
 PImage simg,dximg;
@@ -46,7 +46,9 @@ void setup(){
 	
 	/* ------------------------------- image files ------------------------------ */
 	// simg = loadImage("./imgs/universe.jpg");
-	simg = loadImage("./imgs/face.png");
+	// simg = loadImage("./imgs/face.png");
+	// simg = loadImage("./imgs/nasa.jpg");
+	simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -78,10 +80,11 @@ void setup(){
 	// simg.filter(POSTERIZE|BLUR|THRESHOLD, strength);
 	// simg.filter(...);
 	
-	downsampleFloat = /* 1.0| */2.25/* |1.75|2.25|5.0 */;
-	modfac = 3; /* 1|2|3|4|5|8 */
+	downsampleFloat = /* 1.0| 2.25 | 1.75 | 2.25 | */ 4.0 /* | 5.0 | 6.0 */; /* higher dsfloat -> higher framerate */
+	modfac = 2; /* 1|2|3|4|5|8 */
 
 	dmfd = modfac/mfd;
+	fmfd = 1.0/modfac;
 	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	float sw = (float)simg.pixelWidth;
@@ -128,27 +131,42 @@ void setup(){
 	//convolution — still | amble | collatz | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	/* TODO: add rdf filters */
 	af = new ArcaneFilter("transmit", kwidth, xsmnfactor);
+
+	frameRate(120);
 }
 
 void draw(){
+	int sdraw = millis();
 	//style — point | line | xline | xliner | xliner2
 	/* 
 	fps : modfac 8
 		point — 8
 		line  — 15
+	fps : dsf 6.0
+		point — 25
+		line — 60
 	 */
-	selectDraw("point");
+	selectDraw("line");
 
 	stroke(255);
 	text("fps: " + str(frameRate), 25,25);
+
+	int edraw = millis();
+	println("draw time — " + str((edraw - sdraw) * .001));
 }
 
 void selectDraw(String style){
-
+	int skmap = millis();
 	af.kernelmap(simg, xmg);
+	int ekmap = millis();
+	println("\t kmap time — " + str((ekmap - skmap) * .001));
+
 	
 	background(0);
+	int spdraw = millis();
 	pointDraw(style);
+	int epdraw = millis();
+	println("\tpdraw time — " + str((epdraw - spdraw) * .001));
 }
 
 void selectDraw(String selector, String style, int sparam){
@@ -331,8 +349,23 @@ void showAsPoint(int x, int y, float energy) {
 	// float px = x + (1./(modfac * 0.5) * cos(ang));
 	// float py = y + (1./(modfac * 0.5) * sin(ang));
 	
-	float px = x + (1./(modfac) * cos(ang));
-	float py = y + (1./(modfac) * sin(ang));
+	float px = x + (fmfd * cos(ang));
+	float py = y + (fmfd * sin(ang));
+
+	// this dispersal check is called for every pixel (potentially millions of times). An improvement would be splitting out this function and if'ing before the lopp of pixels.
+	/* 
+	
+	if (dispersed) {
+		for x:
+			for y:
+				showDispersed
+	} else {
+		for x:
+			for y:
+				show
+	}
+	
+	 */
 	
 	if(dispersed){
 		pushMatrix();
@@ -342,15 +375,12 @@ void showAsPoint(int x, int y, float energy) {
 			(py) * modfac
 		);
 		popMatrix();
-		} else {
-			pushMatrix();
-			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-			point(
-				(px),
-				(py)
-				);
-			popMatrix();
-		}
+	} else {
+		pushMatrix();
+		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+		point(px,py);
+		popMatrix();
+	}
 
 }
 
@@ -408,32 +438,28 @@ void showTLines(PImage img, int x, int y, float energy) {
 
 			if(xloc == x && yloc == y){
 				continue;
-			} else{
+			} else {
 				if(dispersed){
 					pushMatrix();
 					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 
 					line(
-						(x + .5) * modfac,
-						(y + .5) * modfac,
-						(xloc + .5) * modfac,
-						(yloc + .5) * modfac
-						);
+						(x + .5) * modfac, (y + .5) * modfac,
+						(xloc + .5) * modfac, (yloc + .5) * modfac
+					);
 					popMatrix();
-					} else {
-						pushMatrix();
-						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-						line(
-							(x + (.5)),
-							(y + (.5)),
-							(xloc + (.5)),
-							(yloc + (.5))
-							);
-						popMatrix();
-					}
-			}
+				} else {
+					pushMatrix();
+					translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+					line(
+						(x + (.5)), (y + (.5)),
+						(xloc + (.5)), (yloc + (.5))
+					);
+					popMatrix();
+				}
 			}
 		}
+	}
 }
 
 void showTRotator(PImage img, int x, int y, float energy) {
