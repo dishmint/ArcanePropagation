@@ -27,6 +27,10 @@ class ArcaneFilter {
 	/* selector */
 	int selector;
 
+    /* passthrough */
+	ArcaneProcess passthrough = (x, y, img, xmg) -> {
+		return;
+	};
     /* transmit */
 	ArcaneProcess transmit = (x, y, img, xmg) -> {
 					int sloc = x+y*img.pixelWidth;
@@ -762,6 +766,9 @@ class ArcaneFilter {
 		    case "blur":
 		    	break;
 		    case "dilate":
+		    	break;
+		    case "still":
+				arcfilter = passthrough;
 		    	break;
 		    default:
 		    	arcfilter = transmit;

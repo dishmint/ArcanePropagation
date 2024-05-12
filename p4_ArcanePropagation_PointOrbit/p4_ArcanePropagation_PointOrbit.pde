@@ -29,6 +29,7 @@ boolean dispersed, hav, klinkQ;
 
 ArcaneFilter af;
 ArcaneGenerator ag;
+ArcaneOrbit ao;
 
 void setup(){
 	/* -------------------------------------------------------------------------- */
@@ -46,9 +47,14 @@ void setup(){
 	
 	/* ------------------------------- image files ------------------------------ */
 	// simg = loadImage("./imgs/universe.jpg");
+	// simg = loadImage("./imgs/buildings.jpg");
+	// simg = loadImage("./imgs/p5sketch1.jpg");
 	// simg = loadImage("./imgs/face.png");
+	// simg = loadImage("./imgs/fruit.jpg");
+	// simg = loadImage("./imgs/sign1.jpg");
 	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
+	simg = loadImage("./imgs/clouds.jpg");
+	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -80,8 +86,8 @@ void setup(){
 	// simg.filter(POSTERIZE|BLUR|THRESHOLD, strength);
 	// simg.filter(...);
 	
-	downsampleFloat = /* 1.0| 2.25 | 1.75 | 2.25 | */ 4.0 /* | 5.0 | 6.0 */; /* higher dsfloat -> higher framerate */
-	modfac = 2; /* 1|2|3|4|5|8 */
+	downsampleFloat = 3; /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
+	modfac = 2; /* 1|2|3|4|5|8 — 3 Default*/
 
 	dmfd = modfac/mfd;
 	fmfd = 1.0/modfac;
@@ -130,9 +136,12 @@ void setup(){
 	}
 	//convolution — still | amble | collatz | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
 	/* TODO: add rdf filters */
-	af = new ArcaneFilter("transmit", kwidth, xsmnfactor);
+	af = new ArcaneFilter("still", kwidth, xsmnfactor);
 
-	frameRate(120);
+	// themes — red | green | yellow | yellowbrick | rblue
+	ao = new ArcaneOrbit("rblue");
+
+	// frameRate(120);
 }
 
 void draw(){
@@ -146,7 +155,7 @@ void draw(){
 		point — 25
 		line — 60
 	 */
-	selectDraw("line");
+	selectDraw("point");
 
 	stroke(255);
 	text("fps: " + str(frameRate), 25,25);
@@ -154,13 +163,13 @@ void draw(){
 	int edraw = millis();
 	println("draw time — " + str((edraw - sdraw) * .001));
 }
-
 void selectDraw(String style){
-	int skmap = millis();
-	af.kernelmap(simg, xmg);
-	int ekmap = millis();
-	println("\t kmap time — " + str((ekmap - skmap) * .001));
-
+	if (!style.equals("still")){
+		int skmap = millis();
+		af.kernelmap(simg, xmg);
+		int ekmap = millis();
+		println("\t kmap time — " + str((ekmap - skmap) * .001));
+	}
 	
 	background(0);
 	int spdraw = millis();
@@ -291,6 +300,7 @@ void pointorbit(PImage nimg, String selector){
 				for(int y = 0; y < nimg.pixelHeight; y++){
 					int index = (x + (y * nimg.pixelWidth));
 					color cpx = nimg.pixels[index];
+					
 					float gs = computeGS(cpx);
 					pushMatrix();
 					showTLines(nimg,x,y,gs);
@@ -340,14 +350,10 @@ void pointorbit(PImage nimg, String selector){
 
 
 void showAsPoint(int x, int y, float energy) {
-	float enc = lerp(-1., 1., energy);
-	// float enc = lerp(-1., 1., energy/kernelScale);
-	// float enc = lerp(-1., 1., (energy+1.)/2.);
-	stroke(energyDegree(energy));
-	float ang = radians(energyAngle(enc));
-	
-	// float px = x + (1./(modfac * 0.5) * cos(ang));
-	// float py = y + (1./(modfac * 0.5) * sin(ang));
+	ao.pushEnergyAngle(energy);
+	float ang = ao.angle;
+
+	stroke(ao.hue());
 	
 	float px = x + (fmfd * cos(ang));
 	float py = y + (fmfd * sin(ang));
@@ -385,10 +391,12 @@ void showAsPoint(int x, int y, float energy) {
 }
 
 void showAsLine(int x, int y, float energy) {
-	float enc = lerp(-1., 1., energy);
-	color cc = energyDegree(enc);
-	stroke(cc);
-	float ang = radians(energyAngle(enc));
+	ao.pushEnergyAngle(energy);
+	float ang = ao.angle;
+
+	stroke(ao.hue());
+
+
 	float px = x + (.5 * cos(ang));
 	float py = y + (.5 * sin(ang));
 
@@ -396,18 +404,18 @@ void showAsLine(int x, int y, float energy) {
 		pushMatrix();
 		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
 		line(
-				x  * modfac,
-				y  * modfac,
+			x  * modfac,
+			y  * modfac,
 			(px) * modfac,
 			(py) * modfac
 		);
 		popMatrix();
-		} else {
-			pushMatrix();
-			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-			line(x, y, px, py);
-			popMatrix();
-		}
+	} else {
+		pushMatrix();
+		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+		line(x, y, px, py);
+		popMatrix();
+	}
 
 }
 
