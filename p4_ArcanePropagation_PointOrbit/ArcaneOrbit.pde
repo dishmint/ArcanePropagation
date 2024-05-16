@@ -1,152 +1,357 @@
+/* 
+	Making use of this article to implement functional interfaces
+	https://dzone.com/articles/functional-programming-in-java-8-part-1-functions-as-objects
+*/
 import java.util.function.*;
+import java.util.Arrays;
 @FunctionalInterface
-public interface ArcaneHue {
-	color archue(float thetafactor);
-    }
+public interface ArcaneDraw {
+	void draw(int x, int y, float energy);
+	}
 
+@FunctionalInterface
+public interface ArcaneDrawXMG {
+	void drawXMG(int x, int y, PImage img, float[][][] xmg);
+	}
 
 class ArcaneOrbit {
-	final static float TAU = TWO_PI;
-	final static float QTAU = TWO_PI * 0.25;
-	final static float DTAU = 1.0/TWO_PI;
-	final static float CFAC = 1.0/255.0;
-	String theme;
-	float energy;
-	float angle;
-	String energyMode;
-	// String alphaMode;
-	ArcaneHue ahue;
-	color px;
+	String shapemode;
+	ArcaneDraw arcorbit;
 
-	ArcaneHue white = (thetafactor) -> {
-		return color(255.0);
-	};
+	/* points */
+	ArcaneDraw points = (x, y, energy) -> {
+		at.pushEnergyAngle(energy);
+		float ang = at.angle;
 
-	ArcaneHue red = (thetafactor) -> {
-		return color(255.0 * thetafactor,0.0,0.0);
-	};
+		stroke(at.hue());
+		
+		float px = x + (fmfd * cos(ang));
+		float py = y + (fmfd * sin(ang));
 
-	ArcaneHue green = (thetafactor) -> {
-		PVector vec3 = new PVector(0.101961, 0.145098, 0.117647);
-		vec3.mult(255.0);
-		vec3.mult(thetafactor);
-		return color(vec3.x, vec3.y, vec3.z);
-	};
-
-	ArcaneHue yellow = (thetafactor) -> {
-		PVector vec3 = new PVector(1.0, 1.0, 0.0);
-		vec3.mult(255.0);
-		vec3.mult(thetafactor);
-		return color(vec3.x, vec3.y, vec3.z);
-	};
+		// FIXME: `if (dispersal)` called for every pixel, the check should run before the for loop.
+		/* 
+		
+			if (dispersed) {
+				show_dispersed
+			} else {
+				show
+			}
+		
+		*/
 	
-	ArcaneHue yellowbrick = (thetafactor) -> {
-		PVector c1 = new PVector(.22, .06, 0.);
-		c1.mult(255.0);
-		PVector c2 = new PVector(1., .84, 0.);
-		c2.mult(255.0);
-
-		c1.lerp(c2, thetafactor);
-		return color(c1.x, c1.y, c1.z);
-		// mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), thetafactor);
+		if(dispersed) {
+			pushMatrix();
+			translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+			point(
+				(px) * modfac,
+				(py) * modfac
+			);
+			popMatrix();
+		} else {
+			pushMatrix();
+			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+			point(px,py);
+			popMatrix();
+		}
 	};
 	
-	ArcaneHue rblue = (thetafactor) -> {
-		// PVector vec3 = new PVector(thetafactor*215.0, 255.-(abs(lerp(-1.0,1.0,thetafactor)) * 255.0), 255.0-(abs(lerp(-1.0,1.0,thetafactor))*200.0));
-		float r = thetafactor*215.0;
-		float g = 255.0 - abs(lerp(-255.0, 255.0, thetafactor));
-		// float b = 255.0 - abs(lerp(-200.0, 200.0, thetafactor));
-		float b = (1.0 - (abs(lerp(-1.0, 1.0, thetafactor))*(200.0 * CFAC))) * 255.0;
+	/* lines */
+	ArcaneDraw lines = (x, y, energy) -> {
+		at.pushEnergyAngle(energy);
+		float ang = at.angle;
 
-		return color(r, g, b);
+		stroke(at.hue());
+
+		float px = x + (.5 * cos(ang));
+		float py = y + (.5 * sin(ang));
+
+		if(dispersed){
+			pushMatrix();
+			translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+			line(
+				x  * modfac,
+				y  * modfac,
+				(px) * modfac,
+				(py) * modfac
+			);
+			popMatrix();
+		} else {
+			pushMatrix();
+			translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+			line(x, y, px, py);
+			popMatrix();
+		}
 	};
-	
-	// ArcaneHue gred = (thetafactor) -> {
-	// 	mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), thetafactor);
-	// }
-	
-	// ArcaneHue starrynight = (thetafactor) -> {
-	// 	mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), thetafactor);
-	// }
-	
-	// ArcaneHue ember = (thetafactor) -> {
-	// 	mix(vec3(0.18, 0.28, 0.35), vec3(0.95, .39, 0.1), thetafactor);
-	// }
-	
-	// ArcaneHue bloodred = (thetafactor) -> {
-	// 	mix(vec3(0.34, 0.0, 0.0), vec3(0.99, 1.0, 1.0), thetafactor);
-	// }
-	
-	// ArcaneHue gundam = (thetafactor) -> {
-	// 	mix(vec3(0.12, 0.2, 0.19), vec3(0.86, 0.3, 0.25), thetafactor);
-	// }
 
-	ArcaneOrbit(String selectedTheme) {
-		theme = selectedTheme;
-		// energyMode = selectedEnergyMode;
-		// alpha = selectedAlphaMode;
-
-		setTheme(theme);
-
-	}
-
-	void setTheme(String th) { 
-		switch(th) {
-			case "red":
-				ahue = red;
+	void setDraw(String fm){
+		switch(fm){
+			case "points":
+				arcorbit = points;
 				break;
-			case "green":
-				ahue = green;
-				break;
-			case "yellow":
-				ahue = yellow;
-				break;
-			case "yellowbrick":
-				ahue = yellowbrick;
-				break;
-			case "rblue":
-				ahue = rblue;
+			case "lines":
+				arcorbit = lines;
 				break;
 			default:
-				ahue = white;
+				arcorbit = points;
 				break;
+	    }
+	}
+
+	ArcaneOrbit(String smode){
+		shapemode = smode;
+
+		setDraw(shapemode);
+	}
+
+	float computeGS(color px){
+		float rpx = px >> 16 & 0xFF;
+		float gpx = px >> 8 & 0xFF;
+		float bpx = px & 0xFF;
+				
+		return (
+				0.2989 * rpx +
+				0.5870 * gpx +
+				0.1140 * bpx
+		) * colordiv;
+	}
+
+	void show(PImage smg) {
+		smg.loadPixels();
+		for (int i = 0; i < smg.pixelWidth; i++){
+			for (int j = 0; j < smg.pixelHeight; j++){
+				int sloc = i+j*smg.pixelWidth;
+				sloc = constrain(sloc,0,smg.pixels.length-1);
+				color cpx = smg.pixels[sloc];
+				float energy = computeGS(cpx);
+				pushMatrix();
+				arcorbit.draw(i, j, energy);
+				popMatrix();
+			}
 		}
+		smg.updatePixels();
 	}
-
-	float getEnergy(color c){
-		float apx = c >> 24 & 0xFF;
-		float rpx = c >> 16 & 0xFF;
-		float gpx = c >> 8  & 0xFF;
-		float bpx = c       & 0xFF;
-
-		return energy = (rpx + gpx + bpx + apx) * D4;
-	}
-
-	// void getQTau(color c){
-	// 	float e = getEnergy(c);
-	// 	float theta = lerp(-QTAU, QTAU, e);
-	// 	theta *= 4.0;
-	// 	// theta *= DTAU;
-	// 	return theta;
-	// }
-
-	void pushEnergyAngle(color c) {
-		energy = getEnergy(c);
-		angle = lerp(-TAU, TAU, energy);
-	}
-
-	void pushEnergyAngle(float e) {
-		energy = e;
-		angle = lerp(-TAU, TAU, e);
-		// angle = lerp(-QTAU, QTAU, e) * 4.0;
-	}
-	
-	color hue() {
-		float tf = angle * DTAU;
-		// float tf = angle/TAU;
-		// float tf = abs(angle/TAU);
-		// float tf = map(angle/TAU, -1.0, 1.0, 0.0, 1.0);
-		return ahue.archue(tf);
-	}
-
 }
+
+
+
+// void showAsPoint(int x, int y, float energy) {
+// 	at.pushEnergyAngle(energy);
+// 	float ang = at.angle;
+
+// 	stroke(at.hue());
+	
+// 	float px = x + (fmfd * cos(ang));
+// 	float py = y + (fmfd * sin(ang));
+
+// 	if(dispersed){
+// 		pushMatrix();
+// 		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+// 		point(
+// 			(px) * modfac,
+// 			(py) * modfac
+// 		);
+// 		popMatrix();
+// 	} else {
+// 		pushMatrix();
+// 		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+// 		point(px,py);
+// 		popMatrix();
+// 	}
+
+// }
+
+// void showAsLine(int x, int y, float energy) {
+// 	at.pushEnergyAngle(energy);
+// 	float ang = at.angle;
+
+// 	stroke(at.hue());
+
+
+// 	float px = x + (.5 * cos(ang));
+// 	float py = y + (.5 * sin(ang));
+
+// 	if(dispersed){
+// 		pushMatrix();
+// 		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+// 		line(
+// 			x  * modfac,
+// 			y  * modfac,
+// 			(px) * modfac,
+// 			(py) * modfac
+// 		);
+// 		popMatrix();
+// 	} else {
+// 		pushMatrix();
+// 		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+// 		line(x, y, px, py);
+// 		popMatrix();
+// 	}
+
+// }
+
+// void showTLines(PImage img, int x, int y, float energy) {
+
+// 	int sloc = x+y*img.pixelWidth;
+// 	sloc = constrain(sloc, 0, img.pixels.length - 1);
+// 	color cc = img.pixels[sloc];
+
+// 	int offset = int(kwidth * 0.5);
+// 	for (int i = 0; i < kwidth; i++){
+// 		for (int j= 0; j < kwidth; j++){
+			
+// 			int xloc = x+i-offset;
+// 			int yloc = y+j-offset;
+// 			int loc = xloc + img.pixelWidth*yloc;
+			
+// 			loc = constrain(loc,0,img.pixels.length-1);
+			
+// 			color cpx = img.pixels[loc];
+			
+// 			float rpx = cpx >> 16 & 0xFF;
+// 			float gpx = cpx >> 8 & 0xFF;
+// 			float bpx = cpx & 0xFF;
+			
+// 			strokeWeight(1);
+// 			stroke(lerpColor(cc, cpx, energy), 255 * .125);
+
+// 			if(xloc == x && yloc == y){
+// 				continue;
+// 			} else {
+// 				if(dispersed){
+// 					pushMatrix();
+// 					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+
+// 					line(
+// 						(x + .5) * modfac, (y + .5) * modfac,
+// 						(xloc + .5) * modfac, (yloc + .5) * modfac
+// 					);
+// 					popMatrix();
+// 				} else {
+// 					pushMatrix();
+// 					translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+// 					line(
+// 						(x + (.5)), (y + (.5)),
+// 						(xloc + (.5)), (yloc + (.5))
+// 					);
+// 					popMatrix();
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+
+// void showTRotator(PImage img, int x, int y, float energy) {
+
+// 	float enc = lerp(-1., 1., energy);
+// 	float ang = radians(energyAngle(enc));
+
+// 	int offset = int(kwidth * 0.5);
+// 	for (int i = 0; i < kwidth; i++){
+// 		for (int j= 0; j < kwidth; j++){
+			
+// 			int xloc = x+i-offset;
+// 			int yloc = y+j-offset;
+// 			int loc = xloc + img.pixelWidth*yloc;
+			
+// 			loc = constrain(loc,0,img.pixels.length-1);
+			
+// 			color cpx = img.pixels[loc];
+			
+// 			float rpx = cpx >> 16 & 0xFF;
+// 			float gpx = cpx >> 8 & 0xFF;
+// 			float bpx = cpx & 0xFF;
+			
+// 			strokeWeight(1);
+// 			stroke(energyDegree(energy));
+			
+// 			if(xloc == x && yloc == y){
+// 				continue;
+// 			} else{
+// 				if(dispersed){
+// 					pushMatrix();
+// 					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+// 					line(
+// 						(x + .5) * modfac,
+// 						(y + .5) * modfac,
+// 						(xloc + (.5 * cos(ang))) * modfac,
+// 						(yloc + (.5 * sin(ang))) * modfac
+// 						);
+// 					popMatrix();
+// 					} else {
+// 						pushMatrix();
+// 						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+// 						line(
+// 							(x + .5),
+// 							(y + .5),
+// 							(xloc + (.5 * cos(ang))),
+// 							(yloc + (.5 * sin(ang)))
+// 							);
+// 						popMatrix();
+// 					}
+// 				}
+// 			}
+// 		}
+// }
+
+// void showTRotator2(PImage img, int x, int y, float energy) {
+// 	float enc = lerp(-1., 1., energy);
+// 	float ang = radians(energyAngle(enc));
+
+// 	int offset = int(kwidth * 0.5);
+// 	for (int i = 0; i < kwidth; i++){
+// 		for (int j= 0; j < kwidth; j++){
+			
+// 			int xloc = x+i-offset;
+// 			int yloc = y+j-offset;
+// 			int loc = xloc + img.pixelWidth*yloc;
+			
+// 			loc = constrain(loc,0,img.pixels.length-1);
+			
+// 			color cpx = img.pixels[loc];
+			
+// 			float rpx = cpx >> 16 & 0xFF;
+// 			float gpx = cpx >> 8 & 0xFF;
+// 			float bpx = cpx & 0xFF;
+			
+// 			strokeWeight(1);
+// 			stroke(energyDegree(energy));
+			
+// 			if(xloc == x && yloc == y){
+// 				continue;
+// 			} else{
+// 				if(dispersed){
+// 					pushMatrix();
+// 					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+// 					PVector midpoint = new PVector(lerp(float(x), float(xloc), .5), lerp(float(y), float(yloc), .5));
+// 					PVector p1 = new PVector(float(x), float(y));
+// 					PVector p2 = new PVector(float(xloc), float(yloc));
+// 					float l = PVector.dist(p1,p2);
+// 					pushMatrix();
+// 					translate((midpoint.x*modfac), (midpoint.y*modfac));
+// 					rotate(ang);
+// 					// int mfd = 4;
+// 					line(
+// 						(-l * 0.5) * dmfd,
+// 						(-l * 0.5) * dmfd,
+// 						( l * 0.5) * dmfd,
+// 						( l * 0.5) * dmfd
+// 					);
+						
+// 					popMatrix();
+// 					popMatrix();
+// 					} else {
+// 						pushMatrix();
+// 						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+// 						rotate(ang);
+// 						line(
+// 							(x + .5),
+// 							(y + .5),
+// 							(xloc + (.5)),
+// 							(yloc + (.5))
+// 							);
+// 						popMatrix();
+// 					}
+// 				}
+// 			}
+// 		}
+// }

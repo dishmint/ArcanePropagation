@@ -17,9 +17,9 @@ class ArcaneGenerator  {
 
 	PImage resize(PImage img, int mw, int mh){
 		// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
-		float sw = (float)img.pixelWidth;
-		float sh = (float)img.pixelHeight;
-		float scale = min(mw/sw, mh/sh);
+		final float sw = (float)img.pixelWidth;
+		final float sh = (float)img.pixelHeight;
+		final float scale = min(mw/sw, mh/sh);
 
 		int nw = Math.round(sw*scale);
 		int nh = Math.round(sh*scale);

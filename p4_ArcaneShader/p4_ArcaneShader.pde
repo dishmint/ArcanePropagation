@@ -28,15 +28,15 @@ void setup(){
 	
 	/* ------------------------------- image files ------------------------------ */
 	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif"); /* mwrTn-pixelmaze.gif | excited_shaq.gif | willem-dafoe-insane.gif */
-	simg = loadImage("./imgs/nasa.jpg"); /* universe.jpg */ 
+	// simg = loadImage("./imgs/nasa.jpg"); /* universe.jpg */ 
 	/* 
 		No interesting movement with universe.jpg, maybe because it's not a gif? 
 		doesn't seem to be the case. Maybe because there's less information? like only two colors?
 	*/
 	
 	/* ---------------------------- image generators ---------------------------- */
-	// int noisew = int(0.0625 *  width);
-	// int noiseh = int(0.0625 * height);
+	int noisew = int(0.0625 *  width);
+	int noiseh = int(0.0625 * height);
 	// Random Noise
 	// ag = new ArcaneGenerator("random", noisew, noiseh);
 	
@@ -49,11 +49,11 @@ void setup(){
 	// ag.setMazeSource(mimg);
 
 	// Noise
-	// ag = new ArcaneGenerator("noise", noisew, noiseh);
-	// ag.setLod(3); ag.setFalloff(0.6f);
+	ag = new ArcaneGenerator("noise", noisew, noiseh);
+	ag.setLod(3); ag.setFalloff(0.6f);
 		
 	/* -------------------------------- get image ------------------------------- */
-	// simg = ag.getImage(); 
+	simg = ag.getImage(); 
 		
 	// simg.filter(GRAY);
 	// simg.filter(POSTERIZE, 4);
@@ -69,7 +69,7 @@ void setup(){
 	/* -------------------------------------------------------------------------- */
 	
 	
-	dmfac = 3;
+	dmfac = 1;
 	downsample = modfac = dmfac;
 	// downsample = 1;
 	// modfac = 5;
@@ -120,7 +120,7 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = true;
+	dispersed = false;
 	displayscale = 1.0;
 	// displayscale = 0.5;
 	
@@ -161,7 +161,7 @@ void setup(){
 	background(0);
 
 	// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
-	af = new ArcaneFilter("transmit", kwidth, xsmnfactor);
+	af = new ArcaneFilter("transmitMBL", kwidth, xsmnfactor);
 }
 
 void draw(){

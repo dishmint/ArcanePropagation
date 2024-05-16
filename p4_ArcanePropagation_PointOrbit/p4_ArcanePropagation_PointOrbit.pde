@@ -3,6 +3,7 @@
 import com.wolfram.jlink.*;
 import java.util.function.*;
 import java.util.Arrays;
+import processing.javafx.*;
 
 KernelLink ml = null;
 Expr imgclusters;
@@ -10,51 +11,99 @@ Expr imgclusters;
 // CellularAutomaton variables
 int rule, k, r1, r2;
 
-
-final float D4 = 0.25;
-
-final int mfd = 4;
-float dmfd, fmfd;
 PGraphics pg;
 
-PImage simg,dximg;
+PImage simg, dximg;
 float[][][] xmg;
-int downsample,modfac,dmfac;
-int kwidth = 3/* |5 */;
-int kwidthsq = (int)(pow(kwidth, 2));
-int drawswitch = 0;
-float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd,downsampleFloat;
-
-boolean dispersed, hav, klinkQ;
 
 ArcaneFilter af;
 ArcaneGenerator ag;
+ArcaneTheme at;
 ArcaneOrbit ao;
+
+/* ------------------------------ KERNELWIDTHS ------------------------------ */
+int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
+final int kw = kwOptions[2];
+final int kwsq = (int)(pow(kw, 2));
+
+/* ------------------------------ KERNELSCALES ------------------------------ */
+//                           0      1      2      3      4       5       6         7         8
+final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f};
+final float kernelScale = ksOptions[4];
+// final float kernelScale = 5.0;
+
+/* ------------------------------- DOWNSAMPLES ------------------------------ */
+/* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
+final float[] downsampleOptions = {1.00f, 1.25f, 2.25f, 3.00f};
+final float downsample = downsampleOptions[2];
+final boolean dispersed = true;
+final int[] modfacs = {1, 2, 3, 4, 5};
+final int modfac = modfacs[1];
+
+final int mfd = 4;
+final float	dmfd = modfac/mfd;
+final float	fmfd = 1.0/modfac;
+
+/* ------------------------------ IMAGE SOURCE ------------------------------ */
+final String[] sourcepathOptions = {
+	/* 0 */"imgs/nasa.jpg", 
+	/* 1 */"imgs/face.png", 
+	/* 2 */"imgs/buildings.jpg", 
+	/* 3 */"imgs/mwrTn-pixelmaze.gif", 
+	/* 4 */"imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg",
+	/* 5 */"imgs/buff_skate.JPG",
+	/* 6 */"imgs/universe.jpg",
+	/* 7 */"imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg",
+	/* 8 */"imgs/planetsAbstract.jpg",
+	/* 9 */"imgs/enter.jpg",
+   /* 10 */"imgs/sign1.jpg"
+};
+final String sourcepath = sourcepathOptions[9];
+
+
+/* ---------------------------------- ORBIT --------------------------------- */
+final String[] orbits = {"points", "lines"};
+final String orbit = orbits[0];
+
+/* --------------------------------- THEMES --------------------------------- */
+//                         0       1       2         3        4           5           6          7           8         9          10         11
+final String[] themes = {"red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
+final String theme = themes[8];
+
+/* --------------------------------- FILTERS -------------------------------- */
+//                                 0          1            2             3         4         5        6      7         8          9          10        11       12
+final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
+final String filter = filterOptions[0];
+
+/* -------------------------------- SET VARS -------------------------------- */
+final float[] xfacs = {1.0f/(float(kw) * float(kw)), 1.0f/kw, kw, kernelScale, 1.0};
+final float xfac = xfacs[0];
+
+final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f, 3.0f };
+final float colordiv = colordivOptions[0];
+
+final float D4 = 0.25;
+final boolean klinkQ = false;
 
 void setup(){
 	/* -------------------------------------------------------------------------- */
 	/*                               Sketch Settings                              */
 	/* -------------------------------------------------------------------------- */
-	size(1422, 800, P3D);
+	// size(1422, 800, P2D);
+	// size(1422, 800, FX2D);
+	fullScreen(FX2D);
 	// surface.setTitle("Arcane Propagations");
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	imageMode(CENTER);
+	background(0);
+	// noCursor();
 	
 	/* -------------------------------------------------------------------------- */
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
 	
-	/* ------------------------------- image files ------------------------------ */
-	// simg = loadImage("./imgs/universe.jpg");
-	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/p5sketch1.jpg");
-	// simg = loadImage("./imgs/face.png");
-	// simg = loadImage("./imgs/fruit.jpg");
-	// simg = loadImage("./imgs/sign1.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
+	simg = loadImage(sourcepath);
 	
 	/* ---------------------------- image generators ---------------------------- */
 	// int noisew = int(0.0625 *  width);
@@ -84,123 +133,52 @@ void setup(){
 	// APPLY BASE FILTER
 	// simg.filter(GRAY|BLUR|DILATE|ERODE|INVERT);
 	// simg.filter(POSTERIZE|BLUR|THRESHOLD, strength);
-	// simg.filter(...);
-	
-	downsampleFloat = 3; /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
-	modfac = 2; /* 1|2|3|4|5|8 — 3 Default*/
 
-	dmfd = modfac/mfd;
-	fmfd = 1.0/modfac;
-	
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
-	float sw = (float)simg.pixelWidth;
-	float sh = (float)simg.pixelHeight;
-	float scale = min(pixelWidth/sw, pixelHeight/sh);
+	final float sw = (float)simg.pixelWidth;
+	final float sh = (float)simg.pixelHeight;
+	final float scale = min(pixelWidth/sw, pixelHeight/sh);
 	
-	int nw = Math.round(sw*scale/downsampleFloat);
-	int nh = Math.round(sh*scale/downsampleFloat);
+	final int nw = Math.round(sw*scale/downsample);
+	final int nh = Math.round(sh*scale/downsample);
 	simg.resize(nw, nh);
+		
+	xmg = loadxm(simg, kw);
 	
-	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	kernelScale = 1.0f;
-	// kernelScale = 1.0f / 255.0f;
-	// kernelScale = 0.098f / 1.0f;
-	// kernelScale = 0.98f / 1.0f;
-	// kernelScale = 0.50f / 1.0f;
-	// kernelScale = 0.33f / 1.0f;
-	
-	// Determine the leak-rate (transmission factor) of each pixel
-	// xsmnfactor = 1.0f;
-	xsmnfactor = 1.0f / pow(kwidth, 2.0f); /* default */
-	// xsmnfactor = 1.0f / kwidth;
-	// xsmnfactor = kwidth;
-	// xsmnfactor = kernelScale;
-	
-	/*
-	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
-	*/
-
-	gsd = 1.0f/255.0f; /* 1.0f/ 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
-	hav = false;
-	xmg = loadxm(simg, kwidth);
-	
-	dispersed = true;
 	dximg = createImage(simg.pixelWidth/modfac, simg.pixelHeight/modfac, ARGB);
 	
-	background(0);
-	noCursor();
-	
-	klinkQ = false;
 	if(klinkQ){
 		setupWLKernel();
 	}
-	//convolution — still | amble | collatz | convolve | transmit | transmitMBL | switch | switchTotal | blur | weighted blur
-	/* TODO: add rdf filters */
-	af = new ArcaneFilter("still", kwidth, xsmnfactor);
+	
+	af = new ArcaneFilter(filter, kw, xfac);
+	
+	at = new ArcaneTheme(theme);
+	ao = new ArcaneOrbit(orbit);
 
-	// themes — red | green | yellow | yellowbrick | rblue
-	ao = new ArcaneOrbit("rblue");
+}
 
-	// frameRate(120);
+void printstamp(String msg, int end, int start) {
+	println(msg + " (s): " + (end - start) * 0.001);
 }
 
 void draw(){
 	int sdraw = millis();
-	//style — point | line | xline | xliner | xliner2
-	/* 
-	fps : modfac 8
-		point — 8
-		line  — 15
-	fps : dsf 6.0
-		point — 25
-		line — 60
-	 */
-	selectDraw("point");
+	af.kernelmap(simg, xmg);
+
+	background(0);
+	if (dispersed) {
+		loadDX();
+		ao.show(dximg);
+	} else {
+		ao.show(simg);
+	}
 
 	stroke(255);
 	text("fps: " + str(frameRate), 25,25);
-
 	int edraw = millis();
-	println("draw time — " + str((edraw - sdraw) * .001));
-}
-void selectDraw(String style){
-	if (!style.equals("still")){
-		int skmap = millis();
-		af.kernelmap(simg, xmg);
-		int ekmap = millis();
-		println("\t kmap time — " + str((ekmap - skmap) * .001));
-	}
-	
-	background(0);
-	int spdraw = millis();
-	pointDraw(style);
-	int epdraw = millis();
-	println("\tpdraw time — " + str((epdraw - spdraw) * .001));
-}
-
-void selectDraw(String selector, String style, int sparam){
-	switch(selector){
-		case "blur":
-			simg.filter(BLUR, sparam);
-			break;
-		case "posterize":
-			simg.filter(POSTERIZE, sparam);
-			break;
-		default:
-			break;
-		}
-	
-	background(0);
-	pointDraw(style);
-}
-
-void pointDraw(String style){
-	if(dispersed){
-		loadDX();
-		pointorbit(dximg, style);
-	} else {
-		pointorbit(simg, style);
-	}
+	print("draw time (s) — ");
+	print(((edraw - sdraw) * 0.001) + "\r");
 }
 
 void loadDX(){
@@ -224,425 +202,15 @@ void loadDX(){
 }
 
 float computeGS(color px){
-	float igs;
-	float rpx = px >> 16 & 0xFF;
-	float gpx = px >> 8 & 0xFF;
-	float bpx = px & 0xFF;
-	
-	if(hav){
-		// Human Visual Perception
-		igs = (
-			(0.2989 * rpx) +
-			(0.5870 * gpx) +
-			(0.1140 * bpx)
-			) * gsd;
-	} else if(!hav) {
-		// channel average
-		igs = (rpx + gpx + bpx) * gsd;
-	} else {
-		igs = 1.;
-	}
-	// return igs;
-	// return map(igs, 0., 1., -.5*kernelScale, .5*kernelScale);
-	return map(igs, 0., 1., -1.*kernelScale, 1.*kernelScale);
-}
-
-
-float computeGS(color px, boolean hu){
-	float rpx = px >> 16 & 0xFF;
-	float gpx = px >> 8 & 0xFF;
-	float bpx = px & 0xFF;
-	
-	float igs = 1.;
-	if(hu){
-		// human grayscale
-		igs = (
-			0.2989 * rpx +
-			0.5870 * gpx +
-			0.1140 * bpx
-			) * gsd;
-	} else {
-		// channel average
-		igs = (rpx + gpx + bpx) * gsd;
-	}
-	return igs;
-}
-
-void pointorbit(PImage nimg, String selector){
-	nimg.loadPixels();
-	switch(selector){
-		case "point":
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showAsPoint(x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-		case "line":
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showAsLine(x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-		case "xline":
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showTLines(nimg,x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-		case "xliner":
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showTRotator(nimg,x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-		case "xliner2":
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showTRotator2(nimg,x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-		default:
-			for(int x = 0; x < nimg.pixelWidth;x++){
-				for(int y = 0; y < nimg.pixelHeight; y++){
-					int index = (x + (y * nimg.pixelWidth));
-					color cpx = nimg.pixels[index];
-					float gs = computeGS(cpx);
-					pushMatrix();
-					showAsPoint(x,y,gs);
-					popMatrix();
-				}
-			}
-			break;
-	}
-	nimg.updatePixels();
-}
-
-
-void showAsPoint(int x, int y, float energy) {
-	ao.pushEnergyAngle(energy);
-	float ang = ao.angle;
-
-	stroke(ao.hue());
-	
-	float px = x + (fmfd * cos(ang));
-	float py = y + (fmfd * sin(ang));
-
-	// this dispersal check is called for every pixel (potentially millions of times). An improvement would be splitting out this function and if'ing before the lopp of pixels.
-	/* 
-	
-	if (dispersed) {
-		for x:
-			for y:
-				showDispersed
-	} else {
-		for x:
-			for y:
-				show
-	}
-	
-	 */
-	
-	if(dispersed){
-		pushMatrix();
-		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-		point(
-			(px) * modfac,
-			(py) * modfac
-		);
-		popMatrix();
-	} else {
-		pushMatrix();
-		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-		point(px,py);
-		popMatrix();
-	}
-
-}
-
-void showAsLine(int x, int y, float energy) {
-	ao.pushEnergyAngle(energy);
-	float ang = ao.angle;
-
-	stroke(ao.hue());
-
-
-	float px = x + (.5 * cos(ang));
-	float py = y + (.5 * sin(ang));
-
-	if(dispersed){
-		pushMatrix();
-		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-		line(
-			x  * modfac,
-			y  * modfac,
-			(px) * modfac,
-			(py) * modfac
-		);
-		popMatrix();
-	} else {
-		pushMatrix();
-		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-		line(x, y, px, py);
-		popMatrix();
-	}
-
-}
-
-void showTLines(PImage img, int x, int y, float energy) {
-
-	int sloc = x+y*img.pixelWidth;
-	sloc = constrain(sloc, 0, img.pixels.length - 1);
-	color cc = img.pixels[sloc];
-
-	int offset = int(kwidth * 0.5);
-	for (int i = 0; i < kwidth; i++){
-		for (int j= 0; j < kwidth; j++){
-			
-			int xloc = x+i-offset;
-			int yloc = y+j-offset;
-			int loc = xloc + img.pixelWidth*yloc;
-			
-			loc = constrain(loc,0,img.pixels.length-1);
-			
-			color cpx = img.pixels[loc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			strokeWeight(1);
-			stroke(lerpColor(cc, cpx, energy), 255 * .125);
-
-			if(xloc == x && yloc == y){
-				continue;
-			} else {
-				if(dispersed){
-					pushMatrix();
-					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-
-					line(
-						(x + .5) * modfac, (y + .5) * modfac,
-						(xloc + .5) * modfac, (yloc + .5) * modfac
-					);
-					popMatrix();
-				} else {
-					pushMatrix();
-					translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-					line(
-						(x + (.5)), (y + (.5)),
-						(xloc + (.5)), (yloc + (.5))
-					);
-					popMatrix();
-				}
-			}
-		}
-	}
-}
-
-void showTRotator(PImage img, int x, int y, float energy) {
-
-	float enc = lerp(-1., 1., energy);
-	float ang = radians(energyAngle(enc));
-
-	int offset = int(kwidth * 0.5);
-	for (int i = 0; i < kwidth; i++){
-		for (int j= 0; j < kwidth; j++){
-			
-			int xloc = x+i-offset;
-			int yloc = y+j-offset;
-			int loc = xloc + img.pixelWidth*yloc;
-			
-			loc = constrain(loc,0,img.pixels.length-1);
-			
-			color cpx = img.pixels[loc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			strokeWeight(1);
-			stroke(energyDegree(energy));
-			
-			if(xloc == x && yloc == y){
-				continue;
-			} else{
-				if(dispersed){
-					pushMatrix();
-					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-					line(
-						(x + .5) * modfac,
-						(y + .5) * modfac,
-						(xloc + (.5 * cos(ang))) * modfac,
-						(yloc + (.5 * sin(ang))) * modfac
-						);
-					popMatrix();
-					} else {
-						pushMatrix();
-						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-						line(
-							(x + .5),
-							(y + .5),
-							(xloc + (.5 * cos(ang))),
-							(yloc + (.5 * sin(ang)))
-							);
-						popMatrix();
-					}
-				}
-			}
-		}
-}
-
-void showTRotator2(PImage img, int x, int y, float energy) {
-	float enc = lerp(-1., 1., energy);
-	float ang = radians(energyAngle(enc));
-
-	int offset = int(kwidth * 0.5);
-	for (int i = 0; i < kwidth; i++){
-		for (int j= 0; j < kwidth; j++){
-			
-			int xloc = x+i-offset;
-			int yloc = y+j-offset;
-			int loc = xloc + img.pixelWidth*yloc;
-			
-			loc = constrain(loc,0,img.pixels.length-1);
-			
-			color cpx = img.pixels[loc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			strokeWeight(1);
-			stroke(energyDegree(energy));
-			
-			if(xloc == x && yloc == y){
-				continue;
-			} else{
-				if(dispersed){
-					pushMatrix();
-					translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-					PVector midpoint = new PVector(lerp(float(x), float(xloc), .5), lerp(float(y), float(yloc), .5));
-					PVector p1 = new PVector(float(x), float(y));
-					PVector p2 = new PVector(float(xloc), float(yloc));
-					float l = PVector.dist(p1,p2);
-					pushMatrix();
-					translate((midpoint.x*modfac), (midpoint.y*modfac));
-					rotate(ang);
-					// int mfd = 4;
-					line(
-						(-l * 0.5) * dmfd,
-						(-l * 0.5) * dmfd,
-						( l * 0.5) * dmfd,
-						( l * 0.5) * dmfd
-					);
-						
-					popMatrix();
-					popMatrix();
-					} else {
-						pushMatrix();
-						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-						rotate(ang);
-						line(
-							(x + .5),
-							(y + .5),
-							(xloc + (.5)),
-							(yloc + (.5))
-							);
-						popMatrix();
-					}
-				}
-			}
-		}
-}
-
-// float getEnergy(color c) {
-// 	float apx = c >> 24 & 0xFF;
-// 	float rpx = c >> 16 & 0xFF;
-// 	float gpx = c >> 8  & 0xFF;
-// 	float bpx = c       & 0xFF;
-
-// 	return (apx + rpx + gpx + bpx) * D4;
-// }
-
-// float getQTAU(color c) {
-// 	float energy = getEnergy(c);
-	
-// }
-
-float energyAngle(float ec) {
-	float ecc = (ec + 1.0f) / 2.0f;
-	float a = lerp(0.0f, 360.0f, ecc);
-	return a;
-}
-
-color energyDegree(float energy) {
-	float ne = (energy+1.0f)/2.0f;
-	return lerpColor(color(0, 255, 255, 255), color(215, 0, 55, 255), ne);
-}
-
-float colorAmp(float min, float max, float value){
-	return map(value, min, max, 0,255);
-}
-
-float colorAmp(float value, float min, float max, float hmin, float hmax){
-	return map(value, min, max, hmin,hmax);
-}
-
-void switchdraw(int mod, int smearSelector){
-	if(frameCount % mod == 0){
-		drawswitch = 1 - drawswitch;
-	}
-	
-	if(drawswitch == 0){
-		af.setFilterMode("transmit");
-	} else {
-		af.selector = smearSelector;
-		af.setFilterMode("smearTotal");
-	}
-}
-
-void switchdrawTotal(int mod, int smearSelector){
-	if(frameCount % mod == 0){
-		drawswitch = 1 - drawswitch;
-	}
-	
-	if(drawswitch == 0){
-		af.setFilterMode("transmit");
-	} else {
-		af.selector = smearSelector;
-		af.setFilterMode("smearTotal");
-	}
+		float rpx = px >> 16 & 0xFF;
+		float gpx = px >> 8 & 0xFF;
+		float bpx = px & 0xFF;
+				
+		return (
+				0.2989 * rpx +
+				0.5870 * gpx +
+				0.1140 * bpx
+		) * colordiv;
 }
 
 float[][] loadkernel(int x, int y, int dim, PImage img){
@@ -662,14 +230,7 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 			color cpx = img.pixels[loc];
 			float gs = computeGS(cpx);
 			
-			// the closer values are to 0 the more negative the transmission is, that's why a large value of kernelScale produces fast fades.
 			kern[i][j] = map(gs, 0.0f, 1.0f, -1.0f*kernelScale,1.0f*kernelScale);
-			// kern[i][j] = map(gs, 0, 1, -.5,.5);
-			// kern[i][j] = map(gs, 0, 1, -.5*kernelScale,.5*kernelScale);
-			// kern[i][j] = gs;
-			// kern[i][j] = map(gs, 0, 1, 0.,1.*kernelScale);
-			// kern[i][j] = map(gs, 0, 1, -1.,1.);
-			// kern[i][j] = map(gs, 0.0f, gsd, -1.*kernelScale,1.*kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -729,14 +290,14 @@ float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
 		return kern;
 	}
 
-float[][][] loadxm(PImage img, int kwidth) {
-	float[][][] xms = new float[int(img.pixelWidth * img.pixelHeight)][kwidth][kwidth];
-	float[][] kernel = new float[kwidth][kwidth];
+float[][][] loadxm(PImage img, int kw) {
+	float[][][] xms = new float[int(img.pixelWidth * img.pixelHeight)][kw][kw];
+	float[][] kernel = new float[kw][kw];
 	img.loadPixels();
 	for (int i = 0; i < img.pixelWidth; i++){
 		for (int j = 0; j < img.pixelHeight; j++){
-			kernel = loadkernel(i,j, kwidth, img);
-			// kernel = loadEdgeWeight(i,j, kwidth, img);
+			kernel = loadkernel(i,j, kw, img);
+			// kernel = loadEdgeWeight(i,j, kw, img);
 			int index = (i + j * img.pixelWidth);
 			xms[index] = kernel;
 		}
