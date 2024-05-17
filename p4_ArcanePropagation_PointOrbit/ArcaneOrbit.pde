@@ -20,8 +20,14 @@ class ArcaneOrbit {
 
 	/* points */
 	ArcaneDraw points = (x, y, energy) -> {
+		// if (dispersed) {
+		// 	energy *= modfac;
+		// }
+
 		at.pushEnergyAngle(energy);
-		float ang = at.angle;
+		final float ang = at.angle;
+
+		
 
 		stroke(at.hue());
 		

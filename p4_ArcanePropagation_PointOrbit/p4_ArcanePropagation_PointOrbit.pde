@@ -1,15 +1,10 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
-import com.wolfram.jlink.*;
 import java.util.function.*;
 import java.util.Arrays;
 import processing.javafx.*;
 
-KernelLink ml = null;
-Expr imgclusters;
-
-// CellularAutomaton variables
-int rule, k, r1, r2;
+// TODO: try different scanning methods. Apply the filter by row only or by column only.
 
 PGraphics pg;
 
@@ -35,10 +30,11 @@ final float kernelScale = ksOptions[4];
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
 final float[] downsampleOptions = {1.00f, 1.25f, 2.25f, 3.00f};
-final float downsample = downsampleOptions[2];
+final float downsample = downsampleOptions[3];
 final boolean dispersed = true;
-final int[] modfacs = {1, 2, 3, 4, 5};
-final int modfac = modfacs[1];
+final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
+final int modfac = modfacs[3];
+// TODO: since modfac reduces the number of pixels, the dynamic range is smaller. Rescaling the colors might restore some of the dynamic range.
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
@@ -58,8 +54,11 @@ final String[] sourcepathOptions = {
 	/* 9 */"imgs/enter.jpg",
    /* 10 */"imgs/sign1.jpg"
 };
-final String sourcepath = sourcepathOptions[9];
+final String sourcepath = sourcepathOptions[6];
+final String mazesource = sourcepathOptions[8];
 
+final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
+final String generator = generatorOptions[2];
 
 /* ---------------------------------- ORBIT --------------------------------- */
 final String[] orbits = {"points", "lines"};
@@ -68,12 +67,12 @@ final String orbit = orbits[0];
 /* --------------------------------- THEMES --------------------------------- */
 //                         0       1       2         3        4           5           6          7           8         9          10         11
 final String[] themes = {"red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[8];
+final String theme = themes[4];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5        6      7         8          9          10        11       12
 final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[0];
+final String filter = filterOptions[7];
 
 /* -------------------------------- SET VARS -------------------------------- */
 final float[] xfacs = {1.0f/(float(kw) * float(kw)), 1.0f/kw, kw, kernelScale, 1.0};
@@ -83,7 +82,8 @@ final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f,
 final float colordiv = colordivOptions[0];
 
 final float D4 = 0.25;
-final boolean klinkQ = false;
+
+final int framerate = 120;
 
 void setup(){
 	/* -------------------------------------------------------------------------- */
@@ -92,40 +92,19 @@ void setup(){
 	// size(1422, 800, P2D);
 	// size(1422, 800, FX2D);
 	fullScreen(FX2D);
-	// surface.setTitle("Arcane Propagations");
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	imageMode(CENTER);
 	background(0);
-	// noCursor();
+	frameRate(framerate);
 	
 	/* -------------------------------------------------------------------------- */
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
 	
-	simg = loadImage(sourcepath);
+	// simg = loadImage(sourcepath);
+	simg = genImage(generator);
 	
-	/* ---------------------------- image generators ---------------------------- */
-	// int noisew = int(0.0625 *  width);
-	// int noiseh = int(0.0625 * height);
-	// Random Noise
-	// ag = new ArcaneGenerator("random", noisew, noiseh);
-	
-	// Kufic Noise
-	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
-	
-	// Maze Noise
-	// ag = new ArcaneGenerator("maze", noisew, noiseh);
-	// PImage mimg = loadImage("./imgs/universe.jpg");
-	// ag.setMazeSource(mimg);
-
-	// Noise
-	// ag = new ArcaneGenerator("noise", noisew, noiseh);
-	// ag.setLod(3); ag.setFalloff(0.6f);
-		
-	/* -------------------------------- get image ------------------------------- */
-	// simg = ag.getImage(); 
-
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */
 	/* -------------------------------------------------------------------------- */
@@ -144,18 +123,39 @@ void setup(){
 	simg.resize(nw, nh);
 		
 	xmg = loadxm(simg, kw);
-	
 	dximg = createImage(simg.pixelWidth/modfac, simg.pixelHeight/modfac, ARGB);
-	
-	if(klinkQ){
-		setupWLKernel();
-	}
-	
+		
 	af = new ArcaneFilter(filter, kw, xfac);
 	
 	at = new ArcaneTheme(theme);
 	ao = new ArcaneOrbit(orbit);
 
+}
+
+PImage genImage(String generator){
+	int noisew = int(0.0625 *  width);
+	int noiseh = int(0.0625 * height);
+	switch (generator) {
+		case "random":
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+		case "kufic":
+			ag = new ArcaneGenerator("kufic", noisew, noiseh);
+			break;
+		case "maze":
+			final PImage mimg = loadImage(mazesource);
+			ag = new ArcaneGenerator("maze", noisew, noiseh);
+			ag.setMazeSource(mimg);
+			break;
+		case "noise":
+			ag = new ArcaneGenerator("noise", noisew, noiseh);
+			ag.setLod(3); ag.setFalloff(0.6f);
+			break;
+		default:
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+	}
+	return ag.getImage(); 
 }
 
 void printstamp(String msg, int end, int start) {
@@ -328,121 +328,4 @@ void setDispersedImage(PImage source, PImage di) {
 		}
 	source.updatePixels();
 	di.updatePixels();
-}
-
-void cellularAutomaton(PImage img)
-		{
-		img.loadPixels();
-		int[][] newClusters;
-		try{
-			int[][] clusterMatrix = (int[][])imgclusters.asArray(Expr.INTEGER, 2);
-			newClusters = cellularAutomatize(rule,k,r1,r2, clusterMatrix);
-		} catch (ExprFormatException e) {
-			System.out.println("ClusterExpr::ExprFormatException: " + e.getMessage());
-			return;
-		}
-		
-		for (int i = 0; i < img.pixelWidth; i++){
-			for (int j = 0; j < img.pixelHeight; j++){
-				
-				int cloc = i+j*(img.pixelWidth);
-				cloc = constrain(cloc,0,img.pixels.length-1);
-				
-				// Get cluster number and turn it into a color scale.
-				int cl = newClusters[i][j];
-				float clf = (float)cl;
-				float ks = (float)(255 / (k - 1));
-				
-				// image disappears quickly
-				// img.pixels[cloc] *= (newClusters[i][j] / (k - 1));
-				
-				img.pixels[cloc] = color(clf * ks);
-				// img.pixels[cloc] = color(img.pixels[cloc] * (clf * ks));
-			}
-		}
-		img.updatePixels();
-		}
-
-int[][] cellularAutomatize(int rnum, int colors, int range1, int range2, int[][] clusters)
-	{
-	try {
-		ml.putFunction("CellularAutomaton",3);
-			ml.putFunction("List",3);
-				ml.put(rule);
-				// ml.put(k); /* Non Totalistic */
-				ml.putFunction("List",2); /* Totalistic */
-					ml.put(k);
-					ml.put(1);
-				ml.putFunction("List",2);
-					ml.put(range1);
-					ml.put(range2);
-			ml.put(clusters);
-			ml.putFunction("List",1);
-				ml.putFunction("List",1);
-					ml.putFunction("List",1);
-						ml.put(frameCount);
-		ml.waitForAnswer();
-		Expr res = ml.getExpr();
-		
-		try {
-			int[][] nc = (int[][]) res.asArray(Expr.INTEGER, 2);
-			return nc;
-		} catch (ExprFormatException e){
-			System.out.println("CellularAutomatatize::ExprFormatException: " + e.getMessage());
-			return clusters;
-		}
-		
-		} catch (MathLinkException e) {
-			System.out.println("CellularAutomatatize::Fatal error opening link: " + e.getMessage());
-			return clusters;
-		}
-	}
-
-	void stop() {
-		ml.close();
-	}
-
-void setupWLKernel(){
-	String mlargs = "-linkmode launch -linkname '\"/Applications/Mathematica.app/Contents/MacOS/MathKernel\" -mathlink'";
-		
-	try {
-		ml = MathLinkFactory.createKernelLink(mlargs);
-		ml.discardAnswer();
-		} catch (MathLinkException e) {
-			System.out.println("MathLinkFactory::Fatal error opening link: " + e.getMessage());
-			return;
-		}
-		
-		// Define CellularAutomaton parameters
-		rule = 30;
-		k = 2;
-		r1 = r2 = 1;
-	
-	// Create 2D image array
-	int[][] iarray = new int[simg.pixelWidth][simg.pixelHeight];
-	
-	simg.loadPixels();
-	int simglen = simg.pixelWidth * simg.pixelHeight;
-	for(int i=0; i<simg.pixelWidth; i++){
-		for(int j=0; j<simg.pixelHeight; j++){
-		int lc = (i*simg.pixelWidth) + j;
-		lc = constrain(lc,0,simglen-1);
-		iarray[i][j] = simg.pixels[lc];
-		}
-	}
-	simg.updatePixels();
-	
-	try {
-		// Evaluate (ClusteringComponents[image, k] - 1)
-		ml.putFunction("Subtract",2);
-			ml.putFunction("ClusteringComponents",2);
-				ml.put(iarray);
-				ml.put(k);
-			ml.put(1);
-		ml.waitForAnswer();
-		imgclusters = ml.getExpr();
-		} catch (MathLinkException e) {
-			System.out.println("LoadingArcaneUtilities::Fatal error opening link: " + e.getMessage());
-			return;
-		}
 }
