@@ -34,7 +34,6 @@ final float downsample = downsampleOptions[3];
 final boolean dispersed = true;
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
 final int modfac = modfacs[3];
-// TODO: since modfac reduces the number of pixels, the dynamic range is smaller. Rescaling the colors might restore some of the dynamic range.
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
