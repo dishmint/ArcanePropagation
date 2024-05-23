@@ -25,6 +25,10 @@ class ArcaneTheme {
 		return color(255.0 * thetafactor,0.0,0.0);
 	};
 
+	ArcaneHue blue = (thetafactor) -> {
+		return color(0.0,0.0, 255.0 * thetafactor);
+	};
+
 	ArcaneHue green = (thetafactor) -> {
 		PVector vec3 = new PVector(0.101961, 0.145098, 0.117647);
 		vec3.mult(255.0);
@@ -64,6 +68,16 @@ class ArcaneTheme {
 		PVector c1 = new PVector(1., .16, 0.22);
 		c1.mult(255.0);
 		PVector c2 = new PVector(0.07, .42, 0.1);
+		c2.mult(255.0);
+
+		c1.lerp(c2, thetafactor);
+		return color(c1.x, c1.y, c1.z);
+	};
+	
+	ArcaneHue reen = (thetafactor) -> {
+		PVector c1 = new PVector(0.07, .42, 0.1);
+		c1.mult(255.0);
+		PVector c2 = new PVector(1., .16, 0.22);
 		c2.mult(255.0);
 
 		c1.lerp(c2, thetafactor);
@@ -134,6 +148,9 @@ class ArcaneTheme {
 			case "red":
 				ahue = red;
 				break;
+			case "blue":
+				ahue = blue;
+				break;
 			case "green":
 				ahue = green;
 				break;
@@ -148,6 +165,9 @@ class ArcaneTheme {
 				break;
 			case "gred":
 				ahue = gred;
+				break;
+			case "reen":
+				ahue = reen;
 				break;
 			case "starrynight":
 				ahue = starrynight;

@@ -6,7 +6,7 @@ import java.util.function.*;
 import java.util.Arrays;
 @FunctionalInterface
 public interface ArcaneDraw {
-	void draw(int x, int y, float energy);
+	void draw(int x, int y, color src, float energy);
 	}
 
 @FunctionalInterface
@@ -19,17 +19,25 @@ class ArcaneOrbit {
 	ArcaneDraw arcorbit;
 
 	/* points */
-	ArcaneDraw points = (x, y, energy) -> {
-		// if (dispersed) {
-		// 	energy *= modfac;
-		// }
+	ArcaneDraw points = (x, y, src, energy) -> {
+		color c = src;
+		if (dispersed) {
+			energy *= modfac;
+			c *= modfac;
+		}
 
 		at.pushEnergyAngle(energy);
 		final float ang = at.angle;
 
-		
-
-		stroke(at.hue());
+		// float ang = at.angle;
+		// if (dispersed) {
+		// 	ang *= fmfd;			
+		// }		
+		if (at.theme.equals("truth")) {			
+			stroke(c);
+		} else {
+			stroke(at.hue());
+		}
 		
 		float px = x + (fmfd * cos(ang));
 		float py = y + (fmfd * sin(ang));
@@ -62,11 +70,25 @@ class ArcaneOrbit {
 	};
 	
 	/* lines */
-	ArcaneDraw lines = (x, y, energy) -> {
+	ArcaneDraw lines = (x, y, src, energy) -> {
+		color c = src;
+		if (dispersed) {
+			energy *= modfac;
+			c *= modfac;
+		}
+
 		at.pushEnergyAngle(energy);
 		float ang = at.angle;
 
-		stroke(at.hue());
+		// float ang = at.angle;
+		// if (dispersed) {
+		// 	ang *= fmfd;			
+		// }		
+		if (at.theme.equals("truth")) {			
+			stroke(c);
+		} else {
+			stroke(at.hue());
+		}
 
 		float px = x + (.5 * cos(ang));
 		float py = y + (.5 * sin(ang));
@@ -130,7 +152,7 @@ class ArcaneOrbit {
 				color cpx = smg.pixels[sloc];
 				float energy = computeGS(cpx);
 				pushMatrix();
-				arcorbit.draw(i, j, energy);
+				arcorbit.draw(i, j, cpx, energy);
 				popMatrix();
 			}
 		}

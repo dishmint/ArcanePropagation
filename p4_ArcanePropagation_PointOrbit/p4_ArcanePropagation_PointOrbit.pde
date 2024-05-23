@@ -1,13 +1,13 @@
 // FILE: ArcanePropagation
 // AUTHOR: Faizon Zaman
+
+/* --------------------------------- IMPORTS -------------------------------- */
 import java.util.function.*;
 import java.util.Arrays;
 import processing.javafx.*;
 
-// TODO: try different scanning methods. Apply the filter by row only or by column only.
-
+/* --------------------------- IMAGE DECLARATIONS --------------------------- */
 PGraphics pg;
-
 PImage simg, dximg;
 float[][][] xmg;
 
@@ -16,24 +16,29 @@ ArcaneGenerator ag;
 ArcaneTheme at;
 ArcaneOrbit ao;
 
+/* -------------------------------------------------------------------------- */
+/*                                  SETTINGS                                  */
+/* -------------------------------------------------------------------------- */
+
 /* ------------------------------ KERNELWIDTHS ------------------------------ */
 int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
 final int kw = kwOptions[2];
 final int kwsq = (int)(pow(kw, 2));
 
 /* ------------------------------ KERNELSCALES ------------------------------ */
-//                           0      1      2      3      4       5       6         7         8
-final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f};
-final float kernelScale = ksOptions[4];
+//                           0      1      2      3      4       5       6         7         8           9
+final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
+final float kernelScale = ksOptions[8];
 // final float kernelScale = 5.0;
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
-final float[] downsampleOptions = {1.00f, 1.25f, 2.25f, 3.00f};
-final float downsample = downsampleOptions[3];
+//                                   0       1      2      3      4      5
+final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f};
+final float downsample = downsampleOptions[4];
 final boolean dispersed = true;
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
-final int modfac = modfacs[3];
+final int modfac = modfacs[2];
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
@@ -51,10 +56,16 @@ final String[] sourcepathOptions = {
 	/* 7 */"imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg",
 	/* 8 */"imgs/planetsAbstract.jpg",
 	/* 9 */"imgs/enter.jpg",
-   /* 10 */"imgs/sign1.jpg"
+   /* 10 */"imgs/sign1.jpg",
+   /* 11 */"imgs/p5sketch1.jpg",
+   /* 12 */"imgs/mountains_1.jpg",
+   /* 13 */"imgs/clouds.jpg",
+   /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
+   /* 15 */"imgs/fruit.jpg"
 };
-final String sourcepath = sourcepathOptions[6];
-final String mazesource = sourcepathOptions[8];
+final String sourcepath = sourcepathOptions[12];
+final String mazesource = sourcepath;
+// final String mazesource = sourcepathOptions[8];
 
 final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
 final String generator = generatorOptions[2];
@@ -64,25 +75,27 @@ final String[] orbits = {"points", "lines"};
 final String orbit = orbits[0];
 
 /* --------------------------------- THEMES --------------------------------- */
-//                         0       1       2         3        4           5           6          7           8         9          10         11
-final String[] themes = {"red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[4];
+//                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
+final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
+final String theme = themes[0];
 
 /* --------------------------------- FILTERS -------------------------------- */
-//                                 0          1            2             3         4         5        6      7         8          9          10        11       12
-final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[7];
+//                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
+final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
+final String filter = filterOptions[8];
 
 /* -------------------------------- SET VARS -------------------------------- */
-final float[] xfacs = {1.0f/(float(kw) * float(kw)), 1.0f/kw, kw, kernelScale, 1.0};
+//                                0                 1      2       3        4
+final float[] xfacs = {1.0f/pow(float(kw), 2.0), 1.0f/kw, kw, kernelScale, 1.0};
 final float xfac = xfacs[0];
 
 final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f, 3.0f };
 final float colordiv = colordivOptions[0];
 
 final float D4 = 0.25;
-
-final int framerate = 120;
+//                               0    1   2   3   4   5   6   7  8  9
+final int[] framerateOptions = {120, 90, 75, 60, 48, 30, 24, 12, 6, 1};
+final int framerate = framerateOptions[0];
 
 void setup(){
 	/* -------------------------------------------------------------------------- */
@@ -91,6 +104,8 @@ void setup(){
 	// size(1422, 800, P2D);
 	// size(1422, 800, FX2D);
 	fullScreen(FX2D);
+	// fullScreen(P2D);
+
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 	imageMode(CENTER);
@@ -101,8 +116,8 @@ void setup(){
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
 	
-	// simg = loadImage(sourcepath);
-	simg = genImage(generator);
+	simg = loadImage(sourcepath);
+	// simg = genImage(generator);
 	
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */
@@ -125,7 +140,6 @@ void setup(){
 	dximg = createImage(simg.pixelWidth/modfac, simg.pixelHeight/modfac, ARGB);
 		
 	af = new ArcaneFilter(filter, kw, xfac);
-	
 	at = new ArcaneTheme(theme);
 	ao = new ArcaneOrbit(orbit);
 
