@@ -212,8 +212,11 @@ class ArcaneTheme {
 	
 	color hue() {
 		// float tf = angle * DTAU;
+		//^ -1 ~ 1
 		// float tf = (angle * DTAU) + 1.0;
+		//^ 0 ~ 2
 		float tf = ((angle * DTAU) + 1.0) * 0.5;
+		//^ 0 ~ 1
 		return ahue.archue(tf);
 	}
 

@@ -28,14 +28,14 @@ final int kwsq = (int)(pow(kw, 2));
 /* ------------------------------ KERNELSCALES ------------------------------ */
 //                           0      1      2      3      4       5       6         7         8           9
 final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
-final float kernelScale = ksOptions[8];
+final float kernelScale = ksOptions[4];
 // final float kernelScale = 5.0;
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
-//                                   0       1      2      3      4      5
-final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f};
-final float downsample = downsampleOptions[4];
+//                                   0       1      2      3      4      5      6
+final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.00f};
+final float downsample = downsampleOptions[6];
 final boolean dispersed = true;
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
 final int modfac = modfacs[2];
@@ -63,13 +63,14 @@ final String[] sourcepathOptions = {
    /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
    /* 15 */"imgs/fruit.jpg"
 };
-final String sourcepath = sourcepathOptions[12];
+final String sourcepath = sourcepathOptions[15];
 final String mazesource = sourcepath;
 // final String mazesource = sourcepathOptions[8];
 
 final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
 final String generator = generatorOptions[2];
 
+// TODO: Implement shift to transition from one image to another
 /* ---------------------------------- ORBIT --------------------------------- */
 final String[] orbits = {"points", "lines"};
 final String orbit = orbits[0];
@@ -82,7 +83,7 @@ final String theme = themes[0];
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
 final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[8];
+final String filter = filterOptions[2];
 
 /* -------------------------------- SET VARS -------------------------------- */
 //                                0                 1      2       3        4
