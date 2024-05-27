@@ -11,7 +11,8 @@ ArcaneGenerator ag;
 
 void setup(){
 	/* WINDOW SETUP */
-	size(1422, 800, P3D);
+	// size(1422, 800, P3D);
+	fullScreen(P3D);
 	surface.setTitle("Arcane Propagations");
 	surface.setResizable(true);
   	// surface.setLocation(18, 0); offset for me because I use Stage Manager on MacOS
