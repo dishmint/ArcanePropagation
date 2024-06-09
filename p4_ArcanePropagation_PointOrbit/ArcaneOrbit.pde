@@ -6,7 +6,7 @@ import java.util.function.*;
 import java.util.Arrays;
 @FunctionalInterface
 public interface ArcaneDraw {
-	void draw(int x, int y, color src, float energy);
+	void draw(PImage img, int x, int y, color src, float energy);
 	}
 
 @FunctionalInterface
@@ -17,10 +17,13 @@ public interface ArcaneDrawXMG {
 class ArcaneOrbit {
 	String shapemode;
 	ArcaneDraw arcorbit;
+	final float pixelRes = 0.50f;
+	// bool disperse = true /* dispersed */
 
 	/* points */
-	ArcaneDraw points = (x, y, src, energy) -> {
+	ArcaneDraw points = (img, x, y, src, energy) -> {
 		color c = src;
+		// This mult of modfac should be implemented with a slider. The look is cool, but it's not faithful to the original image, so should be set by user.
 		if (dispersed) {
 			energy *= modfac;
 			c *= modfac;
@@ -32,7 +35,7 @@ class ArcaneOrbit {
 		// float ang = at.angle;
 		// if (dispersed) {
 		// 	ang *= fmfd;			
-		// }		
+		// }
 		if (at.theme.equals("truth")) {			
 			stroke(c);
 		} else {
@@ -70,12 +73,12 @@ class ArcaneOrbit {
 	};
 	
 	/* lines */
-	ArcaneDraw lines = (x, y, src, energy) -> {
+	ArcaneDraw lines = (img, x, y, src, energy) -> {
 		color c = src;
-		if (dispersed) {
-			energy *= modfac;
-			c *= modfac;
-		}
+		// if (dispersed) {
+		// 	energy *= modfac;
+		// 	c *= modfac;
+		// }
 
 		at.pushEnergyAngle(energy);
 		float ang = at.angle;
@@ -92,6 +95,8 @@ class ArcaneOrbit {
 
 		float px = x + (.5 * cos(ang));
 		float py = y + (.5 * sin(ang));
+
+		strokeWeight(pixelRes);
 
 		if(dispersed){
 			pushMatrix();
@@ -110,7 +115,86 @@ class ArcaneOrbit {
 			popMatrix();
 		}
 	};
+	
+	/* Tlines */
+	ArcaneDraw tlines = (img, x, y, src, energy) -> {
+		color c = src;
+		// if (dispersed) {
+		// 	energy *= modfac;
+		// 	c *= modfac;
+		// }
 
+		at.pushEnergyAngle(energy);
+		float ang = at.angle;
+
+		// float ang = at.angle;
+		// if (dispersed) {
+		// 	ang *= fmfd;			
+		// }		
+		if (at.theme.equals("truth")) {			
+			stroke(c);
+		} else {
+			stroke(at.hue());
+		}
+
+		float px = x + (.5 * cos(ang));
+		float py = y + (.5 * sin(ang));
+
+		strokeWeight(pixelRes);
+
+		int offset = int(kw * 0.5);
+		for (int i = 0; i < kw; i++){
+			for (int j= 0; j < kw; j++){
+				
+				final int xloc = x+i-offset;
+				final int yloc = y+j-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				color cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+				
+				strokeWeight(pixelRes);
+				// if (dispersed) {
+				// 	cpx *= modfac;
+				// }
+
+				if (at.theme.equals("truth")) {			
+					stroke(lerpColor(c, cpx, energy), 255 * .125);
+				} else {
+					stroke(lerpColor(at.hue(), at.outhue(cpx), energy), 255 * .125);
+				}
+
+				if(xloc == x && yloc == y){
+					continue;
+				} else {
+					if(dispersed){
+						pushMatrix();
+						translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
+
+						line(
+							(x + .5) * modfac, (y + .5) * modfac,
+							(xloc + .5) * modfac, (yloc + .5) * modfac
+						);
+						popMatrix();
+					} else {
+						pushMatrix();
+						translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
+						line(
+							(x + (.5)), (y + (.5)),
+							(xloc + (.5)), (yloc + (.5))
+						);
+						popMatrix();
+					}
+				}
+			}
+		}
+	};
+	
 	void setDraw(String fm){
 		switch(fm){
 			case "points":
@@ -118,6 +202,9 @@ class ArcaneOrbit {
 				break;
 			case "lines":
 				arcorbit = lines;
+				break;
+			case "tlines":
+				arcorbit = tlines;
 				break;
 			default:
 				arcorbit = points;
@@ -152,70 +239,13 @@ class ArcaneOrbit {
 				color cpx = smg.pixels[sloc];
 				float energy = computeGS(cpx);
 				pushMatrix();
-				arcorbit.draw(i, j, cpx, energy);
+				arcorbit.draw(smg, i, j, cpx, energy);
 				popMatrix();
 			}
 		}
 		smg.updatePixels();
 	}
 }
-
-
-
-// void showAsPoint(int x, int y, float energy) {
-// 	at.pushEnergyAngle(energy);
-// 	float ang = at.angle;
-
-// 	stroke(at.hue());
-	
-// 	float px = x + (fmfd * cos(ang));
-// 	float py = y + (fmfd * sin(ang));
-
-// 	if(dispersed){
-// 		pushMatrix();
-// 		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-// 		point(
-// 			(px) * modfac,
-// 			(py) * modfac
-// 		);
-// 		popMatrix();
-// 	} else {
-// 		pushMatrix();
-// 		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-// 		point(px,py);
-// 		popMatrix();
-// 	}
-
-// }
-
-// void showAsLine(int x, int y, float energy) {
-// 	at.pushEnergyAngle(energy);
-// 	float ang = at.angle;
-
-// 	stroke(at.hue());
-
-
-// 	float px = x + (.5 * cos(ang));
-// 	float py = y + (.5 * sin(ang));
-
-// 	if(dispersed){
-// 		pushMatrix();
-// 		translate((width * 0.5)-(modfac*(dximg.pixelWidth * 0.5)),(height * 0.5)-(modfac*(dximg.pixelHeight * 0.5)));
-// 		line(
-// 			x  * modfac,
-// 			y  * modfac,
-// 			(px) * modfac,
-// 			(py) * modfac
-// 		);
-// 		popMatrix();
-// 	} else {
-// 		pushMatrix();
-// 		translate((width * 0.5)-(simg.pixelWidth * 0.5),(height * 0.5)-(simg.pixelHeight * 0.5));
-// 		line(x, y, px, py);
-// 		popMatrix();
-// 	}
-
-// }
 
 // void showTLines(PImage img, int x, int y, float energy) {
 

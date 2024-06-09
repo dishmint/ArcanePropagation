@@ -51,16 +51,16 @@ class ArcaneFilter {
 				float xmsn = (xmg[loc][k][l] * transmissionfactor);
 
 				if(xloc == x && yloc == y){
-							rpx -= xmsn;
-							gpx -= xmsn;
-							bpx -= xmsn;
-					} else {
-							rpx += xmsn;
-							gpx += xmsn;
-							bpx += xmsn;
-					}
+					rpx -= xmsn;
+					gpx -= xmsn;
+					bpx -= xmsn;
+				} else {
+					rpx += xmsn;
+					gpx += xmsn;
+					bpx += xmsn;
 				}
 			}
+		}
 		img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
 	};
 

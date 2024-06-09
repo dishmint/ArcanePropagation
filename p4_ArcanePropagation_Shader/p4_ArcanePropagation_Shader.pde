@@ -9,6 +9,8 @@ Expr imgclusters;
 PShader blueline;
 PGraphics pg;
 
+ArcaneGenerator ag;
+
 PImage simg,dimg;
 float[][][] xmg;
 int downsample,modfac,dmfac;
@@ -16,7 +18,102 @@ int kwidth = 3;
 int drawswitch = 0;
 float scalefac,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
-boolean dispersed, hav, klinkQ;
+/* ------------------------------ IMAGE SOURCE ------------------------------ */
+final String[] sourcepathOptions = {
+	/* 0 */"imgs/nasa.jpg", 
+	/* 1 */"imgs/face.png", 
+	/* 2 */"imgs/buildings.jpg", 
+	/* 3 */"imgs/mwrTn-pixelmaze.gif", 
+	/* 4 */"imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg",
+	/* 5 */"imgs/buff_skate.JPG",
+	/* 6 */"imgs/universe.jpg",
+	/* 7 */"imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg",
+	/* 8 */"imgs/planetsAbstract.jpg",
+	/* 9 */"imgs/enter.jpg",
+   /* 10 */"imgs/sign1.jpg",
+   /* 11 */"imgs/p5sketch1.jpg",
+   /* 12 */"imgs/mountains_1.jpg",
+   /* 13 */"imgs/clouds.jpg",
+   /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
+   /* 15 */"imgs/fruit.jpg",
+   /* 16 */"imgs/abstract_1.PNG",
+   /* 17 */"imgs/abstract_2.PNG",
+   /* 18 */"imgs/fruit.jpg",
+   /* 19 */"imgs/abstract_3.PNG",
+   /* 20 */"imgs/abstract_4.JPG",
+   /* 21 */"imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg",
+   /* 22 */"imgs/fzn_dishmint.JPG",
+   /* 23 */"imgs/fezHassan.JPG",
+   /* 24 */"imgs/roc_flour.jpg",
+   /* 25 */"imgs/shio-yang-b6i9pe16pAg-unsplash.jpg",
+   /* 26 */"imgs/binarized_moon.png",
+   /* 27 */"imgs/binarized_moon_inverted.png",
+   /* 28 */"imgs/nestedsquare.png",
+   /* 29 */"imgs/ArcaneTest/block-6.png",
+   /* 30 */"imgs/ArcaneTest/patchwork-51.png",
+   /* 31 */"imgs/ArcaneTest/patchwork-51-image.png",
+   /* 32 */"imgs/ArcaneTest/patchwork-1080-image.png",
+   /* 33 */"imgs/ArcaneTest/center-50.png",
+   /* 34 */"imgs/ArcaneTest/center-1080.png"
+};
+
+final String sourcepath = sourcepathOptions[29];
+final String mazesource = sourcepath;
+// final String mazesource = sourcepathOptions[8];
+
+final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
+final String generator = generatorOptions[2];
+
+
+/* --------------------------------- THEMES --------------------------------- */
+// THEMES
+final int RED = 1;
+final int BLUE = 2;
+final int GREEN = 3;
+final int YELLOW = 4;
+final int RBLUE = 5;
+final int YELLOWBRICK = 6;
+final int GRED = 7;
+final int STARRYNIGHT = 8;
+final int EMBER = 9;
+final int BLOODRED = 10;
+final int GUNDAM = 11;
+final int MOONLIGHT = 12;
+
+// ALPHAS
+final int ALPHA1 = 1;
+final int ALPHAC = 2;
+final int ALPHAY = 3;
+
+// GRADERS
+final int GRADE   = 1;
+final int NOGRADE = 2;
+final int SOURCE  = 3;
+
+// GEOQ
+final int GEO   = 1;
+final int NOGEO = 2;
+
+//                     0     1     2       3      4         5         6        7         8       9        10       11
+final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
+final int theme = themes[4];
+
+/* --------------------------------- ALPHAS --------------------------------- */
+final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
+final int alpha = alphas[2];
+
+/* --------------------------------- GRADES --------------------------------- */
+final int[] grades = {GRADE, NOGRADE, SOURCE};
+final int grade = grades[0];
+final int[] geos = {GEO, NOGEO};
+final int geoq = geos[0];
+
+final boolean dispersed = false;
+boolean hav, klinkQ;
+
+//                               0    1   2   3   4   5   6   7  8  9 10
+final int[] framerateOptions = {120, 90, 75, 60, 48, 30, 24, 12, 6, 3, 1};
+final int framerate = framerateOptions[0];
 
 // CellularAutomaton variables
 int rule, k, r1, r2;
@@ -36,52 +133,11 @@ void setup(){
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
-	
-	// simg = loadImage("./imgs/buff_skate.JPG");
-	// simg = loadImage("./imgs/face.png");
-	// simg = loadImage("./imgs/p5sketch1.jpg");
-	// simg = loadImage("./imgs/abstract_1.PNG");
-	// simg = loadImage("./imgs/abstract_2.PNG");
-	// simg = loadImage("./imgs/fruit.jpg");
-	// simg = loadImage("./imgs/abstract_3.PNG");
-	// simg = loadImage("./imgs/abstract_4.JPG");
-	// simg = loadImage("./imgs/andrea-leopardi-5qhwt_Lula4-unsplash.jpg");
-	// simg = loadImage("./imgs/fzn_dishmint.JPG");
-	// simg = loadImage("./imgs/fezHassan.JPG");
-	// simg = loadImage("./imgs/enter.jpg");
-	// simg = loadImage("./imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg");
-	
-	// simg = loadImage("./imgs/roc_flour.jpg");
-	// simg = loadImage("./imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg");
-	// simg = loadImage("./imgs/shio-yang-b6i9pe16pAg-unsplash.jpg");
-	// simg = loadImage("./imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg");
-	// simg = loadImage("./imgs/universe.jpg" ) ;
-	
-	// simg = loadImage("./imgs/buildings.jpg");
-	// simg = loadImage("./imgs/clouds.jpg");
-	// simg = loadImage("./imgs/nasa.jpg");
-	simg = loadImage("./imgs/mwrTn-pixelmaze.gif");
-	// simg = loadImage("./imgs/binarized_moon.png");
-	// simg = loadImage("./imgs/binarized_moon_inverted.png");
-	// simg = loadImage("./imgs/nestedsquare.png");
-	// simg = loadImage("./imgs/mountains_1.jpg");
-	// simg = randomImage(width, height);
-	// simg = randomImage(width/32, height/32);
-	// simg = randomImage(width/4, height/4);
-	// simg = noiseImage(width/16, height/16, 3, .6);
-	// simg = noiseImage(height/16, height/16, 3, .6);
-	// simg = noiseImage(height/32, height/32, 3, .6);
-	// simg = noiseImage(height/32, height/64, 3, .6);
-	// simg = noiseImage(width/32, height/64, 3, .6);
-	// simg = noiseImage(width/64, height/32, 3, .6);
-	// simg = kuficImage(width, height);
-	// simg = kuficImage(width/16, height/16);
-	// simg = kuficImage(width/16, height/32);
-	// simg = kuficImage(width/32, height/32);
-	// simg = kuficImage(width/64, height/64);
-	// simg = kuficImage(width/5, height/5);
-	
-	// mazeImage(simg);
+	background(0);
+	frameRate(framerate);
+
+	simg = loadImage(sourcepath);
+	// simg = genImage(generator);
 	
 	// simg.filter(GRAY);
 	// simg.filter(POSTERIZE, 4);
@@ -167,8 +223,6 @@ void setup(){
 	hav = true;
 	xmg = loadxm(simg, kwidth);
 	
-	dispersed = true;
-
 	displayscale = 1.0 /* * 0.5 */;
 
 	
@@ -179,7 +233,7 @@ void setup(){
 	pg.noSmooth();
 	
 	blueline = loadShader("blueline.glsl");
-	float resu = 100.;
+	float resu = 1000.;
 	blueline.set("resolution", resu*float(pg.pixelWidth), resu*float(pg.pixelHeight));
 	blueline.set("displayscale", (1.0/displayDensity()));
 	
@@ -196,23 +250,24 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	blueline.set("rfac", 0.0);
+	// blueline.set("rfac", 0.0);
+	blueline.set("rfac", 0.5);
 	// blueline.set("rfac", 1.00000);
 	// blueline.set("rfac", 1.015625); /* default */
 	// blueline.set("rfac", 1.0625);
 	// blueline.set("rfac", 1.25);
 	// blueline.set("rfac", 1.300000);
 	
+	blueline.set("geoq", geoq);
+	blueline.set("theme", theme);
+	blueline.set("alpha", alpha);
+	blueline.set("grader", grade);
+
 	if(dispersed){
 		useDispersed(modfac);
 	} else {
 		useOriginal();
 	}
-	
-	// frameRate(1.);
-	// frameRate(6.);
-	// noLoop();
-	background(0);
 	
 	klinkQ = false;
 	if(klinkQ){
@@ -262,6 +317,32 @@ void setup(){
 	}
 }
 
+PImage genImage(String generator){
+	int noisew = int(0.0625 *  width);
+	int noiseh = int(0.0625 * height);
+	switch (generator) {
+		case "random":
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+		case "kufic":
+			ag = new ArcaneGenerator("kufic", noisew, noiseh);
+			break;
+		case "maze":
+			final PImage mimg = loadImage(mazesource);
+			ag = new ArcaneGenerator("maze", noisew, noiseh);
+			ag.setMazeSource(mimg);
+			break;
+		case "noise":
+			ag = new ArcaneGenerator("noise", noisew, noiseh);
+			ag.setLod(3); ag.setFalloff(0.6f);
+			break;
+		default:
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+	}
+	return ag.getImage(); 
+}
+
 void draw(){
 	selectDraw("convolve");
 	// selectDraw("transmit");
@@ -271,6 +352,16 @@ void draw(){
 	// selectDraw("CA");
 	// selectDraw("blur");
 	// selectDraw("dilate");
+
+	showFrameRate();
+}
+
+void showFrameRate(){
+	pushMatrix();
+	final String fr = "fps: " + str(frameRate);
+	stroke(255);
+	text(fr, 25,25);
+	popMatrix();
 }
 
 void selectDraw(String selector){

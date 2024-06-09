@@ -22,7 +22,7 @@ ArcaneGenerator ag;
 /* ------------------------------ KERNELSCALES ------------------------------ */
 //                           0      1      2      3      4       5       6         7         8           9
 final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
-final float kernelScale = ksOptions[4];
+final float kernelScale = ksOptions[0];
 // final float kernelScale = 5.0;
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
@@ -32,7 +32,7 @@ final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.
 final float downsample = downsampleOptions[0];
 final boolean dispersed = true;
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
-final int modfac = modfacs[2];
+final int modfac = modfacs[1];
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
@@ -57,7 +57,7 @@ final String[] sourcepathOptions = {
    /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
    /* 15 */"imgs/fruit.jpg"
 };
-final String sourcepath = sourcepathOptions[12];
+final String sourcepath = sourcepathOptions[3];
 final String mazesource = sourcepath;
 
 // convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
@@ -88,7 +88,7 @@ final int SOURCE  = 3;
 
 //                     0     1     2       3      4         5         6        7         8       9        10       11
 final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
-final int theme = themes[11];
+final int theme = themes[4];
 
 /* --------------------------------- ALPHAS --------------------------------- */
 final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
@@ -96,7 +96,7 @@ final int alpha = alphas[0];
 
 /* --------------------------------- GRADES --------------------------------- */
 final int[] grades = {GRADE, NOGRADE, SOURCE};
-final int grade = grades[2];
+final int grade = grades[0];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
@@ -132,7 +132,7 @@ void setup(){
 	
 	simg = loadImage(sourcepath); 
 	// simg = genImage(generator); 
-	// simg.filter(GRAY);
+	simg.filter(GRAY);
 
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */

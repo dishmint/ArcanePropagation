@@ -33,10 +33,11 @@ final float kernelScale = ksOptions[4];
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
-//                                   0       1      2      3      4      5      6
-final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.00f};
-final float downsample = downsampleOptions[6];
+//                                   0       1      2      3      4      5      6     7      8
+final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 4.50f, 5.0f, 6.00f};
+final float downsample = downsampleOptions[3];
 final boolean dispersed = true;
+// 					   0  1  2  3  4  5  6  7
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
 final int modfac = modfacs[2];
 
@@ -61,9 +62,15 @@ final String[] sourcepathOptions = {
    /* 12 */"imgs/mountains_1.jpg",
    /* 13 */"imgs/clouds.jpg",
    /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
-   /* 15 */"imgs/fruit.jpg"
+   /* 15 */"imgs/fruit.jpg",
+   /* 16 */"imgs/ArcaneTest/block-6.png",
+   /* 17 */"imgs/ArcaneTest/patchwork-51.png",
+   /* 18 */"imgs/ArcaneTest/patchwork-51-image.png",
+   /* 19 */"imgs/ArcaneTest/patchwork-1080-image.png",
+   /* 20 */"imgs/ArcaneTest/center-50.png",
+   /* 21 */"imgs/ArcaneTest/center-1080.png"
 };
-final String sourcepath = sourcepathOptions[15];
+final String sourcepath = sourcepathOptions[12];
 final String mazesource = sourcepath;
 // final String mazesource = sourcepathOptions[8];
 
@@ -72,13 +79,14 @@ final String generator = generatorOptions[2];
 
 // TODO: Implement shift to transition from one image to another
 /* ---------------------------------- ORBIT --------------------------------- */
-final String[] orbits = {"points", "lines"};
+// 							 0        1         2
+final String[] orbits = {"points", "lines", "tlines"};
 final String orbit = orbits[0];
 
 /* --------------------------------- THEMES --------------------------------- */
 //                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
 final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[0];
+final String theme = themes[8];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
@@ -86,10 +94,13 @@ final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", 
 final String filter = filterOptions[2];
 
 /* -------------------------------- SET VARS -------------------------------- */
-//                                0                 1      2       3        4
-final float[] xfacs = {1.0f/pow(float(kw), 2.0), 1.0f/kw, kw, kernelScale, 1.0};
+final float DKW   = 1.0f/float(kw);
+final float DKWSQ = 1.0f/float(kwsq);
+//                       0     1    2       3        4
+final float[] xfacs = {DKWSQ, DKW, kw, kernelScale, 1.0};
 final float xfac = xfacs[0];
 
+// colordiv                           0            1           2      3     4     5
 final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f, 3.0f };
 final float colordiv = colordivOptions[0];
 
@@ -342,4 +353,16 @@ void setDispersedImage(PImage source, PImage di) {
 		}
 	source.updatePixels();
 	di.updatePixels();
+}
+
+void exit(){
+	// https://stackoverflow.com/a/28693343/12317788
+	println("");
+	println("Exiting...");
+	println("");
+	println("ArcaneSettings:");
+	println("kw " + kw );
+	println("ks " + kernelScale );
+	
+	super.exit();//let processing carry with it's regular exit routine
 }

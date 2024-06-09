@@ -18,7 +18,7 @@ class ArcaneTheme {
 	color px;
 
 	ArcaneHue white = (thetafactor) -> {
-		return color(255.0);
+		return color(255.0 * thetafactor) ;
 	};
 
 	ArcaneHue red = (thetafactor) -> {
@@ -57,9 +57,11 @@ class ArcaneTheme {
 	ArcaneHue rblue = (thetafactor) -> {
 		// PVector vec3 = new PVector(thetafactor*215.0, 255.-(abs(lerp(-1.0,1.0,thetafactor)) * 255.0), 255.0-(abs(lerp(-1.0,1.0,thetafactor))*200.0));
 		float r = thetafactor*215.0;
-		float g = (1.0 - abs(lerp(-1.0, 1.0, thetafactor))) * 255.0;
+		// float g = (1.0 - abs(lerp(-1.0, 1.0, thetafactor))) * 255.0;
+		float g = (1.0 - abs(lerp(0.0, 1.0, thetafactor))) * 255.0;
 		// float b = 255.0 - abs(lerp(-200.0, 200.0, thetafactor));
-		float b = (1.0 - (abs(lerp(-1.0, 1.0, thetafactor))*(200.0 * CFAC))) * 255.0;
+		// float b = (1.0 - (abs(lerp(-1.0, 1.0, thetafactor))*(200.0 * CFAC))) * 255.0;
+		float b = (1.0 - (abs(lerp(0.0, 1.0, thetafactor))*(200.0 * CFAC))) * 255.0;
 
 		return color(r, g, b);
 	};
@@ -216,6 +218,15 @@ class ArcaneTheme {
 		// float tf = (angle * DTAU) + 1.0;
 		//^ 0 ~ 2
 		float tf = ((angle * DTAU) + 1.0) * 0.5;
+		//^ 0 ~ 1
+		return ahue.archue(tf);
+	}
+
+	color outhue(color c) {
+		final float outenergy = getEnergy(c);
+		final float outangle  = lerp(-TAU, TAU, outenergy);
+
+		final float tf = ((outangle * DTAU) + 1.0) * 0.5;
 		//^ 0 ~ 1
 		return ahue.archue(tf);
 	}
