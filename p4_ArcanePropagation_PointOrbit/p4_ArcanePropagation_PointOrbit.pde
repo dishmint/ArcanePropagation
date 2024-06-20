@@ -21,6 +21,7 @@ ArcaneOrbit ao;
 /* -------------------------------------------------------------------------- */
 
 /* ------------------------------ KERNELWIDTHS ------------------------------ */
+//                 0  1  2  3  4  5  6  7
 int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
 final int kw = kwOptions[2];
 final int kwsq = (int)(pow(kw, 2));
@@ -28,18 +29,18 @@ final int kwsq = (int)(pow(kw, 2));
 /* ------------------------------ KERNELSCALES ------------------------------ */
 //                           0      1      2      3      4       5       6         7         8           9
 final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
-final float kernelScale = ksOptions[4];
+final float kernelScale = ksOptions[0];
 // final float kernelScale = 5.0;
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
 //                                   0       1      2      3      4      5      6     7      8
 final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 4.50f, 5.0f, 6.00f};
-final float downsample = downsampleOptions[3];
-final boolean dispersed = true;
+final float downsample = downsampleOptions[4];
+final boolean dispersed = false;
 // 					   0  1  2  3  4  5  6  7
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
-final int modfac = modfacs[2];
+final int modfac = modfacs[1];
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
@@ -70,7 +71,8 @@ final String[] sourcepathOptions = {
    /* 20 */"imgs/ArcaneTest/center-50.png",
    /* 21 */"imgs/ArcaneTest/center-1080.png"
 };
-final String sourcepath = sourcepathOptions[12];
+
+final String sourcepath = sourcepathOptions[5];
 final String mazesource = sourcepath;
 // final String mazesource = sourcepathOptions[8];
 
@@ -86,7 +88,7 @@ final String orbit = orbits[0];
 /* --------------------------------- THEMES --------------------------------- */
 //                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
 final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[8];
+final String theme = themes[13];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
@@ -114,12 +116,15 @@ void setup(){
 	/*                               Sketch Settings                              */
 	/* -------------------------------------------------------------------------- */
 	// size(1422, 800, P2D);
+	size(500, 281, FX2D);
+	// size(711, 400, FX2D);
 	// size(1422, 800, FX2D);
-	fullScreen(FX2D);
+	// fullScreen(FX2D);
 	// fullScreen(P2D);
 
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
+	// noCursor();
 	imageMode(CENTER);
 	background(0);
 	frameRate(framerate);
