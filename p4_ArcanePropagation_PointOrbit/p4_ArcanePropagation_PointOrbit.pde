@@ -37,7 +37,7 @@ final float kernelScale = ksOptions[0];
 //                                   0       1      2      3      4      5      6     7      8
 final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 4.50f, 5.0f, 6.00f};
 final float downsample = downsampleOptions[4];
-final boolean dispersed = false;
+final boolean dispersed = true;
 // 					   0  1  2  3  4  5  6  7
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
 final int modfac = modfacs[1];
@@ -72,7 +72,7 @@ final String[] sourcepathOptions = {
    /* 21 */"imgs/ArcaneTest/center-1080.png"
 };
 
-final String sourcepath = sourcepathOptions[5];
+final String sourcepath = sourcepathOptions[6];
 final String mazesource = sourcepath;
 // final String mazesource = sourcepathOptions[8];
 
@@ -88,7 +88,7 @@ final String orbit = orbits[0];
 /* --------------------------------- THEMES --------------------------------- */
 //                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
 final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[13];
+final String theme = themes[9];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
@@ -116,8 +116,8 @@ void setup(){
 	/*                               Sketch Settings                              */
 	/* -------------------------------------------------------------------------- */
 	// size(1422, 800, P2D);
-	size(500, 281, FX2D);
-	// size(711, 400, FX2D);
+	// size(500, 281, FX2D);
+	size(711, 400, FX2D);
 	// size(1422, 800, FX2D);
 	// fullScreen(FX2D);
 	// fullScreen(P2D);
