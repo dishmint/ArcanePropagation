@@ -36,7 +36,7 @@ final float kernelScale = ksOptions[0];
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
 //                                   0       1      2      3      4      5      6     7      8
 final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 4.50f, 5.0f, 6.00f};
-final float downsample = downsampleOptions[4];
+final float downsample = downsampleOptions[6];
 final boolean dispersed = true;
 // 					   0  1  2  3  4  5  6  7
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -88,12 +88,12 @@ final String orbit = orbits[0];
 /* --------------------------------- THEMES --------------------------------- */
 //                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
 final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[9];
+final String theme = themes[0];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
 final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[2];
+final String filter = filterOptions[1];
 
 /* -------------------------------- SET VARS -------------------------------- */
 final float DKW   = 1.0f/float(kw);
