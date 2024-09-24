@@ -5,15 +5,119 @@ PGraphics pg;
 
 PImage simg,dimg;
 float[][][] xmg;
-int downsample,modfac,dmfac;
-int kwidth = 3; /* 3|5 */
-int drawswitch = 0;
-float kernelScale,xsmnfactor,chance,displayscale,sw,sh,scale,gsd;
 
-boolean dispersed, hav;
+/* ------------------------------ KERNELWIDTHS ------------------------------ */
+int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
+final int kw = kwOptions[2];
+final int kwsq = (int)(pow(kw, 2));
+
+int drawswitch = 0;
+float chance;
+
+boolean hav;
 
 ArcaneFilter af;
 ArcaneGenerator ag;
+
+/* ------------------------------ KERNELSCALES ------------------------------ */
+//                           0      1      2      3      4       5       6         7         8           9
+final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
+final float kernelScale = ksOptions[0];
+// final float kernelScale = 5.0;
+
+/* ------------------------------- DOWNSAMPLES ------------------------------ */
+/* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
+//                                   0       1      2      3      4      5      6
+final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.00f};
+final float downsample = downsampleOptions[0];
+final boolean dispersed = true;
+final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
+final int modfac = modfacs[1];
+
+final int mfd = 4;
+final float	dmfd = modfac/mfd;
+final float	fmfd = 1.0/modfac;
+
+/* ------------------------------ IMAGE SOURCE ------------------------------ */
+final String[] sourcepathOptions = {
+	/* 0 */"imgs/nasa.jpg", 
+	/* 1 */"imgs/face.png", 
+	/* 2 */"imgs/buildings.jpg", 
+	/* 3 */"imgs/mwrTn-pixelmaze.gif", 
+	/* 4 */"imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg",
+	/* 5 */"imgs/buff_skate.JPG",
+	/* 6 */"imgs/universe.jpg",
+	/* 7 */"imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg",
+	/* 8 */"imgs/planetsAbstract.jpg",
+	/* 9 */"imgs/enter.jpg",
+   /* 10 */"imgs/sign1.jpg",
+   /* 11 */"imgs/p5sketch1.jpg",
+   /* 12 */"imgs/mountains_1.jpg",
+   /* 13 */"imgs/clouds.jpg",
+   /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
+   /* 15 */"imgs/fruit.jpg"
+};
+final String sourcepath = sourcepathOptions[3];
+final String mazesource = sourcepath;
+
+// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
+/* --------------------------------- THEMES --------------------------------- */
+// THEMES
+final int RED = 1;
+final int BLUE = 2;
+final int GREEN = 3;
+final int YELLOW = 4;
+final int RBLUE = 5;
+final int YELLOWBRICK = 6;
+final int GRED = 7;
+final int STARRYNIGHT = 8;
+final int EMBER = 9;
+final int BLOODRED = 10;
+final int GUNDAM = 11;
+final int MOONLIGHT = 12;
+
+// ALPHAS
+final int ALPHA1 = 1;
+final int ALPHAC = 2;
+final int ALPHAY = 3;
+
+// GRADERS
+final int GRADE   = 1;
+final int NOGRADE = 2;
+final int SOURCE  = 3;
+
+//                     0     1     2       3      4         5         6        7         8       9        10       11
+final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
+final int theme = themes[4];
+
+/* --------------------------------- ALPHAS --------------------------------- */
+final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
+final int alpha = alphas[0];
+
+/* --------------------------------- GRADES --------------------------------- */
+final int[] grades = {GRADE, NOGRADE, SOURCE};
+final int grade = grades[0];
+
+/* --------------------------------- FILTERS -------------------------------- */
+//                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
+final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
+final String filter = filterOptions[3];
+
+/* -------------------------------- SET VARS -------------------------------- */
+//                                0                 1      2       3        4
+final float[] xfacs = {1.0f/pow(float(kw), 2.0), 1.0f/kw, kw, kernelScale, 1.0};
+final float xfac = xfacs[0];
+
+final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f, 3.0f };
+final float colordiv = colordivOptions[0];
+
+final float D4 = 0.25;
+//                               0    1   2   3   4   5   6   7  8  9
+final int[] framerateOptions = {120, 90, 75, 60, 48, 30, 24, 12, 6, 1};
+final int framerate = framerateOptions[0];
+
+final float displayscale = 1.0;
+final float resolutionScale = 1000.00f;
 
 void setup(){
 	size(1422,800, P3D);
@@ -26,113 +130,35 @@ void setup(){
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
 	
-	/* ------------------------------- image files ------------------------------ */
-	// simg = loadImage("./imgs/mwrTn-pixelmaze.gif"); /* mwrTn-pixelmaze.gif | excited_shaq.gif | willem-dafoe-insane.gif */
-	simg = loadImage("./imgs/nasa.jpg"); /* universe.jpg */ 
-	/* 
-		No interesting movement with universe.jpg, maybe because it's not a gif? 
-		doesn't seem to be the case. Maybe because there's less information? like only two colors?
-	*/
-	
-	/* ---------------------------- image generators ---------------------------- */
-	// int noisew = int(0.0625 *  width);
-	// int noiseh = int(0.0625 * height);
-	// Random Noise
-	// ag = new ArcaneGenerator("random", noisew, noiseh);
-	
-	// Kufic Noise
-	// ag = new ArcaneGenerator("kufic", noisew, noiseh);
-	
-	// Maze Noise
-	// ag = new ArcaneGenerator("maze", noisew, noiseh);
-	// PImage mimg = loadImage("./imgs/universe.jpg");
-	// ag.setMazeSource(mimg);
-
-	// Noise
-	// ag = new ArcaneGenerator("noise", noisew, noiseh);
-	// ag.setLod(3); ag.setFalloff(0.6f);
-		
-	/* -------------------------------- get image ------------------------------- */
-	// simg = ag.getImage(); 
-		
-	// simg.filter(GRAY);
-	// simg.filter(POSTERIZE, 4);
-	// simg.filter(BLUR, 2);
-	// simg.filter(DILATE);
-	// simg.filter(ERODE);
-	// simg.filter(INVERT);
-	// simg.filter(THRESHOLD, .8);
-
+	simg = loadImage(sourcepath); 
+	// simg = genImage(generator); 
+	simg.filter(GRAY);
 
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */
 	/* -------------------------------------------------------------------------- */
-	
-	
-	dmfac = 1;
-	downsample = modfac = dmfac;
-	// downsample = 1;
-	// modfac = 5;
-	
+		
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
-	float sw = (float)simg.width;
-	float sh = (float)simg.height;
-	float scale = min(width/sw, height/sh);
+	final float sw = (float)simg.width;
+	final float sh = (float)simg.height;
+	final float scale = min(width/sw, height/sh);
 	
-	int nw = Math.round(sw*scale);
-	int nh = Math.round(sh*scale);
+	final int nw = Math.round(sw*scale/downsample);
+	final int nh = Math.round(sh*scale/downsample);
 	simg.resize(nw, nh);
-	
-	// sf ~~ rate of decay
-	// float sf = 1.0f/25.0f; /* 25.0f | 255.0f */
-	// kernelScale = 255. * sf;
-	
-	// kernelScale = 1.0f;
-	// kernelScale = 10.0f;
-	// kernelScale = 100.0f;
-	// kernelScale = 1000.0f;
 
-	/* scales the values of the kernel (-1.0~1.0) * kernelScale  */
-	// kernelScale = 1.0f / 255.0f;
-	kernelScale = 1.000f;
-	// kernelScale = 0.098f;
-	// kernelScale = 0.980f;
-	// kernelScale = 0.500f;
-	// kernelScale = 0.330f;
-	// kernelScale = PI;
-	// kernelScale = 2.0f * PI;
-	
-	// Determine the leak-rate (transmission factor) of each pixel
-	// xsmnfactor = 1.0f;
-	// xsmnfactor = 1.0f/pow(kwidth,0.5);
-	// xsmnfactor = 1.0f/pow(kwidth,1.5);
-	// xsmnfactor = 1.0f/pow(kwidth - 1,3.);
-	xsmnfactor = 1.0f/pow(kwidth, 2.); /* default */
-	// xsmnfactor = 1.0f/pow(kwidth,3.);
-	// xsmnfactor = 1.0f/pow(kwidth,4.);
-	// xsmnfactor = 1.0f/pow(kwidth,6.);
-	// xsmnfactor = kernelScale; /* makes transmission some value between 0 and 1*/
-	
 	/*
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
-	gsd = 1.0f/255.0f; /* 1.0f/ 765.0f | 255.0f | 9.0f | 85.0f | 3.0f */
 	hav = true;
-	xmg = loadxm(simg, kwidth);
-	
-	dispersed = false;
-	displayscale = 1.0;
-	// displayscale = 0.5;
+	xmg = loadxm(simg, kw);
 	
 	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
-	// pg = createGraphics(5000,5000, P2D);
 	pg = createGraphics(2*simg.width,2*simg.height, P2D);
-	// pg = createGraphics(10000,10000, P2D);
 	pg.noSmooth();
 	
 	blueline = loadShader("blueline.glsl");
-	float resu = 1000.;
-	blueline.set("resolution", resu*float(pg.width), resu*float(pg.height));
+	blueline.set("resolution", resolutionScale*float(pg.width), resolutionScale*float(pg.height));
 	
 	// the unitsize determines the dimensions of a pixels for the shader
 	blueline.set("unitsize", 1.00);
@@ -151,6 +177,10 @@ void setup(){
 	blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 0.50);
 	// blueline.set("rfac", 1.0);
+
+	blueline.set("theme", theme);
+	blueline.set("alpha", alpha);
+	blueline.set("grader", grade);
 	
 	if(dispersed){
 		useDispersed(modfac);
@@ -160,8 +190,7 @@ void setup(){
 
 	background(0);
 
-	// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
-	af = new ArcaneFilter("amble", kwidth, xsmnfactor);
+	af = new ArcaneFilter(filter, kw, xfac);
 }
 
 void draw(){
@@ -169,6 +198,15 @@ void draw(){
 	background(0);
 	pgDraw();
 	shaderDraw();
+	showFrameRate();
+}
+
+void showFrameRate(){
+	pushMatrix();
+	final String fr = "fps: " + str(frameRate);
+	stroke(255);
+	text(fr, 25,25);
+	popMatrix();
 }
 
 void shaderDraw(){
@@ -215,12 +253,12 @@ void switchdrawTotal(int mod, int smearSelector){
 void useDispersed(int factor){
 	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
 	
-	float sw = (float)dimg.width;
-	float sh = (float)dimg.height;
-	float scale = min(width/sw, height/sh);
+	final float sw = (float)dimg.width;
+	final float sh = (float)dimg.height;
+	final float scale = min(width/sw, height/sh);
 	
-	int nw = Math.round(sw*scale);
-	int nh = Math.round(sh*scale);
+	final int nw = Math.round(sw*scale);
+	final int nh = Math.round(sh*scale);
 	dimg.resize(nw, nh);
 	
 	setDispersedImage(simg, dimg);
@@ -243,9 +281,9 @@ void drawOriginal(){
 }
 
 float computeGS(color px){
-	float rpx = px >> 16 & 0xFF;
-	float gpx = px >> 8 & 0xFF;
-	float bpx = px & 0xFF;
+	final float rpx = px >> 16 & 0xFF;
+	final float gpx = px >> 8 & 0xFF;
+	final float bpx = px & 0xFF;
 	
 	float gs = 1.;
 	if(hav){
@@ -254,10 +292,10 @@ float computeGS(color px){
 			0.2989 * rpx +
 			0.5870 * gpx +
 			0.1140 * bpx
-			) * gsd;
+			) * colordiv;
 	} else {
 		// channel average
-		gs = (rpx + gpx + bpx) * gsd;
+		gs = (rpx + gpx + bpx) * colordiv;
 	}
 	return gs;
 }
@@ -378,4 +416,30 @@ void setDispersedImage(PImage source, PImage di) {
 		}
 	source.updatePixels();
 	di.updatePixels();
+}
+
+PImage genImage(String generator){
+	int noisew = int(0.0625 *  width);
+	int noiseh = int(0.0625 * height);
+	switch (generator) {
+		case "random":
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+		case "kufic":
+			ag = new ArcaneGenerator("kufic", noisew, noiseh);
+			break;
+		case "maze":
+			final PImage mimg = loadImage(mazesource);
+			ag = new ArcaneGenerator("maze", noisew, noiseh);
+			ag.setMazeSource(mimg);
+			break;
+		case "noise":
+			ag = new ArcaneGenerator("noise", noisew, noiseh);
+			ag.setLod(3); ag.setFalloff(0.6f);
+			break;
+		default:
+			ag = new ArcaneGenerator("random", noisew, noiseh);
+			break;
+	}
+	return ag.getImage(); 
 }

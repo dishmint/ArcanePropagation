@@ -15,6 +15,11 @@ uniform float unitsize;
 
 uniform float displayscale;
 
+uniform int theme;
+uniform int grader;
+uniform int alpha;
+uniform int geoq;
+
 float energy, angle = 0;
 float pxos,clip,ec;
 
@@ -22,8 +27,13 @@ vec2 radius, thickness, pixel;
 
 vec4 color,grade;
 
-#define TAU 6.2831853071
-#define QTAU TAU * 0.25
+#define D4 0.250000000000000
+#define D9 0.111111111111111
+
+#define TAU			6.283185307179586
+#define HTAU		TAU * 0.5
+#define QTAU		TAU * D4
+#define DTAU 0.159155
 
 // https://gist.github.com/companje/29408948f1e8be54dd5733a74ca49bb9
 float map(float value, float min1, float max1, float min2, float max2) {
@@ -104,36 +114,58 @@ void pushgeo(int selector, vec2 uv){
 #define rblue  5
 #define yellowbrick 6
 #define gred 7
+#define starrynight 8
+#define ember 9
+#define bloodred 10
+#define gundam 11
+#define moonlight 12
+
+#define GRADE   1
+#define NOGRADE 2
+#define SOURCE  3
 
 vec3 makebase(int selector){
 	vec3 b;
 	switch(selector)
 	{
 		case red:
-			b = vec3(1.0,0.0,0.0)*(angle/(TAU));
+			b = vec3(1.0,0.0,0.0)*(angle * DTAU);
 			break;
 		case blue:
-			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle/(TAU));
+			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle * DTAU);
 			break;
 		case green:
-			b = vec3(0.101961, 0.145098, 0.117647)*(angle/(TAU));
+			b = vec3(0.101961, 0.145098, 0.117647)*(angle * DTAU);
 			break;
 		case yellow:
-			b = vec3(1., 1., 0.0)*(angle/(TAU));
+			b = vec3(1., 1., 0.0)*(angle * DTAU);
 			break;
 		case yellowbrick:
-		// b = mix(vec3(1., .84, 0.), vec3(.22, .06, 0.), (angle/(TAU)));
-			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle/(TAU)));
+			b = mix(vec3(.22, .06, 0.), vec3(1., .84, 0.), (angle * DTAU));
 			break;
 		case rblue:
-			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = vec3((angle * DTAU)*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
 			break;
 		case gred:
-		// b = mix(vec3(0.07, .42, 0.1), vec3(1., .16, 0.22), (angle/(TAU)));
-			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle/(TAU)));
+			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle * DTAU));
+			break;
+		case starrynight:
+			b = mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), (angle * DTAU));
+			break;
+		case ember:
+			b = mix(vec3(0.18, 0.28, 0.35), vec3(0.95, .39, 0.1), (angle * DTAU));
+			break;
+		case bloodred:
+			b = mix(vec3(0.34, 0.0, 0.0), vec3(0.99, 1.0, 1.0), (angle * DTAU));
+			break;
+		case gundam:
+			b = mix(vec3(0.12, 0.2, 0.19), vec3(0.86, 0.3, 0.25), (angle * DTAU));
+			break;
+		case moonlight:
+			b = mix(vec3(0.10588235, 0.10588235, 0.11764706), vec3(1.0, 0.6627451, 0.08627451), (angle * DTAU));
 			break;
 		default:
-			b = vec3((angle/(TAU))*(215./255.), 1.-abs(mix(-1.,1.,energy)), 1.-(abs(mix(-1.,1.,energy))*(200./255.)));
+			b = mix(vec3(0.0), vec3(1.0), angle * DTAU);
 			break;
 	}
 	return b;
@@ -250,7 +282,7 @@ struct settings
 	int grader; /* Specify whether to use the theme or not */
 };
 
-settings setting = settings(C4B, normal, rblue, alphaY, GEO, GRADE);
+settings setting = settings(C4B, normal, theme, alpha, geoq, grader);
 
 void main( void ) {
 	
