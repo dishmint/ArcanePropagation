@@ -23,6 +23,7 @@ class ArcaneFilter {
 	float dB;
 	float fr;
 	float kr;
+	final float D3 = 1.0/3.0;
 
 	/* selector */
 	int selector;
@@ -750,60 +751,91 @@ class ArcaneFilter {
 		img.pixels[cloc] = color(rtotal, gtotal, btotal);
 	};
 
-	ArcaneProcess gol = (x, y, img, ximg) ->
+	ArcaneProcess conway = (x, y, img, ximg) ->
 	{
-		final int cloc = constrain(x+y*img.width, 0, ximg.length - 1);
+		/*
+		 * This file is part of the ArcanePropagation project.
+		 * 
+		 * Game of Life Pseudocode:
+		 * 
+		 * 1. Initialize the grid with a random state of alive and dead cells.
+		 * 2. For each cell in the grid, determine the number of alive neighbors.
+		 * 3. Apply the following rules to determine the next state of each cell:
+		 *    a. Any live cell with fewer than two live neighbors dies (underpopulation).
+		 *    b. Any live cell with two or three live neighbors lives on to the next generation.
+		 *    c. Any live cell with more than three live neighbors dies (overpopulation).
+		 *    d. Any dead cell with exactly three live neighbors becomes a live cell (reproduction).
+		 * 4. Update the grid to the next state.
+		 * 5. Repeat steps 2-4 for each generation.
+		 */
+
+		final int cloc = constrain(x + y * img.width, 0, ximg.length - 1);
 		final float xmn = ximg[cloc][1][1];
-		
 		final color cpx = img.pixels[cloc];
 		
 		float rpx = cpx >> 16 & 0xFF;
 		float gpx = cpx >> 8 & 0xFF;
 		float bpx = cpx & 0xFF;
-		
+
 		int count = 0;
-
 		final int offset = kernelwidth / 2;
-		for (int i = 0; i < kernelwidth; i++){
-			for (int j= 0; j < kernelwidth; j++){
-				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
 
-				color ipx = img.pixels[loc];
-		
-				float irpx = ipx >> 16 & 0xFF;
-				float igpx = ipx >> 8 & 0xFF;
-				float ibpx = ipx & 0xFF;
+		for (int i = -offset; i <= offset; i++) {
+			for (int j = -offset; j <= offset; j++) {
+				if (i == 0 && j == 0) continue; // Skip the center pixel
 
-				if(xloc != x && yloc != y){
-					float avg = ((irpx + igpx + ibpx) * 0.33f);
-					count += (avg > (255.0f * 0.50f)) ? 1 : 0;
-				}
+				final int xloc = x + i;
+				final int yloc = y + j;
+
+				if (xloc < 0 || xloc >= img.width || yloc < 0 || yloc >= img.height) continue;
+
+				final int loc = xloc + img.width * yloc;
+				final color ipx = img.pixels[loc];
+				final float avg = ((ipx >> 16 & 0xFF) + (ipx >> 8 & 0xFF) + (ipx & 0xFF)) * D3;
+				count += (avg > 0.5f) ? 1 : 0;
+				// count += (avg > 1.5f) ? 1 : 0;
 			}
 		}
-		float countd = 1.0f / (count + 1.0f);
-		if((count < 2) || (count > 3)){
-			// img.pixels[x+y*img.width] = color(rpx * .5, gpx * .5, bpx * .5);	
-			// img.pixels[x+y*img.width] = color(0,0,0);
-			/* 
-			rpx -= xmn;
-			gpx -= xmn;
-			bpx -= xmn;
-			 */
+		final float countd = 1.0f / (count + 1.0f);
+
+		if (count < 2 || count > 3) {
 			rpx -= (xmn * countd);
 			gpx -= (xmn * countd);
 			bpx -= (xmn * countd);
-			// ^^ could also add to those neighboring pixels
-			img.pixels[cloc] = color(rpx, gpx, bpx);
-		} 
-		else if (count == 2 || count == 3){
-			img.pixels[cloc] = color(rpx,gpx,bpx);
+
+			// rpx -= (xmn * rpx);
+			// gpx -= (xmn * rpx);
+			// bpx -= (xmn * rpx);
+			
+			// rpx -= xmn;
+			// gpx -= xmn;
+			// bpx -= xmn;
+		} else if (count == 3) {
+			// img.pixels[cloc] = color(255, 255, 255);
+			// continue;
+			
+			rpx += (xmn * countd);
+			gpx += (xmn * countd);
+			bpx += (xmn * countd);
+			
+			// rpx += (xmn * rpx);
+			// gpx += (xmn * gpx);
+			// bpx += (xmn * bpx);
+			
+			// rpx += xmn;
+			// gpx += xmn;
+			// bpx += xmn;
 		} else {
-			img.pixels[cloc] = color(255,255,255);
+			rpx = gpx = bpx = 255.0;
 		}
+
+		// if (rpx < 0 && gpx < 0 && bpx < 0) {
+		// 	rpx += 0.1;
+		// 	gpx += 0.1;
+		// 	bpx += 0.1;
+		// }
+
+		img.pixels[cloc] = color(rpx, gpx, bpx);
 	};
 
     ArcaneFilter(String fmode, int kw, float xsmnfac){
@@ -841,8 +873,8 @@ class ArcaneFilter {
 		    case "chladni":
 		    	arcfilter = chladni;
 		    	break;
-		    case "gol":
-		    	arcfilter = gol;
+		    case "conway":
+		    	arcfilter = conway;
 		    	break;
 		    case "rdf":
 		    	arcfilter = rdf;
