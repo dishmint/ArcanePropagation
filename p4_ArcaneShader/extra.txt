@@ -17,8 +17,8 @@
 		case "blur":
 			simg.filter(BLUR);
 			break;
-		case "gol":
-			gol(simg, xmg);
+		case "conway":
+			conway(simg, xmg);
 			break;
 		case "chladni":
 			chladni(simg, xmg);

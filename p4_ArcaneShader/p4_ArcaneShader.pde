@@ -8,7 +8,7 @@ float[][][] xmg;
 
 /* ------------------------------ KERNELWIDTHS ------------------------------ */
 int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
-final int kw = kwOptions[4];
+final int kw = kwOptions[2];
 final int kwsq = (int)(pow(kw, 2));
 
 int drawswitch = 0;
@@ -70,14 +70,16 @@ final String[] sourcepathOptions = {
    /* 21 */"imgs/calendar/2025-01-24.png"
 };
 // final String sourcepath = sourcepathOptions[3];
-final String sourcepath = sourcepathOptions[18];
-// final String sourcepath = sourcepathOptions[21];
+// final String sourcepath = sourcepathOptions[5];
+final String sourcepath = sourcepathOptions[9];
+// final String sourcepath = sourcepathOptions[16];
+// final String sourcepath = sourcepathOptions[18];
+// final String sourcepath = sourcepathOptions[19];
 final String mazesource = sourcepath;
 //                                    0        1        2       3
 // final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
 // final String generator = generatorOptions[2];
 
-// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
 /* --------------------------------- THEMES --------------------------------- */
 // THEMES
 final int RED = 1;
@@ -105,7 +107,7 @@ final int SOURCE  = 3;
 
 //                     0     1     2       3      4         5         6        7         8       9        10       11
 final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
-final int theme = themes[6];
+final int theme = themes[4];
 
 /* --------------------------------- ALPHAS --------------------------------- */
 final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
@@ -116,9 +118,10 @@ final int[] grades = {GRADE, NOGRADE, SOURCE};
 final int grade = grades[0];
 
 /* --------------------------------- FILTERS -------------------------------- */
-//                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
-final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[8];
+// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | conway | chladni | rdf(t|x|r|m)
+//                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14       15
+final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate","conway"};
+final String filter = filterOptions[15];
 
 /* -------------------------------- SET VARS -------------------------------- */
 //                                0                 1      2       3        4
