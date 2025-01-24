@@ -8,7 +8,7 @@ float[][][] xmg;
 
 /* ------------------------------ KERNELWIDTHS ------------------------------ */
 int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
-final int kw = kwOptions[2];
+final int kw = kwOptions[4];
 final int kwsq = (int)(pow(kw, 2));
 
 int drawswitch = 0;
@@ -23,7 +23,12 @@ ArcaneGenerator ag;
 //                           0      1      2      3      4       5       6         7         8           9
 final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
 final float kernelScale = ksOptions[0];
-// final float kernelScale = 5.0;
+//                            0      1       2          3        4           5       
+// final float[] ksfOptions = {1.00f, 10.00f, 100.00f, 1000.00f, 10000.00f, 100000.00f};
+// final float kernelScale = ksOptions[0] * ksfOptions[1];
+// final float kernelScale = 2.55;
+// final float kernelScale = 5.1;
+// final float kernelScale = 10.2;
 
 /* ------------------------------- DOWNSAMPLES ------------------------------ */
 /* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
@@ -32,7 +37,7 @@ final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.
 final float downsample = downsampleOptions[0];
 final boolean dispersed = true;
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
-final int modfac = modfacs[1];
+final int modfac = modfacs[0];
 
 final int mfd = 4;
 final float	dmfd = modfac/mfd;
@@ -55,10 +60,22 @@ final String[] sourcepathOptions = {
    /* 12 */"imgs/mountains_1.jpg",
    /* 13 */"imgs/clouds.jpg",
    /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
-   /* 15 */"imgs/fruit.jpg"
+   /* 15 */"imgs/fruit.jpg",
+   /* 16 */"imgs/randomdisk-200.png",
+   /* 17 */"imgs/randomdisk-2000.png",
+   /* 18 */"imgs/randomdisk-10_000.png",
+
+   /* 19 */"imgs/calendar/2025-01-21.png",
+   /* 20 */"imgs/calendar/2025-01-22.png",
+   /* 21 */"imgs/calendar/2025-01-24.png"
 };
-final String sourcepath = sourcepathOptions[3];
+// final String sourcepath = sourcepathOptions[3];
+final String sourcepath = sourcepathOptions[18];
+// final String sourcepath = sourcepathOptions[21];
 final String mazesource = sourcepath;
+//                                    0        1        2       3
+// final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
+// final String generator = generatorOptions[2];
 
 // convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | gol | chladni | rdf(t|x|r|m)
 /* --------------------------------- THEMES --------------------------------- */
@@ -88,7 +105,7 @@ final int SOURCE  = 3;
 
 //                     0     1     2       3      4         5         6        7         8       9        10       11
 final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
-final int theme = themes[4];
+final int theme = themes[6];
 
 /* --------------------------------- ALPHAS --------------------------------- */
 final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
@@ -101,7 +118,7 @@ final int grade = grades[0];
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
 final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate"};
-final String filter = filterOptions[3];
+final String filter = filterOptions[8];
 
 /* -------------------------------- SET VARS -------------------------------- */
 //                                0                 1      2       3        4
@@ -117,10 +134,11 @@ final int[] framerateOptions = {120, 90, 75, 60, 48, 30, 24, 12, 6, 1};
 final int framerate = framerateOptions[0];
 
 final float displayscale = 1.0;
-final float resolutionScale = 1000.00f;
+final float resolutionScale = 10000.00f;
 
 void setup(){
-	size(1422,800, P3D);
+	// size(1422,800, P3D);
+	size(800,800, P3D);
 	surface.setTitle("Arcane Propagations");
 	imageMode(CENTER);
 	pixelDensity(displayDensity());
@@ -132,7 +150,7 @@ void setup(){
 	
 	simg = loadImage(sourcepath); 
 	// simg = genImage(generator); 
-	simg.filter(GRAY);
+	// simg.filter(GRAY);
 
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */
@@ -174,9 +192,10 @@ void setup(){
 	*/
 	
 	// TODO: add rfac slider
-	blueline.set("rfac", 0.0);
+	// blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 0.50);
-	// blueline.set("rfac", 1.0);
+	// blueline.set("rfac", 0.75);
+	blueline.set("rfac", 1.0);
 
 	blueline.set("theme", theme);
 	blueline.set("alpha", alpha);
@@ -191,6 +210,8 @@ void setup(){
 	background(0);
 
 	af = new ArcaneFilter(filter, kw, xfac);
+
+	frameRate(framerate);
 }
 
 void draw(){

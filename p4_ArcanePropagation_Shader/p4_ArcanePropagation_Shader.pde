@@ -57,7 +57,7 @@ final String[] sourcepathOptions = {
    /* 34 */"imgs/ArcaneTest/center-1080.png"
 };
 
-final String sourcepath = sourcepathOptions[29];
+final String sourcepath = sourcepathOptions[12];
 final String mazesource = sourcepath;
 // final String mazesource = sourcepathOptions[8];
 
@@ -344,8 +344,8 @@ PImage genImage(String generator){
 }
 
 void draw(){
-	selectDraw("convolve");
-	// selectDraw("transmit");
+	// selectDraw("convolve");
+	selectDraw("transmit");
 	// selectDraw("transmitMBL");
 	// selectDraw("switch");
 	// selectDraw("switchTotal");
