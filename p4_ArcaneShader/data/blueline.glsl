@@ -119,18 +119,20 @@ void pushgeo(int selector, vec2 uv){
 #define alphaC 2
 #define alphaY 3
 
-#define red    1
-#define blue   2
-#define green  3
-#define yellow 4
-#define rblue  5
-#define yellowbrick 6
-#define gred 7
-#define starrynight 8
-#define ember 9
-#define bloodred 10
-#define gundam 11
-#define moonlight 12
+#define white 1
+#define red 2
+#define blue 3
+#define green 4
+#define yellow 5
+#define rblue 6
+#define yellowbrick 7
+#define gred 8
+#define reen 9
+#define starrynight 10
+#define ember 11
+#define bloodred 12
+#define gundam 13
+#define moonlight 14
 
 #define GRADE   1
 #define NOGRADE 2
@@ -140,11 +142,15 @@ vec3 makebase(int selector){
 	vec3 b;
 	switch(selector)
 	{
+		case white:
+			b = vec3(1.0) * (angle * DTAU);
+			break;
 		case red:
 			b = vec3(1.0,0.0,0.0)*(angle * DTAU);
 			break;
 		case blue:
-			b = vec3(0.0980392, 0.0980392, 0.439216)*(angle * DTAU);
+			// b = vec3(0.0980392, 0.0980392, 0.439216)*(angle * DTAU);
+			b = vec3(0.0, 0.0, 1.0)*(angle * DTAU);
 			break;
 		case green:
 			b = vec3(0.101961, 0.145098, 0.117647)*(angle * DTAU);
@@ -160,6 +166,9 @@ vec3 makebase(int selector){
 			break;
 		case gred:
 			b = mix(vec3(1., .16, 0.22), vec3(0.07, .42, 0.1), (angle * DTAU));
+			break;
+		case reen:
+			b = mix(vec3(0.07, .42, 0.10), vec3(1.0, .16, 0.22), (angle * DTAU));
 			break;
 		case starrynight:
 			b = mix(vec3(0.2, 0.4, 0.54), vec3(0.96, .68, 0.18), (angle * DTAU));

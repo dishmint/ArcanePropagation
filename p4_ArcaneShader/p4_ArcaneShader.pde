@@ -8,7 +8,7 @@ float[][][] xmg;
 
 /* ------------------------------ KERNELWIDTHS ------------------------------ */
 int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
-final int kw = kwOptions[2];
+final int kw = kwOptions[4];
 final int kwsq = (int)(pow(kw, 2));
 
 int drawswitch = 0;
@@ -35,7 +35,8 @@ final float kernelScale = ksOptions[0];
 //                                   0       1      2      3      4      5      6
 final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.00f};
 final float downsample = downsampleOptions[0];
-final boolean dispersed = true;
+final boolean dispersed = false;
+// [^] setting to true reduces framerate
 final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
 final int modfac = modfacs[0];
 
@@ -64,36 +65,38 @@ final String[] sourcepathOptions = {
    /* 16 */"imgs/randomdisk-200.png",
    /* 17 */"imgs/randomdisk-2000.png",
    /* 18 */"imgs/randomdisk-10_000.png",
+   /* 19 */"imgs/randomdisk-10_000-binarized.png",
 
-   /* 19 */"imgs/calendar/2025-01-21.png",
-   /* 20 */"imgs/calendar/2025-01-22.png",
-   /* 21 */"imgs/calendar/2025-01-24.png"
+   /* 20 */"imgs/calendar/2025-01-21.png",
+   /* 21 */"imgs/calendar/2025-01-22.png",
+   /* 22 */"imgs/calendar/2025-01-24.png",
+   /* 23 */"imgs/binarized_moon_ineverted.png",
+   /* 24 */"imgs/center-1080.png",
+   /* 25 */"imgs/patchwork-1080-image.png"
 };
-// final String sourcepath = sourcepathOptions[3];
-// final String sourcepath = sourcepathOptions[5];
-final String sourcepath = sourcepathOptions[9];
-// final String sourcepath = sourcepathOptions[16];
-// final String sourcepath = sourcepathOptions[18];
-// final String sourcepath = sourcepathOptions[19];
+final String sourcepath = sourcepathOptions[3];
+// TODO: #108 Generate standard test images
 final String mazesource = sourcepath;
 //                                    0        1        2       3
-// final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
-// final String generator = generatorOptions[2];
+final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
+final String generator = generatorOptions[3];
 
 /* --------------------------------- THEMES --------------------------------- */
 // THEMES
-final int RED = 1;
-final int BLUE = 2;
-final int GREEN = 3;
-final int YELLOW = 4;
-final int RBLUE = 5;
-final int YELLOWBRICK = 6;
-final int GRED = 7;
-final int STARRYNIGHT = 8;
-final int EMBER = 9;
-final int BLOODRED = 10;
-final int GUNDAM = 11;
-final int MOONLIGHT = 12;
+final int WHITE = 1;
+final int RED = 2;
+final int BLUE = 3;
+final int GREEN = 4;
+final int YELLOW = 5;
+final int RBLUE = 6;
+final int YELLOWBRICK = 7;
+final int GRED = 8;
+final int REEN = 9;
+final int STARRYNIGHT = 10;
+final int EMBER = 11;
+final int BLOODRED = 12;
+final int GUNDAM = 13;
+final int MOONLIGHT = 14;
 
 // ALPHAS
 final int ALPHA1 = 1;
@@ -105,23 +108,45 @@ final int GRADE   = 1;
 final int NOGRADE = 2;
 final int SOURCE  = 3;
 
-//                     0     1     2       3      4         5         6        7         8       9        10       11
-final int[] themes = {RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
-final int theme = themes[4];
+//                     0     1      2     3       4      5         6         7     8       9         10       11       12        13
+final int[] themes = {WHITE, RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, REEN, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
+final int theme = themes[5];
 
 /* --------------------------------- ALPHAS --------------------------------- */
 final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
-final int alpha = alphas[0];
+final int alpha = alphas[1];
 
 /* --------------------------------- GRADES --------------------------------- */
 final int[] grades = {GRADE, NOGRADE, SOURCE};
 final int grade = grades[0];
 
 /* --------------------------------- FILTERS -------------------------------- */
-// convolution — still | convolve | collatz | transmit | transmitMBL | amble | smear | smearTotal | switch | switchTotal | blur | weightedblur | conway | chladni | rdf(t|x|r|m)
-//                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14       15
-final String[] filterOptions = {"still", "transmit", "transmitMBL", "convolve", "amble", "collatz", "xcollatz", "xtcollatz", "rdf", "rdft", "arcblur", "xdilate", "xsdilate", "blur", "dilate","conway"};
-final String filter = filterOptions[15];
+final String[] filterOptions = {
+	/*  0 */ "still", 
+	/*  1 */ "transmit", 
+	/*  2 */ "transmitMBL", 
+	/*  3 */ "convolve", 
+	/*  4 */ "amble", 
+	/*  5 */ "collatz", 
+	/*  6 */ "xcollatz", 
+	/*  7 */ "xtcollatz", 
+	/*  8 */ "rdf", 
+	/*  9 */ "rdft", 
+	/* 10 */ "rdfx", 
+	/* 11 */ "rdfr",
+	/* 12 */ "rdfm",
+	/* 13 */ "weightedblur", 
+	/* 14 */ "smear", 
+	/* 15 */ "smearTotal", 
+	/* 16 */ "xdilate", 
+	/* 17 */ "xsdilate", 
+	/* 18 */ "blur", 
+	/* 19 */ "dilate", 
+	/* 20 */ "chladni",
+	/* 21 */ "conway",
+};
+// [^] TODO: #109 Use string constants instead?
+final String filter = filterOptions[8];
 
 /* -------------------------------- SET VARS -------------------------------- */
 //                                0                 1      2       3        4
@@ -172,6 +197,7 @@ void setup(){
 	setting hav to true scales the rgb channels of a pixel to represent human perceptual color cruves before computing the average. It produces more movement since it changes the transmission rate of each channel.
 	*/
 	hav = true;
+	// hav = false;
 	xmg = loadxm(simg, kw);
 	
 	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
@@ -218,7 +244,7 @@ void setup(){
 }
 
 void draw(){
-	af.kernelmap( simg, xmg );
+	af.kernelmap(simg, xmg);
 	background(0);
 	pgDraw();
 	shaderDraw();

@@ -478,6 +478,111 @@ class ArcaneFilter {
 
 					img.pixels[sloc] = color(rspx, gspx, bspx);
 				};
+	
+	/* xcollatz */
+	ArcaneProcess xcollatz = (x, y, img, xmg) -> {
+		// CURRENT PIXEL POSITION
+		int sloc = x+y*img.pixelWidth;
+		sloc = constrain(sloc,0,img.pixels.length-1);
+		color spx = img.pixels[sloc];
+
+		float rspx = spx >> 16 & 0xFF;
+		float gspx = spx >> 8 & 0xFF;
+		float bspx = spx & 0xFF;
+
+		/*  
+			& is more efficient than using mod
+			https://stackoverflow.com/a/2229966
+		*/
+
+		int offset = kernelwidth / 2;
+		for (int i = 0; i < kernelwidth; i++){
+			for (int j= 0; j < kernelwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = xmg[loc][i][j] * transmissionfactor;
+				
+				color cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+				// rspx += ((int(rpx) & 1) == 0 ? (rpx*0.5) : (3.0 * rpx) + 1.0) * xmsn;
+				// gspx += ((int(gpx) & 1) == 0 ? (gpx*0.5) : (3.0 * gpx) + 1.0) * xmsn;
+				// bspx += ((int(bpx) & 1) == 0 ? (bpx*0.5) : (3.0 * bpx) + 1.0) * xmsn;
+				
+				if (xloc == x && yloc == y) {
+					rspx -= ((int(rpx) & 1) == 0 ? (rpx*0.5) : (3.0 * rpx) + 1.0) * xmsn;
+					gspx -= ((int(gpx) & 1) == 0 ? (gpx*0.5) : (3.0 * gpx) + 1.0) * xmsn;
+					bspx -= ((int(bpx) & 1) == 0 ? (bpx*0.5) : (3.0 * bpx) + 1.0) * xmsn;
+				} else {
+					rspx += ((int(rpx) & 1) == 0 ? (rpx*0.5) : (3.0 * rpx) + 1.0) * xmsn;
+					gspx += ((int(gpx) & 1) == 0 ? (gpx*0.5) : (3.0 * gpx) + 1.0) * xmsn;
+					bspx += ((int(bpx) & 1) == 0 ? (bpx*0.5) : (3.0 * bpx) + 1.0) * xmsn;
+				}
+			}
+		}
+
+		img.pixels[sloc] = color(rspx, gspx, bspx);
+	};
+
+	/* xtcollatz */
+	ArcaneProcess xtcollatz = (x, y, img, xmg) -> {
+		// CURRENT PIXEL POSITION
+		int sloc = x+y*img.pixelWidth;
+		sloc = constrain(sloc,0,img.pixels.length-1);
+		color spx = img.pixels[sloc];
+		
+		float rspx = spx >> 16 & 0xFF;
+		float gspx = spx >> 8 & 0xFF;
+		float bspx = spx & 0xFF;
+
+		/*  
+			& is more efficient than using mod
+			https://stackoverflow.com/a/2229966
+		*/
+
+		int offset = kernelwidth / 2;
+		for (int i = 0; i < kernelwidth; i++){
+			for (int j= 0; j < kernelwidth; j++){
+				
+				int xloc = x+i-offset;
+				int yloc = y+j-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				
+				float xmsn = xmg[loc][i][j] * transmissionfactor;
+				
+				color cpx = img.pixels[loc];
+				
+				float rpx = cpx >> 16 & 0xFF;
+				float gpx = cpx >> 8 & 0xFF;
+				float bpx = cpx & 0xFF;
+
+
+				if (xloc == x && yloc == y) {
+					rspx -= rpx * xmsn;
+					gspx -= gpx * xmsn;
+					bspx -= bpx * xmsn;
+				} else {
+					rspx += rpx * xmsn;
+					gspx += gpx * xmsn;
+					bspx += bpx * xmsn;
+				}
+			}
+		}
+
+		rspx = ((int(rspx) & 1) == 0 ? (rspx*0.5) : (3.0 * rspx) + 1.0);
+		gspx = ((int(gspx) & 1) == 0 ? (gspx*0.5) : (3.0 * gspx) + 1.0);
+		bspx = ((int(bspx) & 1) == 0 ? (bspx*0.5) : (3.0 * bspx) + 1.0);
+
+		img.pixels[sloc] = color(rspx, gspx, bspx);
+	};
 
 	ArcaneProcess weightedblur = (x, y, img, ximg) ->
 	{
@@ -680,6 +785,79 @@ class ArcaneFilter {
 		img.pixels[cloc] = color(rtotal, gtotal, btotal);
 	};
 
+	/* xdilate */
+	ArcaneProcess xdilate = (x, y, img, xmg) -> {
+		int sloc = x+y*img.pixelWidth;
+		sloc = constrain(sloc,0,img.pixels.length-1);
+
+		color cpx = img.pixels[sloc];
+
+		float rpx = cpx >> 16 & 0xFF;
+		float gpx = cpx >> 8 & 0xFF;
+		float bpx = cpx & 0xFF;
+
+		int offset = kernelwidth / 2;
+		for (int k = 0; k < kernelwidth; k++){
+			for (int l= 0; l < kernelwidth; l++){
+				int xloc = x+k-offset;
+				int yloc = y+l-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				float xmsn = (xmg[loc][k][l] * transmissionfactor);
+
+				color npx = img.pixels[loc];
+
+				float nrpx = npx >> 16 & 0xFF;
+				float ngpx = npx >> 8 & 0xFF;
+				float nbpx = npx & 0xFF;
+
+				/* immediate settlement */
+				if(nrpx + ngpx + nbpx > rpx + gpx + bpx){
+					rpx = nrpx*xmsn;
+					gpx = ngpx*xmsn;
+					bpx = nbpx*xmsn;
+				}
+			}
+		}
+		img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
+	};
+ 	
+	/* xsdilate */
+	ArcaneProcess xsdilate = (x, y, img, xmg) -> {
+		int sloc = x+y*img.pixelWidth;
+		sloc = constrain(sloc,0,img.pixels.length-1);
+
+		color cpx = img.pixels[sloc];
+
+		float rpx = cpx >> 16 & 0xFF;
+		float gpx = cpx >> 8 & 0xFF;
+		float bpx = cpx & 0xFF;
+
+		int offset = kernelwidth / 2;
+		for (int k = 0; k < kernelwidth; k++){
+			for (int l= 0; l < kernelwidth; l++){
+				int xloc = x+k-offset;
+				int yloc = y+l-offset;
+				int loc = xloc + img.pixelWidth*yloc;
+				loc = constrain(loc,0,img.pixels.length-1);
+				float xmsn = (xmg[loc][k][l] * transmissionfactor);
+
+				color npx = img.pixels[loc];
+
+				float nrpx = npx >> 16 & 0xFF;
+				float ngpx = npx >> 8 & 0xFF;
+				float nbpx = npx & 0xFF;
+
+				if(nrpx + ngpx + nbpx > rpx + gpx + bpx){
+					rpx += nrpx*xmsn;
+					gpx += ngpx*xmsn;
+					bpx += nbpx*xmsn;
+				}
+			}
+		}
+		img.pixels[x+y*img.pixelWidth] = color(rpx,gpx,bpx);
+	};
+
 	float chladnifunction(int x, int y, float n, float m){
 		float fx = float(x);
 		float fy = float(y);
@@ -698,23 +876,25 @@ class ArcaneFilter {
 	// chladnitize is also quite slow. I think using a shader might make more sense.
 	ArcaneProcess chladni = (x, y, img, ximg) ->
 	{
-		int cloc = x+y*img.pixelWidth;
-		cloc = constrain(cloc,0,img.pixels.length-1);
+		int cloc = x + y * img.pixelWidth;
+		cloc = constrain(cloc, 0, img.pixels.length - 1);
 
 		float rtotal = 0.0;
 		float gtotal = 0.0;
 		float btotal = 0.0;
 
 		int offset = kernelwidth / 2;
-		for (int i = 0; i < kernelwidth; i++){
-			for (int j= 0; j < kernelwidth; j++){
+		for (int i = -offset; i <= offset; i++){
+			for (int j = -offset; j <= offset; j++){
 				
-				int xloc = x+i-offset;
-				int yloc = y+j-offset;
-				int loc = xloc + img.width*yloc;
-				loc = constrain(loc,0,img.pixels.length-1);
+				int xloc = x + i;
+				int yloc = y + j;
+				if (xloc < 0 || xloc >= img.width || yloc < 0 || yloc >= img.height) continue;
+
+				int loc = xloc + img.width * yloc;
+				loc = constrain(loc, 0, img.pixels.length - 1);
 				
-				float xmsn = (ximg[loc][i][j] * transmissionfactor);
+				float xmsn = (ximg[loc][i + offset][j + offset] * transmissionfactor);
 				
 				color cpx = img.pixels[loc];
 				
@@ -725,50 +905,37 @@ class ArcaneFilter {
 				rtotal += chladnifunction(xloc, yloc, rpx, xmsn);
 				gtotal += chladnifunction(xloc, yloc, gpx, xmsn);
 				btotal += chladnifunction(xloc, yloc, bpx, xmsn);
-
-				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-
-				// rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-
-				
-				// if(xloc == x && yloc == y){
-				// 	rtotal -= ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	gtotal -= ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	btotal -= ((bpx * xmsn) + chladnifunction(xloc, yloc));
-				// } else {
-				// 	rtotal += ((rpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	gtotal += ((gpx * xmsn) + chladnifunction(xloc, yloc));
-				// 	btotal += ((bpx * xmsn) + chladnifunction(xloc, yloc));
-				// }
-				
 			}
 		}
 		
 		img.pixels[cloc] = color(rtotal, gtotal, btotal);
 	};
 
+	/**
+	 * ArcaneProcess conway
+	 * 
+	 * This function implements a variation of Conway's Game of Life algorithm.
+	 * It processes each pixel in the image to determine its next state based on the number of alive neighbors.
+	 * 
+	 * Algorithm:
+	 * 1. For each pixel, calculate its location and color values.
+	 * 2. Count the number of alive neighbors within a defined kernel width.
+	 * 3. Apply the Game of Life rules to determine the next state of the pixel:
+	 *    a. Any live cell with fewer than two live neighbors dies (underpopulation).
+	 *    b. Any live cell with two or three live neighbors lives on to the next generation.
+	 *    c. Any live cell with more than three live neighbors dies (overpopulation).
+	 *    d. Any dead cell with exactly three live neighbors becomes a live cell (reproduction).
+	 * 4. Update the pixel color based on the new state.
+	 * 
+	 * @param x The x-coordinate of the pixel.
+	 * @param y The y-coordinate of the pixel.
+	 * @param img The image being processed.
+	 * @param ximg An auxiliary image used for processing.
+	 * 
+	 * @complexity O(n * m), where n is the number of pixels in the image and m is the number of neighbors considered for each pixel.
+	 */
 	ArcaneProcess conway = (x, y, img, ximg) ->
 	{
-		/*
-		 * This file is part of the ArcanePropagation project.
-		 * 
-		 * Game of Life Pseudocode:
-		 * 
-		 * 1. Initialize the grid with a random state of alive and dead cells.
-		 * 2. For each cell in the grid, determine the number of alive neighbors.
-		 * 3. Apply the following rules to determine the next state of each cell:
-		 *    a. Any live cell with fewer than two live neighbors dies (underpopulation).
-		 *    b. Any live cell with two or three live neighbors lives on to the next generation.
-		 *    c. Any live cell with more than three live neighbors dies (overpopulation).
-		 *    d. Any dead cell with exactly three live neighbors becomes a live cell (reproduction).
-		 * 4. Update the grid to the next state.
-		 * 5. Repeat steps 2-4 for each generation.
-		 */
-
 		final int cloc = constrain(x + y * img.width, 0, ximg.length - 1);
 		final float xmn = ximg[cloc][1][1];
 		final color cpx = img.pixels[cloc];
@@ -796,7 +963,7 @@ class ArcaneFilter {
 				// count += (avg > 1.5f) ? 1 : 0;
 			}
 		}
-		final float countd = 1.0f / (count + 1.0f);
+		final float countd = 1.0f / (count + 0.001f);
 
 		if (count < 2 || count > 3) {
 			rpx -= (xmn * countd);
@@ -852,87 +1019,100 @@ class ArcaneFilter {
         filtermode = newfiltermode;
 
 		switch(filtermode){
-		    case "transmit":
-		    	arcfilter = transmit;
-		    	break;
-		    case "convolve":
-		    	arcfilter = convolve; /* Behavior of convolve is different here. Maybe I'm missing something */
-		    	break;
-		    case "transmitMBL":
-		    	arcfilter = transmitMBL;
-		    	break;
-		    case "amble":
-		    	arcfilter = amble;
-		    	break;
-		    case "collatz":
-		    	arcfilter = collatz;
-		    	break;
-		    case "weightedblur":
-		    	arcfilter = weightedblur;
-		    	break;
-		    case "chladni":
-		    	arcfilter = chladni;
-		    	break;
-		    case "conway":
-		    	arcfilter = conway;
-		    	break;
-		    case "rdf":
-		    	arcfilter = rdf;
+			case "transmit":
+				arcfilter = transmit;
+				break;
+			case "convolve":
+				arcfilter = convolve;
+				break;
+			case "transmitMBL":
+				arcfilter = transmitMBL;
+				break;
+			case "amble":
+				arcfilter = amble;
+				break;
+			case "collatz":
+				arcfilter = collatz;
+				break;
+			case "xcollatz":
+				arcfilter = xcollatz;
+				break;
+			case "xtcollatz":
+				arcfilter = xtcollatz;
+				break;
+			case "weightedblur":
+				arcfilter = weightedblur;
+				break;
+			case "smear":
+				arcfilter = smear;
+				selector = 1;
+				break;
+			case "smearTotal":
+				arcfilter = smearTotal;
+				selector = 1;
+				break;
+			case "xdilate":
+				arcfilter = xdilate;
+				break;
+			case "xsdilate":
+				arcfilter = xsdilate;
+				break;
+			case "chladni":
+				arcfilter = chladni;
+				break;
+			case "conway":
+				arcfilter = conway;
+				break;
+			case "rdf":
+				arcfilter = rdf;
 				rdfkernel = createrdfkernel();
 				dA = 1.00;
 				dB = 0.50;
 				fr = 0.055;
 				kr = 0.062;
-		    	break;
-		    case "rdft":
-		    	arcfilter = rdft;
+				break;
+			case "rdft":
+				arcfilter = rdft;
 				rdfkernel = createrdfkernel();
 				dA = 1.00;
 				dB = 0.50;
 				fr = 0.055;
 				kr = 0.062;
-		    	break;
-		    case "rdfr":
-		    	arcfilter = rdf;
+				break;
+			case "rdfr":
+				arcfilter = rdf;
 				rdfkernel = createrdfkernel();
 				dA = random(1.00);
 				dB = random(1.00);
 				fr = random(1.00);
 				kr = random(1.00);
-		    	break;
-		    case "rdfm":
-		    	arcfilter = rdf;
+				break;
+			case "rdfm":
+				arcfilter = rdf;
 				rdfkernel = createrdfkernel();
 				dA = random(-1.00, 1.00);
 				dB = random(-1.00, 1.00);
 				fr = random(-1.00, 1.00);
 				kr = random(-1.00, 1.00);
-		    	break;
-		    case "rdfx":
-		    	arcfilter = rdfx;
+				break;
+			case "rdfx":
+				arcfilter = rdfx;
 				rdfkernel = createrdfkernel(-1.0, .50);
 				dA = 1.00;
 				dB = 0.50;
 				fr = 0.055;
 				kr = 0.062;
-		    	break;
-		    case "smear":
-		    	arcfilter = smear;
-				selector = 1;
-		    	break;
-		    case "smearTotal":
-		    	arcfilter = smearTotal;
-				selector = 1;
-		    	break;
-		    case "blur":
-		    	break;
-		    case "dilate":
-		    	break;
-		    case "still":
-		    	break;
-		    default:
-		    	arcfilter = transmit;
-		    	break;
+				break;
+			case "blur":
+				break;
+			case "dilate":
+				break;
+			case "still":
+				break;
+			default:
+				println("filter not implemented: "+ filtermode);
+				arcfilter = transmit;
+				break;
 	    }
     }
 
