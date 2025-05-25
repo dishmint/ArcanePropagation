@@ -88,7 +88,7 @@ final String orbit = orbits[0];
 /* --------------------------------- THEMES --------------------------------- */
 //                         0        1       2        3        4        5           6          7        8          9          10         11         12          13
 final String[] themes = {"truth", "red", "blue", "green", "yellow", "rblue", "yellowbrick", "gred", "reen", "starrynight", "ember", "bloodred", "gundam", "moonlight"};
-final String theme = themes[8];
+final String theme = themes[1];
 
 /* --------------------------------- FILTERS -------------------------------- */
 //                                 0          1            2             3         4         5          6            7         8       9        10         11         12        13       14
@@ -119,7 +119,8 @@ void setup(){
 	// size(500, 281, FX2D);
 	// size(711, 400, FX2D);
 	// size(1422, 800, FX2D);
-	fullScreen(FX2D);
+	size(800, 800, FX2D);
+	// fullScreen(FX2D);
 	// fullScreen(P2D);
 	
 
