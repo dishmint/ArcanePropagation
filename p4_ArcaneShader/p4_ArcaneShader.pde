@@ -6,163 +6,11 @@ PGraphics pg;
 PImage simg,dimg;
 float[][][] xmg;
 
-/* ------------------------------ KERNELWIDTHS ------------------------------ */
-int[] kwOptions = {1, 2, 3, 4, 5, 6, 7, 8};
-final int kw = kwOptions[4];
-final int kwsq = (int)(pow(kw, 2));
-
-int drawswitch = 0;
-float chance;
-
 boolean hav;
 
 ArcaneFilter af;
 ArcaneGenerator ag;
-
-/* ------------------------------ KERNELSCALES ------------------------------ */
-//                           0      1      2      3      4       5       6         7         8           9
-final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
-final float kernelScale = ksOptions[0];
-//                            0      1       2          3        4           5       
-// final float[] ksfOptions = {1.00f, 10.00f, 100.00f, 1000.00f, 10000.00f, 100000.00f};
-// final float kernelScale = ksOptions[0] * ksfOptions[1];
-// final float kernelScale = 2.55;
-// final float kernelScale = 5.1;
-// final float kernelScale = 10.2;
-
-/* ------------------------------- DOWNSAMPLES ------------------------------ */
-/* higher dsfloat -> higher framerate | 1.0~N | 2.25 Default */
-//                                   0       1      2      3      4      5      6
-final float[] downsampleOptions = {1.00f, 1.125f, 1.25f, 1.50f, 2.25f, 3.00f, 6.00f};
-final float downsample = downsampleOptions[0];
-final boolean dispersed = false;
-// [^] setting to true reduces framerate
-final int[] modfacs = {1, 2, 3, 4, 5, 6, 7, 8};
-final int modfac = modfacs[0];
-
-final int mfd = 4;
-final float	dmfd = modfac/mfd;
-final float	fmfd = 1.0/modfac;
-
-/* ------------------------------ IMAGE SOURCE ------------------------------ */
-final String[] sourcepathOptions = {
-	/* 0 */"imgs/nasa.jpg", 
-	/* 1 */"imgs/face.png", 
-	/* 2 */"imgs/buildings.jpg", 
-	/* 3 */"imgs/mwrTn-pixelmaze.gif", 
-	/* 4 */"imgs/ryoji-iwata-n31JPLu8_Pw-unsplash.jpg",
-	/* 5 */"imgs/buff_skate.JPG",
-	/* 6 */"imgs/universe.jpg",
-	/* 7 */"imgs/enrapture-captivating-media-8_oFcxtXUSU-unsplash.jpg",
-	/* 8 */"imgs/planetsAbstract.jpg",
-	/* 9 */"imgs/enter.jpg",
-   /* 10 */"imgs/sign1.jpg",
-   /* 11 */"imgs/p5sketch1.jpg",
-   /* 12 */"imgs/mountains_1.jpg",
-   /* 13 */"imgs/clouds.jpg",
-   /* 14 */"imgs/sora-sagano-7LWIGWh-YKM-unsplash.jpg",
-   /* 15 */"imgs/fruit.jpg",
-   /* 16 */"imgs/randomdisk-200.png",
-   /* 17 */"imgs/randomdisk-2000.png",
-   /* 18 */"imgs/randomdisk-10_000.png",
-   /* 19 */"imgs/randomdisk-10_000-binarized.png",
-
-   /* 20 */"imgs/calendar/2025-01-21.png",
-   /* 21 */"imgs/calendar/2025-01-22.png",
-   /* 22 */"imgs/calendar/2025-01-24.png",
-   /* 23 */"imgs/binarized_moon_ineverted.png",
-   /* 24 */"imgs/center-1080.png",
-   /* 25 */"imgs/patchwork-1080-image.png"
-};
-final String sourcepath = sourcepathOptions[3];
-// TODO: #108 Generate standard test images
-final String mazesource = sourcepath;
-//                                    0        1        2       3
-final String[] generatorOptions = {"random", "kufic", "maze", "noise"};
-final String generator = generatorOptions[3];
-
-/* --------------------------------- THEMES --------------------------------- */
-// THEMES
-final int WHITE = 1;
-final int RED = 2;
-final int BLUE = 3;
-final int GREEN = 4;
-final int YELLOW = 5;
-final int RBLUE = 6;
-final int YELLOWBRICK = 7;
-final int GRED = 8;
-final int REEN = 9;
-final int STARRYNIGHT = 10;
-final int EMBER = 11;
-final int BLOODRED = 12;
-final int GUNDAM = 13;
-final int MOONLIGHT = 14;
-
-// ALPHAS
-final int ALPHA1 = 1;
-final int ALPHAC = 2;
-final int ALPHAY = 3;
-
-// GRADERS
-final int GRADE   = 1;
-final int NOGRADE = 2;
-final int SOURCE  = 3;
-
-//                     0     1      2     3       4      5         6         7     8       9         10       11       12        13
-final int[] themes = {WHITE, RED, BLUE, GREEN, YELLOW, RBLUE, YELLOWBRICK, GRED, REEN, STARRYNIGHT, EMBER, BLOODRED, GUNDAM, MOONLIGHT};
-final int theme = themes[5];
-
-/* --------------------------------- ALPHAS --------------------------------- */
-final int[] alphas = {ALPHA1, ALPHAC, ALPHAY};
-final int alpha = alphas[1];
-
-/* --------------------------------- GRADES --------------------------------- */
-final int[] grades = {GRADE, NOGRADE, SOURCE};
-final int grade = grades[0];
-
-/* --------------------------------- FILTERS -------------------------------- */
-final String[] filterOptions = {
-	/*  0 */ "still", 
-	/*  1 */ "transmit", 
-	/*  2 */ "transmitMBL", 
-	/*  3 */ "convolve", 
-	/*  4 */ "amble", 
-	/*  5 */ "collatz", 
-	/*  6 */ "xcollatz", 
-	/*  7 */ "xtcollatz", 
-	/*  8 */ "rdf", 
-	/*  9 */ "rdft", 
-	/* 10 */ "rdfx", 
-	/* 11 */ "rdfr",
-	/* 12 */ "rdfm",
-	/* 13 */ "weightedblur", 
-	/* 14 */ "smear", 
-	/* 15 */ "smearTotal", 
-	/* 16 */ "xdilate", 
-	/* 17 */ "xsdilate", 
-	/* 18 */ "blur", 
-	/* 19 */ "dilate", 
-	/* 20 */ "chladni",
-	/* 21 */ "conway",
-};
-// [^] TODO: #109 Use string constants instead?
-final String filter = filterOptions[8];
-
-/* -------------------------------- SET VARS -------------------------------- */
-//                                0                 1      2       3        4
-final float[] xfacs = {1.0f/pow(float(kw), 2.0), 1.0f/kw, kw, kernelScale, 1.0};
-final float xfac = xfacs[0];
-
-final float[] colordivOptions = {1.0f/255.0f, 1.0f/ 765.0f, 255.0f, 9.0f, 85.0f, 3.0f };
-final float colordiv = colordivOptions[0];
-
-final float D4 = 0.25;
-//                               0    1   2   3   4   5   6   7  8  9
-final int[] framerateOptions = {120, 90, 75, 60, 48, 30, 24, 12, 6, 1};
-final int framerate = framerateOptions[0];
-
-final float displayscale = 1.0;
-final float resolutionScale = 10000.00f;
+ArcaneSettings settings;
 
 void setup(){
 	// size(1422,800, P3D);
@@ -172,25 +20,36 @@ void setup(){
 	pixelDensity(displayDensity());
 	hint(ENABLE_STROKE_PURE);
 
+	// Initialize settings
+	settings = new ArcaneSettings();
+	
+	// Example: Configure settings using the new API
+	// settings.setKernelWidth(4);  // Use kwOptions[4] = 5
+	// settings.setTheme(10);       // Use EMBER theme
+	// settings.setSourcePath(26);  // Use age/2025-04.png
+	// settings.setFilter(13);      // Use weightedblur filter
+	// settings.setFramerate(3);    // Use 60fps
+	// settings.setDownsample(0);   // Use no downsampling
+
 	/* -------------------------------------------------------------------------- */
 	/*                                 Load Image                                 */
 	/* -------------------------------------------------------------------------- */
-	
-	simg = loadImage(sourcepath); 
-	// simg = genImage(generator); 
+
+	simg = loadImage(settings.sourcepath);
+	// simg = genImage(settings.generator);
 	// simg.filter(GRAY);
 
 	/* -------------------------------------------------------------------------- */
 	/*                             Remaining Settings                             */
 	/* -------------------------------------------------------------------------- */
-		
+
 	// https://stackoverflow.com/questions/1373035/how-do-i-scale-one-rectangle-to-the-maximum-size-possible-within-another-rectang
 	final float sw = (float)simg.width;
 	final float sh = (float)simg.height;
 	final float scale = min(width/sw, height/sh);
-	
-	final int nw = Math.round(sw*scale/downsample);
-	final int nh = Math.round(sh*scale/downsample);
+
+	final int nw = Math.round(sw*scale/settings.downsample);
+	final int nh = Math.round(sh*scale/settings.downsample);
 	simg.resize(nw, nh);
 
 	/*
@@ -198,49 +57,49 @@ void setup(){
 	*/
 	hav = true;
 	// hav = false;
-	xmg = loadxm(simg, kw);
-	
+	xmg = loadxm(simg, settings.kw);
+
 	// max width and height is 16384 for the Apple M1 graphics card (according to Processing debug message)
 	pg = createGraphics(2*simg.width,2*simg.height, P2D);
 	pg.noSmooth();
-	
+
 	blueline = loadShader("blueline.glsl");
-	blueline.set("resolution", resolutionScale*float(pg.width), resolutionScale*float(pg.height));
-	
+	blueline.set("resolution", settings.resolutionScale*float(pg.width), settings.resolutionScale*float(pg.height));
+
 	// the unitsize determines the dimensions of a pixels for the shader
 	blueline.set("unitsize", 1.00);
 	blueline.set("densityscale", 1.00/displayDensity());
 	// the thickness used to determine a points position is determined by thickness/tfac
 	blueline.set("tfac", 1.0);
-	
+
 	/*
 	- The radius of a point orbit is determined by rfac * thickness
 	- when 1.0000 < rfac < 1.0009 values begin to display as black pixels, kind of like a mask.
 	- rfac >= 1.5 == black screen
 	- rfac == 0.0 == 1:1
 	*/
-	
+
 	// TODO: add rfac slider
 	// blueline.set("rfac", 0.0);
 	// blueline.set("rfac", 0.50);
 	// blueline.set("rfac", 0.75);
 	blueline.set("rfac", 1.0);
 
-	blueline.set("theme", theme);
-	blueline.set("alpha", alpha);
-	blueline.set("grader", grade);
-	
-	if(dispersed){
-		useDispersed(modfac);
+	blueline.set("theme", settings.theme);
+	blueline.set("alpha", settings.alpha);
+	blueline.set("grader", settings.grade);
+
+	if(settings.dispersed){
+		useDispersed(settings.modfac);
 	} else {
 		useOriginal();
 	}
 
 	background(0);
 
-	af = new ArcaneFilter(filter, kw, xfac);
+	af = new ArcaneFilter(settings.filter, settings.kw, settings.xfac);
 
-	frameRate(framerate);
+	frameRate(settings.framerate);
 }
 
 void draw(){
@@ -260,12 +119,12 @@ void showFrameRate(){
 }
 
 void shaderDraw(){
-	if(dispersed){
+	if(settings.dispersed){
 		drawDispersed();
 	} else {
 		drawOriginal();
 	}
-	image(pg, width/2, height/2, simg.width*displayscale, simg.height*displayscale);
+	image(pg, width/2, height/2, simg.width*settings.displayscale, simg.height*settings.displayscale);
 }
 
 void pgDraw(){
@@ -276,41 +135,17 @@ void pgDraw(){
 	pg.endDraw();
 }
 
-void switchdraw(int mod, int smearSelector){
-	if(frameCount % mod == 0){
-		drawswitch = 1 - drawswitch;
-	}
-	
-	if(drawswitch == 0){
-		af.setFilterMode("transmit");
-	} else {
-		af.setFilterMode("smear");
-	}
-}
-
-void switchdrawTotal(int mod, int smearSelector){
-	if(frameCount % mod == 0){
-		drawswitch = 1 - drawswitch;
-	}
-	
-	if(drawswitch == 0){
-		af.setFilterMode("transmit");
-	} else {
-		af.setFilterMode("smearTotal");
-	}
-}
-
 void useDispersed(int factor){
 	dimg = createImage((simg.width*factor), (simg.height*factor), ARGB);
-	
+
 	final float sw = (float)dimg.width;
 	final float sh = (float)dimg.height;
 	final float scale = min(width/sw, height/sh);
-	
+
 	final int nw = Math.round(sw*scale);
 	final int nh = Math.round(sh*scale);
 	dimg.resize(nw, nh);
-	
+
 	setDispersedImage(simg, dimg);
 	blueline.set("aspect", float(dimg.width)/float(dimg.height));
 	blueline.set("tex0", dimg);
@@ -334,7 +169,7 @@ float computeGS(color px){
 	final float rpx = px >> 16 & 0xFF;
 	final float gpx = px >> 8 & 0xFF;
 	final float bpx = px & 0xFF;
-	
+
 	float gs = 1.;
 	if(hav){
 		// human grayscale
@@ -342,10 +177,10 @@ float computeGS(color px){
 			0.2989 * rpx +
 			0.5870 * gpx +
 			0.1140 * bpx
-			) * colordiv;
+			) * settings.colordiv;
 	} else {
 		// channel average
-		gs = (rpx + gpx + bpx) * colordiv;
+		gs = (rpx + gpx + bpx) * settings.colordiv;
 	}
 	return gs;
 }
@@ -356,72 +191,19 @@ float[][] loadkernel(int x, int y, int dim, PImage img){
 	int offset = dim / 2;
 	for (int i = 0; i < dim; i++){
 		for (int j= 0; j < dim; j++){
-			
+
 			int xloc = x+i-offset;
 			int yloc = y+j-offset;
 			int loc = xloc + img.width*yloc;
-			
+
 			loc = constrain(loc,0,img.pixels.length-1);
-			
+
 			color cpx = img.pixels[loc];
-			
+
 			float gs = computeGS(cpx);
-			
+
 			// the closer values are to 0 the more negative the transmission is, that's why a large value of kernelScale produces fast fades.
-			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
-			}
-		}
-		img.updatePixels();
-		return kern;
-	}
-
-int kerncenter(int dim){
-	float kcenter = -0.5 + (0.5 *dim);
-	return (int)kcenter;
-}
-
-int[][] makeEdgeKernel(int dim, int min, int max){
-	int[][] ek = new int[dim][dim];
-	int kc = kerncenter(dim);
-	for (int i = 0; i < dim; i++){
-		for (int j= 0; j < dim; j++){
-			if(i == kc && j == kc){
-				ek[i][j] = max;
-			} else {
-				ek[i][j] = min;
-			}
-			}
-		}
-	return ek;
-}
-float[][] loadEdgeWeight(int x, int y, int dim, PImage img){
-	float[][] kern = new float[dim][dim];
-	int[][] edge = makeEdgeKernel(dim, -1, 9);
-	// {{-1,-1,-1},{-1,9,-1},{-1,-1,-1}}
-	img.loadPixels();
-	int offset = dim / 2;
-	for (int i = 0; i < dim; i++){
-		for (int j= 0; j < dim; j++){
-			
-			int xloc = x+i-offset;
-			int yloc = y+j-offset;
-			int loc = xloc + img.width*yloc;
-			
-			loc = constrain(loc,0,img.pixels.length-1);
-			
-			color cpx = img.pixels[loc];
-			
-			float rpx = cpx >> 16 & 0xFF;
-			float gpx = cpx >> 8 & 0xFF;
-			float bpx = cpx & 0xFF;
-			
-			rpx += edge[i][j]/9;
-			gpx += edge[i][j]/9;
-			bpx += edge[i][j]/9;
-			
-			float gs = computeGS(cpx);
-			
-			kern[i][j] = map(gs, 0, 1, -1.*kernelScale,1.*kernelScale);
+			kern[i][j] = map(gs, 0, 1, -1.*settings.kernelScale,1.*settings.kernelScale);
 			}
 		}
 		img.updatePixels();
@@ -435,7 +217,6 @@ float[][][] loadxm(PImage img, int kwidth) {
 	for (int i = 0; i < img.width; i++){
 		for (int j = 0; j < img.height; j++){
 			kernel = loadkernel(i,j, kwidth, img);
-			// kernel = loadEdgeWeight(i,j, kwidth, img);
 			int index = (i + j * img.width);
 			xms[index] = kernel;
 		}
@@ -450,7 +231,7 @@ void setDispersedImage(PImage source, PImage di) {
 	for (int i = 0; i < di.width; i++){
 		for (int j = 0; j < di.height; j++){
 			int dindex = (i + j * di.width);
-			if(i % modfac == 0 && j % modfac == 0){
+			if(i % settings.modfac == 0 && j % settings.modfac == 0){
 				int x = i - 1;
 				int y = j - 1;
 				x = constrain(x, 0, source.width - 1);
@@ -479,7 +260,7 @@ PImage genImage(String generator){
 			ag = new ArcaneGenerator("kufic", noisew, noiseh);
 			break;
 		case "maze":
-			final PImage mimg = loadImage(mazesource);
+			final PImage mimg = loadImage(settings.mazesource);
 			ag = new ArcaneGenerator("maze", noisew, noiseh);
 			ag.setMazeSource(mimg);
 			break;
@@ -491,5 +272,6 @@ PImage genImage(String generator){
 			ag = new ArcaneGenerator("random", noisew, noiseh);
 			break;
 	}
-	return ag.getImage(); 
+	return ag.getImage();
 }
+

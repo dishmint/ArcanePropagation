@@ -227,7 +227,7 @@ class ArcaneFilter {
 		float center = kernelwidth == 1 ? (kernelwidth / 2.0) : (kernelwidth / 2);
 		int offset = int(center);
 		for (int i = 0; i < kernelwidth; i++){
-			for (int j= 0; j < kernelwidth; j++){				
+			for (int j= 0; j < kernelwidth; j++){
 				float d = dist(center,center,float(i),float(j));
 				nk[i][j] = map(d, 0.0, center, min, max);
 				
