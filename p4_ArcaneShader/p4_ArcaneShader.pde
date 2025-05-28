@@ -29,6 +29,7 @@ void setup(){
 	settings = new ArcaneSettings();
 	// settings.setFramerate(7);
 	settings.setFramerate(0);
+	settings.setFilter(1);
 
 	// Example: Configure settings using the new API
 	// settings.setKernelWidth(4);  // Use kwOptions[4] = 5
