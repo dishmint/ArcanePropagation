@@ -29,12 +29,22 @@ void setup(){
 	settings = new ArcaneSettings();
 	// settings.setFramerate(7);
 	settings.setFramerate(0);
+	// Filters
+	// 0:stl 1:tx 2:tMBL 3:cnv 4:amb 5:col
+	// 6:xcol 7:xtcol 8:rdf 9:rdft 10:rdfx
+	// 11:rdfr 12:rdfm 13:wblr 14:smr 15:smrT 
+	// 16:xdil 17:xsdil 18:blr 19:dil 20:chla 21:cway
+	// settings.setFilter(8);
 	settings.setFilter(1);
+	// settings.setKernelScale(9, 0);
+	// settings.setKernelScale(1, 0);
 
 	// Example: Configure settings using the new API
 	// settings.setKernelWidth(4);  // Use kwOptions[4] = 5
+	settings.setTheme(5);
 	// settings.setTheme(10);       // Use EMBER theme
-	// settings.setSourcePath(26);  // Use age/2025-04.png
+	settings.setSourcePath(0);
+	// settings.setSourcePath(3);
 	// settings.setFilter(13);      // Use weightedblur filter
 	// settings.setFramerate(3);    // Use 60fps
 	// settings.setDownsample(0);   // Use no downsampling
@@ -114,7 +124,7 @@ void setup(){
 	if(useGPUFilter) {
 		gpuFilter = new ArcaneGPUFilter(simg.width, simg.height, settings);
 		gpuFilter.initializeWithImage(simg);
-		gpuFilter.printAvailableShaders();
+		// gpuFilter.printAvailableShaders();
 	}
 
 	frameRate(settings.framerate);

@@ -18,9 +18,9 @@ class ArcaneSettings {
     public int kwsq;
 
     /* ------------------------------ KERNELSCALES ------------------------------ */
-    //                           0      1      2      3      4       5       6         7         8           9
+    //                                  0      1      2      3      4       5       6         7         8           9
     public final float[] ksOptions = {1.00f, 0.75f, 0.50f, 0.33f, 0.25f, 0.125f, 0.0625f, 0.03125f, 0.015625f, 0.0078125f};
-    //                            0      1       2          3        4           5
+    //                                   0      1       2          3        4           5
     public final float[] ksfOptions = {1.00f, 10.00f, 100.00f, 1000.00f, 10000.00f, 100000.00f};
     public int ksIndex = 0;
     public int ksfIndex = 0;
@@ -150,8 +150,8 @@ class ArcaneSettings {
         /* 20 */ "chladni",
         /* 21 */ "conway",
     };
-    // public int filterIndex = 1;
-    public int filterIndex = 9;
+    public int filterIndex = 1;
+    // public int filterIndex = 9;
     public String filter;
 
     /* -------------------------------- SET VARS -------------------------------- */
@@ -268,6 +268,7 @@ class ArcaneSettings {
     public void setFilter(int index) {
         filterIndex = constrain(index, 0, filterOptions.length - 1);
         updateComputedValues();
+		println("ACTIVE_FILTER: " + filter);
     }
 
     public void setFramerate(int index) {

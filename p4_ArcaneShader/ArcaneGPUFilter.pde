@@ -35,13 +35,16 @@ class ArcaneGPUFilter {
                 PShader shader = loadShader(name + ".glsl");
                 if(shader != null) {
                     shaders.put(name, shader);
-                    println("Loaded shader: " + name);
+                    // println("Loaded shader: " + name);
+					// [*] could do a progress bar here
                 }
             } catch(Exception e) {
                 println("Error loading shader " + name + ": " + e.getMessage());
             }
         }
-        
+
+		println("Loaded " + shaders.size() + " shaders");
+
         try {
             PShader passthrough = loadShader("passthrough.glsl");
             if(passthrough != null) {
@@ -118,13 +121,14 @@ class ArcaneGPUFilter {
     void setFilterSpecificUniforms(PShader shader, String filterName) {
         switch(filterName) {
             case "transmit":
+			case "transmitMBL":
+			case "convolve":
                 shader.set("kernelScale", settings.kernelScale);
                 shader.set("transmissionfactor", settings.xfac);
                 shader.set("kernelWidth", settings.kw);
                 shader.set("colordiv", settings.colordiv);
                 shader.set("hav", hav);
                 break;
-                
             case "rdf":
             case "rdft":
             case "rdfx":

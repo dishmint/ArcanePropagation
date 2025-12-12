@@ -1,5 +1,5 @@
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform sampler2D tex0;         // Source image texture
@@ -12,66 +12,62 @@ uniform bool hav;               // Human vs average grayscale
 
 varying vec4 vertTexCoord;
 
+#define eb 1.0/255.0
+
 float computeGS(vec3 color) {
-    // Convert to 0-255 range like CPU version
-    vec3 colorBytes = color * 255.0;
-    
     if(hav) {
-        // Human grayscale - exact match to CPU
-        return (0.2989 * colorBytes.r + 0.5870 * colorBytes.g + 0.1140 * colorBytes.b) * colordiv;
+        // Human grayscale - exact match to CPU weights
+        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * (colordiv * 255.0);
     } else {
         // Channel average - exact match to CPU
-        return (colorBytes.r + colorBytes.g + colorBytes.b) * colordiv;
+        return (color.r + color.g + color.b) * (colordiv * 255.0);
     }
 }
 
 void main() {
     vec2 uv = vertTexCoord.st;
+	// [^] the current coordinate
     vec4 currentPixel = texture2D(tex0, uv);
-    
-    // Start with current pixel values in 0-255 range like CPU
-    float rpx = currentPixel.r * 255.0;
-    float gpx = currentPixel.g * 255.0;
-    float bpx = currentPixel.b * 255.0;
-    
+	// [^] the pixel at the current coordinate
+    vec3 result = currentPixel.rgb;
+	// [^] the rgb of the current pixel
     vec2 texelSize = 1.0 / resolution;
+	// [^] size of each texture sample
     int offset = kernelWidth / 2;
-    
+	// [^] kernel center
+	
+	/*
+	kw = 3; of = (3/2) -> 1.5 -> 1; center => (1, 1)
+		  | 0 | 1 | 2 |
+		0 | - | - | - |
+		1 | - | x | - |
+		2 | - | - | - |
+	*/
+
     for(int k = 0; k < 8; k++) {
         if(k >= kernelWidth) break;
         for(int l = 0; l < 8; l++) {
             if(l >= kernelWidth) break;
-            
-            // Calculate sample offset in texel space
+
             vec2 sampleOffset = vec2(float(k - offset), float(l - offset));
             vec2 sampleUV = uv + sampleOffset * texelSize;
-            
-            // Clamp to texture bounds
             sampleUV = clamp(sampleUV, vec2(0.0), vec2(1.0));
-            
-            // Sample the neighbor pixel
+
             vec4 sampleColor = texture2D(tex0, sampleUV);
             float gs = computeGS(sampleColor.rgb);
-            
-            // Compute kernel weight exactly like CPU loadkernel
-            float kernelWeight = mix(-1.0 * kernelScale, 1.0 * kernelScale, gs);
+
+            float kernelWeight = mix(-kernelScale, kernelScale, gs);
             float xmsn = kernelWeight * transmissionfactor;
-            
-            // Apply exact CPU transmit logic
+            vec3 delta = vec3(xmsn * eb);
+
             if(k == offset && l == offset) {
-                // Center pixel case - subtract (xmsn * l)
-                rpx -= xmsn * float(l);
-                gpx -= xmsn * float(l);
-                bpx -= xmsn * float(l);
+                result -= delta * float(l);
             } else {
-                // Non-center pixel case - add (xmsn * l)
-                rpx += xmsn * float(l);
-                gpx += xmsn * float(l);
-                bpx += xmsn * float(l);
+                result += delta * float(l);
             }
         }
     }
-    
-    // Convert back to 0-1 range for output
-    gl_FragColor = vec4(rpx / 255.0, gpx / 255.0, bpx / 255.0, currentPixel.a);
+
+    result = clamp(result, 0.0, 1.0);
+    gl_FragColor = vec4(result, currentPixel.a);
 }

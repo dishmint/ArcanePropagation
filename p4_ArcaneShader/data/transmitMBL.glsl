@@ -12,6 +12,8 @@ uniform bool hav;               // Human vs average grayscale
 
 varying vec4 vertTexCoord;
 
+#define eb 1.0/255.0
+
 float computeGS(vec3 color) {
     if(hav) {
         // Human grayscale
@@ -48,17 +50,20 @@ void main() {
             // Convert grayscale to kernel weight (equivalent to loadkernel logic)
             float kernelWeight = mix(-kernelScale, kernelScale, gs);
             float xmsn = kernelWeight * transmissionfactor;
+            vec3 delta = vec3(xmsn * eb);
             
             // Apply transmit logic
             if(k == offset && l == offset) {
-                // Center pixel - subtract transmission * l
-                result -= vec3(xmsn * float(l));
+                // Center pixel - subtract scaled transmission
+                result -= delta * (float(k + l) * 0.5);
             } else {
-                // Other pixels - add transmission * l
-                result += vec3(xmsn * float(l));
+                // Other pixels - add scaled transmission
+                result += delta;
             }
         }
     }
-    
+
+    result = clamp(result, 0.0, 1.0);
+
     gl_FragColor = vec4(result, currentPixel.a);
 }
