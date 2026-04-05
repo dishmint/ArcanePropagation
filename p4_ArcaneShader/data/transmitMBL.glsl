@@ -17,48 +17,43 @@ varying vec4 vertTexCoord;
 float computeGS(vec3 color) {
     if(hav) {
         // Human grayscale
-        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * colordiv;
+        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * (colordiv * 255.0);
     } else {
         // Channel average
-        return (color.r + color.g + color.b) * colordiv;
+        return (color.r + color.g + color.b) * (colordiv * 255.0);
     }
 }
 
 void main() {
     vec2 uv = vertTexCoord.st;
     vec4 currentPixel = texture2D(tex0, uv);
-    
+
     vec3 result = currentPixel.rgb;
     vec2 texelSize = 1.0 / resolution;
-    
+
     int offset = kernelWidth / 2;
-    
-    for(int k = 0; k < 8; k++) { // Max kernel width of 8
+
+    for(int k = 0; k < 8; k++) {
         if(k >= kernelWidth) break;
         for(int l = 0; l < 8; l++) {
             if(l >= kernelWidth) break;
-            
+
             vec2 sampleOffset = vec2(float(k - offset), float(l - offset));
             vec2 sampleUV = uv + sampleOffset * texelSize;
-            
-            // Clamp to texture bounds (equivalent to constrain)
             sampleUV = clamp(sampleUV, vec2(0.0), vec2(1.0));
-            
+
             vec4 sampleColor = texture2D(tex0, sampleUV);
             float gs = computeGS(sampleColor.rgb);
-            
-            // Convert grayscale to kernel weight (equivalent to loadkernel logic)
+
             float kernelWeight = mix(-kernelScale, kernelScale, gs);
             float xmsn = kernelWeight * transmissionfactor;
-            vec3 delta = vec3(xmsn * eb);
-            
-            // Apply transmit logic
+
             if(k == offset && l == offset) {
-                // Center pixel - subtract scaled transmission
-                result -= delta * (float(k + l) * 0.5);
+                // Center pixel - multiplicative self-attenuation: rpx -= (rpx * xmsn)
+                result -= result * vec3(xmsn * eb);
             } else {
-                // Other pixels - add scaled transmission
-                result += delta;
+                // Neighbor pixels - additive: rpx += xmsn
+                result += vec3(xmsn * eb);
             }
         }
     }

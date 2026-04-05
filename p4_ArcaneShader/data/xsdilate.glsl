@@ -4,40 +4,56 @@ precision mediump float;
 
 uniform sampler2D tex0;         // Source image texture
 uniform vec2 resolution;        // Image resolution
-uniform float dilateRadius;     // Dilation radius
-uniform float threshold;        // Brightness threshold for dilation
-uniform int kernelSize;         // Size of dilation kernel
+uniform float kernelScale;      // Kernel scaling factor
+uniform float transmissionfactor; // Transmission factor
+uniform int kernelWidth;        // Kernel width (3, 5, 7, etc.)
+uniform float colordiv;         // Color division factor
+uniform bool hav;               // Human vs average grayscale
 
 varying vec4 vertTexCoord;
 
+float computeGS(vec3 color) {
+    if(hav) {
+        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * (colordiv * 255.0);
+    } else {
+        return (color.r + color.g + color.b) * (colordiv * 255.0);
+    }
+}
+
 void main() {
     vec2 uv = vertTexCoord.st;
-    vec2 texelSize = 1.0 / resolution;
-    
     vec4 currentPixel = texture2D(tex0, uv);
-    vec3 maxColor = currentPixel.rgb;
-    
-    int radius = int(dilateRadius);
-    radius = min(radius, kernelSize / 2);
-    
-    // Find maximum value in neighborhood (morphological dilation)
-    for(int x = -radius; x <= radius; x++) {
-        for(int y = -radius; y <= radius; y++) {
-            vec2 sampleUV = uv + vec2(float(x), float(y)) * texelSize;
-            sampleUV = clamp(sampleUV, vec2(0.0), vec2(1.0));
-            
-            vec4 sample = texture2D(tex0, sampleUV);
-            
-            // Check if sample is brighter than threshold
-            float brightness = dot(sample.rgb, vec3(0.299, 0.587, 0.114));
-            if(brightness > threshold) {
-                maxColor = max(maxColor, sample.rgb);
+    vec2 texelSize = 1.0 / resolution;
+
+    vec3 result = currentPixel.rgb * 255.0;
+    float currentSum = result.r + result.g + result.b;
+
+    int offset = kernelWidth / 2;
+
+    for(int k = 0; k < 8; k++) {
+        if(k >= kernelWidth) break;
+        for(int l = 0; l < 8; l++) {
+            if(l >= kernelWidth) break;
+
+            vec2 sampleOffset = vec2(float(k - offset), float(l - offset));
+            vec2 sampleUV = clamp(uv + sampleOffset * texelSize, vec2(0.0), vec2(1.0));
+
+            vec4 sampleColor = texture2D(tex0, sampleUV);
+            float gs = computeGS(sampleColor.rgb);
+
+            float kernelWeight = mix(-kernelScale, kernelScale, gs);
+            float xmsn = kernelWeight * transmissionfactor;
+
+            vec3 neighborRGB = sampleColor.rgb * 255.0;
+            float neighborSum = neighborRGB.r + neighborRGB.g + neighborRGB.b;
+
+            // Summed settlement: if neighbor brighter, ACCUMULATE
+            if(neighborSum > currentSum) {
+                result += neighborRGB * xmsn;
             }
         }
     }
-    
-    // Apply dilation effect
-    vec3 result = mix(currentPixel.rgb, maxColor, 0.8);
-    
+
+    result = clamp(result / 255.0, 0.0, 1.0);
     gl_FragColor = vec4(result, currentPixel.a);
 }

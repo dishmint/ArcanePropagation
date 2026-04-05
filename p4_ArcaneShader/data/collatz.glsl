@@ -4,46 +4,31 @@ precision mediump float;
 
 uniform sampler2D tex0;         // Source image texture
 uniform vec2 resolution;        // Image resolution
-uniform float time;             // Time for animation
-uniform int iterations;         // Number of Collatz iterations
 
 varying vec4 vertTexCoord;
 
-// Collatz conjecture function
-int collatzStep(int n) {
-    if(n % 2 == 0) {
-        return n / 2;
+// Per-channel Collatz step: even -> half, odd -> 3x+1
+// Operates in [0,255] space to match CPU behavior
+float collatzChannel(float val) {
+    float v = val * 255.0;
+    // GLSL ES lacks bitwise AND; use mod for even/odd test
+    if(mod(floor(v), 2.0) < 1.0) {
+        // even
+        return (v * 0.5) / 255.0;
     } else {
-        return 3 * n + 1;
+        // odd
+        return (3.0 * v + 1.0) / 255.0;
     }
-}
-
-// Convert color to seed value for Collatz
-int colorToSeed(vec3 color) {
-    return int(color.r * 255.0) + int(color.g * 255.0) + int(color.b * 255.0) + 1;
 }
 
 void main() {
     vec2 uv = vertTexCoord.st;
     vec4 currentPixel = texture2D(tex0, uv);
-    
-    // Get seed from current pixel
-    int seed = colorToSeed(currentPixel.rgb);
-    
-    // Apply Collatz iterations
-    int value = seed;
-    for(int i = 0; i < 100; i++) {
-        if(i >= iterations) break;
-        value = collatzStep(value);
-        if(value == 1) break;
-    }
-    
-    // Convert result back to color
-    float intensity = float(value) / 255.0;
-    vec3 result = vec3(intensity, intensity * 0.8, intensity * 0.6);
-    
-    // Mix with original for smoother transition
-    result = mix(currentPixel.rgb, result, 0.1);
-    
+
+    vec3 result;
+    result.r = collatzChannel(currentPixel.r);
+    result.g = collatzChannel(currentPixel.g);
+    result.b = collatzChannel(currentPixel.b);
+
     gl_FragColor = vec4(result, currentPixel.a);
 }

@@ -123,45 +123,96 @@ class ArcaneGPUFilter {
             case "transmit":
 			case "transmitMBL":
 			case "convolve":
+			case "weightedblur":
+			case "xcollatz":
+			case "xtcollatz":
+			case "amble":
                 shader.set("kernelScale", settings.kernelScale);
                 shader.set("transmissionfactor", settings.xfac);
                 shader.set("kernelWidth", settings.kw);
                 shader.set("colordiv", settings.colordiv);
                 shader.set("hav", hav);
                 break;
+
+			case "xdilate":
+			case "xsdilate":
+                shader.set("kernelScale", settings.kernelScale);
+                shader.set("transmissionfactor", settings.xfac);
+                shader.set("kernelWidth", settings.kw);
+                shader.set("colordiv", settings.colordiv);
+                shader.set("hav", hav);
+                break;
+
+			case "smear":
+			case "smearTotal":
+                shader.set("kernelScale", settings.kernelScale);
+                shader.set("transmissionfactor", settings.xfac);
+                shader.set("kernelWidth", settings.kw);
+                shader.set("colordiv", settings.colordiv);
+                shader.set("hav", hav);
+                shader.set("selector", 1);
+                break;
+
+			case "conway":
+			case "chladni":
+                shader.set("kernelScale", settings.kernelScale);
+                shader.set("transmissionfactor", settings.xfac);
+                shader.set("kernelWidth", settings.kw);
+                shader.set("colordiv", settings.colordiv);
+                shader.set("hav", hav);
+                break;
+
             case "rdf":
-            case "rdft":
-            case "rdfx":
-            case "rdfr":
-            case "rdfm":
                 shader.set("dA", 1.0f);
                 shader.set("dB", 0.5f);
                 shader.set("fr", 0.055f);
                 shader.set("kr", 0.062f);
-                shader.set("dt", 0.1f);
-                break;
-                
-            case "weightedblur":
-                shader.set("kernelScale", settings.kernelScale);
                 shader.set("kernelWidth", settings.kw);
-                shader.set("blurStrength", 0.5f);
                 break;
-                
-            case "smear":
-            case "smearTotal":
-                shader.set("prevFrame", previousFrame);
-                shader.set("smearStrength", 2.0f);
-                shader.set("smearDirection", 0.1f, 0.1f);
+            case "rdft":
+                shader.set("dA", 1.0f);
+                shader.set("dB", 0.5f);
+                shader.set("fr", 0.055f);
+                shader.set("kr", 0.062f);
+                shader.set("transmissionfactor", settings.xfac);
+                shader.set("kernelWidth", settings.kw);
                 break;
-                
+            case "rdfx":
+                shader.set("dA", 1.0f);
+                shader.set("dB", 0.5f);
+                shader.set("fr", 0.055f);
+                shader.set("kr", 0.062f);
+                shader.set("transmissionfactor", settings.xfac);
+                shader.set("kernelScale", settings.kernelScale);
+                shader.set("colordiv", settings.colordiv);
+                shader.set("hav", hav);
+                shader.set("kernelWidth", settings.kw);
+                break;
+            case "rdfr":
+                shader.set("dA", random(1.0f));
+                shader.set("dB", random(1.0f));
+                shader.set("fr", random(1.0f));
+                shader.set("kr", random(1.0f));
+                shader.set("kernelWidth", settings.kw);
+                break;
+            case "rdfm":
+                shader.set("dA", random(-1.0f, 1.0f));
+                shader.set("dB", random(-1.0f, 1.0f));
+                shader.set("fr", random(-1.0f, 1.0f));
+                shader.set("kr", random(-1.0f, 1.0f));
+                shader.set("kernelWidth", settings.kw);
+                break;
+
+            case "collatz":
+                // No additional uniforms needed — just tex0 and resolution
+                break;
+
             case "dilate":
-            case "xdilate":
-            case "xsdilate":
                 shader.set("dilateRadius", 2.0f);
                 shader.set("threshold", 0.5f);
                 shader.set("kernelSize", settings.kw);
                 break;
-                
+
             case "blur":
                 shader.set("blurRadius", 2.0f);
                 shader.set("blurSamples", 9);

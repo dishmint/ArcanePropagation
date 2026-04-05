@@ -4,48 +4,70 @@ precision mediump float;
 
 uniform sampler2D tex0;         // Source image texture
 uniform vec2 resolution;        // Image resolution
-uniform float frequency1;       // First frequency component
-uniform float frequency2;       // Second frequency component
-uniform float amplitude;        // Wave amplitude
-uniform float time;             // Time for animation
-uniform vec2 nodeOffset;        // Offset for node positions
+uniform float kernelScale;      // Kernel scaling factor
+uniform float transmissionfactor; // Transmission factor
+uniform int kernelWidth;        // Kernel width
+uniform float colordiv;         // Color division factor
+uniform bool hav;               // Human vs average grayscale
 
 varying vec4 vertTexCoord;
 
-// Generate Chladni pattern based on standing wave interference
-float chladniPattern(vec2 pos, float freq1, float freq2, float t) {
-    float x = pos.x * 2.0 - 1.0;  // Normalize to [-1, 1]
-    float y = pos.y * 2.0 - 1.0;
-    
-    // Standing wave equations for Chladni patterns
-    float wave1 = sin(freq1 * x + t) * sin(freq1 * y + t);
-    float wave2 = sin(freq2 * x + t * 0.7) * sin(freq2 * y + t * 0.7);
-    
-    // Combine waves with different phases
-    float pattern = wave1 + wave2 * 0.8;
-    
-    // Create nodes (zero points) where particles would accumulate
-    return abs(pattern);
+#define PI 3.14159265359
+
+float computeGS(vec3 color) {
+    if(hav) {
+        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * (colordiv * 255.0);
+    } else {
+        return (color.r + color.g + color.b) * (colordiv * 255.0);
+    }
+}
+
+// chladnifunction(x, y, n, m) = sin(n/255*PI*x)*sin(m*PI*y) - sin(m*PI*x)*sin(n/255*PI*y)
+float chladniFunction(float x, float y, float n, float m) {
+    float fn = n / 255.0;
+    float c1 = sin(fn * PI * x) * sin(m * PI * y);
+    float c2 = sin(m * PI * x) * sin(fn * PI * y);
+    return c1 - c2;
 }
 
 void main() {
     vec2 uv = vertTexCoord.st;
-    vec4 currentPixel = texture2D(tex0, uv);
-    
-    // Generate Chladni pattern
-    vec2 adjustedUV = uv + nodeOffset;
-    float pattern = chladniPattern(adjustedUV, frequency1, frequency2, time);
-    
-    // Create sharp node lines
-    float nodeStrength = 1.0 - smoothstep(0.0, 0.1, pattern);
-    
-    // Apply pattern to image
-    vec3 chladniColor = vec3(nodeStrength);
-    vec3 result = mix(currentPixel.rgb, chladniColor, amplitude);
-    
-    // Add some interference based on original image brightness
-    float brightness = dot(currentPixel.rgb, vec3(0.299, 0.587, 0.114));
-    result += vec3(brightness * nodeStrength * 0.2);
-    
-    gl_FragColor = vec4(result, currentPixel.a);
+    vec2 texelSize = 1.0 / resolution;
+
+    vec3 rtotal = vec3(0.0);
+
+    int offset = kernelWidth / 2;
+
+    for(int i = -4; i <= 4; i++) {
+        if(i < -offset || i > offset) continue;
+        for(int j = -4; j <= 4; j++) {
+            if(j < -offset || j > offset) continue;
+
+            vec2 sampleUV = uv + vec2(float(i), float(j)) * texelSize;
+            // Skip out-of-bounds (matching CPU boundary check)
+            if(sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0) continue;
+
+            vec4 sampleColor = texture2D(tex0, sampleUV);
+
+            // Compute xmsn from xmg equivalent
+            float gs = computeGS(sampleColor.rgb);
+            float kernelWeight = mix(-kernelScale, kernelScale, gs);
+            float xmsn = kernelWeight * transmissionfactor;
+
+            vec3 sampleRGB = sampleColor.rgb * 255.0;
+
+            // Pixel coordinates for chladni function
+            // CPU uses absolute pixel coordinates (xloc, yloc)
+            float xloc = (uv.x + float(i) * texelSize.x) * resolution.x;
+            float yloc = (uv.y + float(j) * texelSize.y) * resolution.y;
+
+            // Per-channel: chladnifunction(xloc, yloc, channel_value, xmsn)
+            rtotal.r += chladniFunction(xloc, yloc, sampleRGB.r, xmsn);
+            rtotal.g += chladniFunction(xloc, yloc, sampleRGB.g, xmsn);
+            rtotal.b += chladniFunction(xloc, yloc, sampleRGB.b, xmsn);
+        }
+    }
+
+    vec3 result = clamp(rtotal / 255.0, 0.0, 1.0);
+    gl_FragColor = vec4(result, 1.0);
 }

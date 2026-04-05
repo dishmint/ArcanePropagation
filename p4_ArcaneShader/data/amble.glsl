@@ -4,59 +4,74 @@ precision mediump float;
 
 uniform sampler2D tex0;         // Source image texture
 uniform vec2 resolution;        // Image resolution
-uniform float ambleStrength;    // Strength of amble effect
-uniform float time;             // Time for animation
-uniform vec2 ambleDirection;    // Direction of amble movement
-uniform float noiseScale;       // Scale of noise pattern
+uniform float kernelScale;      // Kernel scaling factor
+uniform float transmissionfactor; // Transmission factor
+uniform int kernelWidth;        // Kernel width (3, 5, 7, etc.)
+uniform float colordiv;         // Color division factor
+uniform bool hav;               // Human vs average grayscale
 
 varying vec4 vertTexCoord;
 
-// Simple noise function
-float noise(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-}
-
-// 2D noise
-float noise2D(vec2 st) {
-    vec2 i = floor(st);
-    vec2 f = fract(st);
-    
-    float a = noise(i);
-    float b = noise(i + vec2(1.0, 0.0));
-    float c = noise(i + vec2(0.0, 1.0));
-    float d = noise(i + vec2(1.0, 1.0));
-    
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    
-    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+float computeGS(vec3 color) {
+    if(hav) {
+        return dot(color, vec3(0.2989, 0.5870, 0.1140)) * (colordiv * 255.0);
+    } else {
+        return (color.r + color.g + color.b) * (colordiv * 255.0);
+    }
 }
 
 void main() {
     vec2 uv = vertTexCoord.st;
-    
-    // Generate noise-based displacement
-    vec2 noisePos = uv * noiseScale + time * 0.1;
-    float noiseX = noise2D(noisePos) - 0.5;
-    float noiseY = noise2D(noisePos + vec2(100.0, 100.0)) - 0.5;
-    
-    // Create ambling movement
-    vec2 displacement = vec2(noiseX, noiseY) * ambleStrength;
-    displacement += ambleDirection * sin(time + uv.x * 10.0) * 0.01;
-    
-    // Sample from displaced position
-    vec2 sampleUV = uv + displacement / resolution;
-    sampleUV = clamp(sampleUV, vec2(0.0), vec2(1.0));
-    
-    vec4 displaced = texture2D(tex0, sampleUV);
-    vec4 original = texture2D(tex0, uv);
-    
-    // Mix original and displaced for smooth ambling effect
-    vec3 result = mix(original.rgb, displaced.rgb, 0.7);
-    
-    // Add subtle color shifting based on displacement
-    result.r += noiseX * 0.05;
-    result.g += noiseY * 0.05;
-    result.b += (noiseX + noiseY) * 0.025;
-    
-    gl_FragColor = vec4(result, original.a);
+    vec4 currentPixel = texture2D(tex0, uv);
+    vec2 texelSize = 1.0 / resolution;
+
+    vec3 result = currentPixel.rgb * 255.0;
+
+    // Compute normalized average brightness in [0,1]
+    float avg = (result.r + result.g + result.b) / 3.0 / 255.0;
+
+    if(avg >= 0.5) {
+        // Set pixel to white
+        gl_FragColor = vec4(1.0, 1.0, 1.0, currentPixel.a);
+        return;
+    }
+
+    // avg < 0.5: iterate kernel with conditional processing
+    int offset = kernelWidth / 2;
+    float kwSq = float(kernelWidth * kernelWidth);
+
+    for(int k = 0; k < 8; k++) {
+        if(k >= kernelWidth) break;
+        for(int l = 0; l < 8; l++) {
+            if(l >= kernelWidth) break;
+
+            // Only process if avg < (k*l / kernelwidth^2)
+            float threshold = float(k * l) / kwSq;
+            if(avg >= threshold) continue;
+
+            vec2 sampleOffset = vec2(float(k - offset), float(l - offset));
+            vec2 sampleUV = clamp(uv + sampleOffset * texelSize, vec2(0.0), vec2(1.0));
+
+            vec4 sampleColor = texture2D(tex0, sampleUV);
+            float gs = computeGS(sampleColor.rgb);
+
+            float kernelWeight = mix(-kernelScale, kernelScale, gs);
+            float xmsn = kernelWeight * transmissionfactor;
+
+            vec3 neighborRGB = sampleColor.rgb * 255.0;
+
+            if(k == offset && l == offset) {
+                // Center: multiplicative self-attenuation scaled by l
+                // rpx -= (rpx * xmsn) * l
+                result -= (result * xmsn) * float(l);
+            } else {
+                // Neighbor: additive with neighbor's pixel scaled by l
+                // rpx += (irpx * xmsn) * l
+                result += (neighborRGB * xmsn) * float(l);
+            }
+        }
+    }
+
+    result = clamp(result / 255.0, 0.0, 1.0);
+    gl_FragColor = vec4(result, currentPixel.a);
 }
