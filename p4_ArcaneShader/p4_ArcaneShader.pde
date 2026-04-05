@@ -11,6 +11,11 @@ boolean hav;
 ArcaneFilter af;
 ArcaneGenerator ag;
 ArcaneSettings settings;
+ArcaneGPUFilter gpuFilter;
+boolean useGPUFilter = true; // Toggle between CPU and GPU filtering
+boolean showDebugInfo = false;
+int lastFrameTime = 0;
+float avgFrameTime = 0.0;
 
 void setup(){
 	// size(1422,800, P3D);
@@ -22,14 +27,29 @@ void setup(){
 
 	// Initialize settings
 	settings = new ArcaneSettings();
-	
+	// settings.setFramerate(7);
+	settings.setFramerate(0);
+	// Filters
+	// 0:stl 1:tx 2:tMBL 3:cnv 4:amb 5:col
+	// 6:xcol 7:xtcol 8:rdf 9:rdft 10:rdfx
+	// 11:rdfr 12:rdfm 13:wblr 14:smr 15:smrT 
+	// 16:xdil 17:xsdil 18:blr 19:dil 20:chla 21:cway
+	// settings.setFilter(8);
+	settings.setFilter(1);
+	// settings.setKernelScale(9, 0);
+	// settings.setKernelScale(1, 0);
+
 	// Example: Configure settings using the new API
 	// settings.setKernelWidth(4);  // Use kwOptions[4] = 5
+	settings.setTheme(5);
 	// settings.setTheme(10);       // Use EMBER theme
-	// settings.setSourcePath(26);  // Use age/2025-04.png
+	settings.setSourcePath(0);
+	// settings.setSourcePath(3);
 	// settings.setFilter(13);      // Use weightedblur filter
 	// settings.setFramerate(3);    // Use 60fps
 	// settings.setDownsample(0);   // Use no downsampling
+
+	println("GPU Filter Mode: " + (useGPUFilter ? "ENABLED" : "DISABLED"));
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Load Image                                 */
@@ -88,6 +108,7 @@ void setup(){
 	blueline.set("theme", settings.theme);
 	blueline.set("alpha", settings.alpha);
 	blueline.set("grader", settings.grade);
+	blueline.set("gpuMode", useGPUFilter);
 
 	if(settings.dispersed){
 		useDispersed(settings.modfac);
@@ -97,17 +118,64 @@ void setup(){
 
 	background(0);
 
+	// Initialize filters
 	af = new ArcaneFilter(settings.filter, settings.kw, settings.xfac);
+
+	if(useGPUFilter) {
+		gpuFilter = new ArcaneGPUFilter(simg.width, simg.height, settings);
+		gpuFilter.initializeWithImage(simg);
+		// gpuFilter.printAvailableShaders();
+	}
 
 	frameRate(settings.framerate);
 }
 
 void draw(){
-	af.kernelmap(simg, xmg);
+	int frameStart = millis();
+
+	try {
+		if(useGPUFilter && gpuFilter != null && gpuFilter.hasShader(settings.filter)) {
+			// GPU-accelerated filtering
+			gpuFilter.applyFilter(settings.filter);
+
+			// Use GPU result for display
+			PGraphics gpuResult = gpuFilter.getCurrentBuffer();
+			if(settings.dispersed){
+				// For dispersed mode, we need to handle the GPU buffer differently
+				setDispersedImageFromBuffer(gpuResult, dimg);
+				blueline.set("tex0", dimg);
+			} else {
+				blueline.set("tex0", gpuResult);
+			}
+		} else {
+			// Fallback to CPU filtering
+			af.kernelmap(simg, xmg);
+
+			// Use original shader path
+			if(settings.dispersed){
+				drawDispersed();
+			} else {
+				drawOriginal();
+			}
+		}
+	} catch(Exception e) {
+		println("Error in filter processing: " + e.getMessage());
+		// Emergency fallback - just display original
+		drawOriginal();
+	}
+
 	background(0);
 	pgDraw();
 	shaderDraw();
+
+	// Performance monitoring
+	int frameTime = millis() - frameStart;
+	updatePerformanceMetrics(frameTime);
+
 	showFrameRate();
+	if(showDebugInfo) {
+		showDebugInfo();
+	}
 }
 
 void showFrameRate(){
@@ -119,11 +187,8 @@ void showFrameRate(){
 }
 
 void shaderDraw(){
-	if(settings.dispersed){
-		drawDispersed();
-	} else {
-		drawOriginal();
-	}
+	// Shader drawing is now handled in draw() function
+	// This maintains the final display step
 	image(pg, width/2, height/2, simg.width*settings.displayscale, simg.height*settings.displayscale);
 }
 
@@ -249,6 +314,77 @@ void setDispersedImage(PImage source, PImage di) {
 	di.updatePixels();
 }
 
+void setDispersedImageFromBuffer(PGraphics source, PImage di) {
+	source.loadPixels();
+	di.loadPixels();
+	for (int i = 0; i < di.width; i++){
+		for (int j = 0; j < di.height; j++){
+			int dindex = (i + j * di.width);
+			if(i % settings.modfac == 0 && j % settings.modfac == 0){
+				int x = constrain(i, 0, source.width - 1);
+				int y = constrain(j, 0, source.height - 1);
+				int sindex = (x + (y * source.width));
+				if (sindex < source.pixels.length){
+					di.pixels[dindex] = source.pixels[sindex];
+				}
+			} else {
+				di.pixels[dindex] = color(0);
+			}
+		}
+	}
+	source.updatePixels();
+	di.updatePixels();
+}
+
+// Keyboard controls for switching between GPU and CPU modes
+void keyPressed() {
+	if(key == 'g' || key == 'G') {
+		useGPUFilter = !useGPUFilter;
+		println("Switched to " + (useGPUFilter ? "GPU" : "CPU") + " filtering mode");
+	}
+	if(key == 's' || key == 'S') {
+		if(useGPUFilter && gpuFilter != null) {
+			gpuFilter.printAvailableShaders();
+		}
+	}
+	if(key == 'd' || key == 'D') {
+		showDebugInfo = !showDebugInfo;
+		println("Debug info: " + (showDebugInfo ? "ON" : "OFF"));
+	}
+
+}
+
+void updatePerformanceMetrics(int frameTime) {
+	lastFrameTime = frameTime;
+	avgFrameTime = avgFrameTime * 0.9 + frameTime * 0.1; // Exponential moving average
+}
+
+void showDebugInfo() {
+	pushMatrix();
+	stroke(255);
+	fill(255);
+	textAlign(LEFT);
+
+	int yOffset = 50;
+	text("Mode: " + (useGPUFilter ? "GPU" : "CPU"), 25, yOffset);
+	yOffset += 20;
+	text("Filter: " + settings.filter, 25, yOffset);
+	yOffset += 20;
+	text("Frame time: " + lastFrameTime + "ms", 25, yOffset);
+	yOffset += 20;
+	text("Avg frame time: " + nf(avgFrameTime, 0, 1) + "ms", 25, yOffset);
+	yOffset += 20;
+
+	if(useGPUFilter && gpuFilter != null) {
+		text("GPU Filter available: " + gpuFilter.hasShader(settings.filter), 25, yOffset);
+		yOffset += 20;
+	}
+
+	text("Press 'D' to hide debug", 25, yOffset);
+
+	popMatrix();
+}
+
 PImage genImage(String generator){
 	int noisew = int(0.0625 *  width);
 	int noiseh = int(0.0625 * height);
@@ -274,4 +410,3 @@ PImage genImage(String generator){
 	}
 	return ag.getImage();
 }
-

@@ -17,6 +17,7 @@ uniform float densityscale;
 uniform int theme;
 uniform int grader;
 uniform int alpha;
+uniform bool gpuMode;
 
 float energy, angle = 0;
 float pxos,clip,ec;
@@ -315,7 +316,11 @@ void main( void ) {
 	position.y*=aspect;
 	position.y += (1.0 - aspect) / 2.0;
 	
-	color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
+	if(gpuMode) {
+		color = texture2D(tex0, vec2(position.x, position.y));
+	} else {
+		color = texture2D(tex0, vec2(position.x, 1.0 - position.y));
+	}
 	
 	pushEnergyAngle(setting.emap);
 	
